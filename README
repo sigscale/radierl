@@ -1,0 +1,27 @@
+%%% $Id$
+%%%
+
+The radierl project implements a RADIUS protocol stack.
+
+To build the radius application including documentation:
+
+	$ make
+
+To build the radius_example application:
+
+	$ make example_callbacks
+
+To test the radius and radius_example applications:
+
+	$ make test
+
+To install the radius application:
+
+	$ ERL_TOP=/Users/otpuser/lib/erlang make install
+
+To install the radius_example application:
+
+	$ ERL_TOP=/Users/otpuser/lib/erlang make install_examples
+
+Everything here is distributed under a New BSD style license.
+

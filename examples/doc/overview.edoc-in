@@ -1,0 +1,77 @@
+@author Vance Shipley <vances@cmotivity.ca>
+@copyright 2011 Motivity Telecom
+@version %VERSION%
+@title %DESCRIPTION%
+@reference The {@link //radius. radius} application.
+@reference <a href="http://www.ietf.org/rfc/rfc2865.txt">RFC2865</a>
+	Remote Authentication Dial In User Service (RADIUS).
+@doc This application implements examples of callback modules for the
+	{@link //radius. radius} RADIUS protocol stack application which
+	provide authentication and accounting services.
+
+== RADIUS ==
+The Remote Authentication Dial In User Service (RADIUS) is a protocol
+for carrying authentication, authorization, and configuration information
+between a Network Access Server (NAS) which desires to authenticate its
+links and a shared Authentication Server.
+
+== Supervision ==
+The process supervision heirarchy is as depicted in <a href="supervision.png">
+Figure-1.1</a>.
+
+<img alt="Figure-1.1" src="supervision.png" />
+
+When the {@link //radius_example. radius_example} application is started a 
+{@link //radius_example/radius_example_app. radius_example_app} process is
+started to supervise the application.  It starts a
+{@link //radius_example/radius_example_sup. radius_example_sup} supervisor
+which starts two {@link //stdlib/supervisor_bridge. supervisor_bridge}
+processes, one each for authentication and accounting.  These special
+supervisors handle starting and stopping a
+{@link //radius/radius_server.  radius_server} process under the
+{@link //radius. radius} application supervision tree.
+
+The supervision of the {@link //radius. radius} application is described
+in {@link //radius/radius_sup.  radius_sup}.
+
+== Call Graph ==
+The {@link //radius_example/radius_authentication. radius_authentication}
+and {@link //radius_example/radius_accounting. radius_accounting} modules
+implement the {@link //radius/radius. radius} behaviour.  These callback
+modules are called by the {@link //radius. radius} application processes
+as described below.
+
+=== Initialization ===
+When a RADIUS service is instantiated the specified
+{@link //radius/radius. radius} behaviour callback module is called as
+depicted in <a href="callbacks-init.png">Figure-2.1</a>.
+
+<img alt="Figure-2.1" src="callbacks-init.png" />
+
+The {@link //radius/radius_server_sup.  radius_server_sup} supervisor
+starts a {@link //radius/radius_server.  radius_server} process which
+calls `Module:init/2' as part of it's initialization.  The arguments 
+are the {@link //kernel/gen_udp:ip_address(). ip_address()} and port
+number of the server.
+
+=== Request ===
+The {@link //radius/radius_server.  radius_server} process receives
+incoming RADIUS requests from it's open {@link //kernel/gen_udp. gen_udp}
+socket.  For each new transaction request it will start a 
+{@link //radius/radius_fsm. radius_fsm} process to handle the request
+as shown in <a href="callbacks-request.png">Figure-2.2</a>.
+
+<img alt="Figure-2.2" src="callbacks-request.png" />
+
+The {@link //radius/radius_fsm. radius_fsm} process will call the
+{@link //radius/radius. radius} behaviour module's `request/3' callback,
+the result of which will be the response sent to the RADIUS client.
+
+=== Terminate ===
+When the {@link //radius/radius_server.  radius_server} process terminates
+it will call the {@link //radius/radius. radius} behaviour module's
+`terminate/1' callback as shown in
+<a href="callbacks-terminate.png">Figure-2.3</a>.
+
+<img alt="Figure-2.3" src="callbacks-terminate.png" />
+

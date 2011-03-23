@@ -1,0 +1,53 @@
+@copyright 2011 Motivity Telecom
+@author Vance Shipley <vances@cmotivity.ca>
+@version %VERSION%
+@title %DESCRIPTION%
+@reference <a href="http://www.ietf.org/rfc/rfc2865.txt">RFC2865</a>
+	Remote Authentication Dial In User Service (RADIUS).
+@doc This application implements a RADIUS protocol stack.
+
+== RADIUS ==
+
+The Remote Authentication Dial In User Service (RADIUS) is a protocol
+for carrying authentication, authorization, and configuration information
+between a Network Access Server (NAS) which desires to authenticate its
+links and a shared Authentication Server.
+
+== Supervision ==
+The process supervision heirarchy is as depicted in <a href="supervision.png">
+Figure-1.1</a>.
+
+<img alt="Figure-1.1" src="supervision.png" />
+
+When the {@link //radius. radius} application is started a 
+{@link //radius/radius_app. radius_app} process is started to supervise
+the application.  It starts a {@link //radius/radius_sup. radius_sup}
+supervisor which initially has no children.  For each new RADIUS service
+instantiated with {@link //radius/radius:start/3. radius:start/2,3}
+a {@link //radius/radius_server_sup. radius_server_sup} child supervisor is 
+started.  This supervisor starts a
+{@link //radius/radius_server.  radius_server} process which will
+open a UDP socket to listen for incoming RADIUS requests.  It will also
+start a {@link //radius/radius_fsm_sup.  radius_fsm_sup} supervisor.
+The {@link //radius/radius_server.  radius_server} process will start a
+{@link //radius/radius_fsm. radius_fsm} child of the 
+{@link //radius/radius_fsm_sup.  radius_fsm_sup} supervisor to handle
+each new RADIUS request.
+
+== Process Communication ==
+The process communication is as depicted in <a href="messages.png">
+Figure-2.1</a>.
+
+<img alt="Figure-2.1" src="messages.png" />
+
+The {@link //radius/radius_server.  radius_server} process receives
+incoming RADIUS requests from it's open {@link //kernel/gen_udp. gen_udp}
+socket.  For each new transaction request it will start a 
+{@link //radius/radius_fsm. radius_fsm} process to handle the request,
+passing in the open {@link //kernel/gen_udp:socket(). socket()}, the client's
+IP {@link //kernel/gen_udp:ip_address(). ip_address()}, port and
+the received UDP packet.
+
+The  {@link //radius/radius_fsm. radius_fsm} process sends it's response
+to the client directly using the {@link //kernel/gen_udp:socket(). socket}.
+

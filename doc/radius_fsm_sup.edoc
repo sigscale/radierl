@@ -1,0 +1,11 @@
+@doc This {@link //stdlib/supervisor. supervisor} behaviour callback
+	module implements the supervision of the
+	{@link //radius/radius_fsm. radius_fsm} transaction state handlers in the
+	{@link //radius. radius} application.
+
+The supervision heirachy is depicted in
+<a href="supervision.png">Figure 1-1</a>.
+
+<img alt="supervision heirachy" src="supervision.png" /><br />
+<a href="supervision.png">Figure 1-1</a>
+
