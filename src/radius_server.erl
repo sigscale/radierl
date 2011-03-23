@@ -40,7 +40,6 @@
 -module(radius_server).
 -copyright('Copyright (c) 2011 Motivity Telecom').
 -author('vances@motivity.ca').
--vsn('$Revision$').
 
 -behaviour(gen_server).
 

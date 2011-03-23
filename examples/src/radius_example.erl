@@ -40,7 +40,6 @@
 -module(radius_example).
 -copyright('Copyright (c) 2011 Motivity Telecom').
 -author('vances@motivity.ca').
--vsn('$Revision$').
 
 %% export the radius_example public API
 -export([add_client/2, find_client/1]).

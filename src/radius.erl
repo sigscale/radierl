@@ -40,7 +40,6 @@
 -module(radius).
 -copyright('Copyright (c) 2011 Motivity Telecom').
 -author('vances@motivity.ca').
--vsn('$Revision$').
 
 %% export the radius public API
 -export([start/2, start/3, start_link/2, start_link/3, stop/1]).

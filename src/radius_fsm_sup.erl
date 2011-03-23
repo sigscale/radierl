@@ -39,7 +39,6 @@
 -module(radius_fsm_sup).
 -copyright('Copyright (c) 2011 Motivity Telecom').
 -author('vances@motivity.ca').
--vsn('$Revision$').
 
 -behaviour(supervisor).
 

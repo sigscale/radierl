@@ -41,7 +41,6 @@
 -module(radius_example_authentication).
 -copyright('Copyright (c) 2011 Motivity Telecom').
 -author('vances@motivity.ca').
--vsn('$Revision$').
 
 -behaviour(radius).
 
