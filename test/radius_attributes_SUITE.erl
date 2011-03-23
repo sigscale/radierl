@@ -1,4 +1,3 @@
-%%% $Id$
 %%%---------------------------------------------------------------------
 %%% @copyright 2011 Motivity Telecom
 %%% @author Vance Shipley <vances@motivity.ca> [http://www.motivity.ca]

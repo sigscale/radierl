@@ -1,4 +1,4 @@
-## $Id$
+## Makefile
 
 UNAME := $(shell uname)
 

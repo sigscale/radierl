@@ -1,4 +1,3 @@
-## $Id$
 
 export APP_DESC=RADIUS Protocol Stack
 export APP_ID=RADIERL

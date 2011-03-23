@@ -1,4 +1,4 @@
-%%% $Id$
+%%% radius_example.app
 
 {application, radius_example,
    [{description, "%DESC%"},
