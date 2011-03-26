@@ -145,10 +145,13 @@ idle(<<_Code, Identifier, _/binary>> = _Event,
 		{error, Reason} ->
 			{stop, Reason, StateData}
 	end;
-idle(timeout, #statedata{address = Address, port = Port,
-		identifier = Identifier} = StateData) ->
-	Id = {Address, Port, Identifier},
-	{stop, {shutdown, Id}, StateData}.
+idle(timeout, StateData) ->
+	{stop, normal, StateData}.
+% An exit reason other than `normal' causes a sasl report
+% idle(timeout, #statedata{address = Address, port = Port,
+% 		identifier = Identifier} = StateData) ->
+% 	Id = {Address, Port, Identifier},
+% {stop, {shutdown, Id}, StateData}.
 
 %% @spec (Event::term(), StateName::atom(), StateData::statedata()) -> Result
 %% 	Result = {next_state, NextStateName, NewStateData}
@@ -216,8 +219,6 @@ handle_info(_Info, StateName, StateData) ->
 %% @see //stdlib/gen_fsm:terminate/3
 %% @private
 %%
-terminate({shutdown, _Id}, _StateName, _StateData) ->
-	ok;
 terminate(_Reason, _StateName, _StateData) ->
 	ok.
 
