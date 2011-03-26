@@ -408,10 +408,11 @@ attributes([{?Class, Class} | T], Acc) ->
 	CL = list_to_binary(Class),
 	Length = size(CL) + 2,
 	attributes(T, <<Acc/binary, ?Class, Length, CL/binary>>); 
-attributes([{?VendorSpecific, VendorSpecific} | T], Acc) ->
-	VS = list_to_binary(VendorSpecific),
-	Length = size(VS) + 2,
-	attributes(T, <<Acc/binary, ?VendorSpecific, Length, VS/binary>>); 
+attributes([{?VendorSpecific, {VendorId, Bin}} | T], Acc)
+		when is_integer(VendorId), is_binary(Bin) ->
+	Length = size(Bin) + 6,
+	attributes(T, <<Acc/binary, ?VendorSpecific, Length,
+			0, VendorId:24, Bin/binary>>); 
 attributes([{?SessionTimeout, SessionTimeout} | T], Acc) ->
 	attributes(T, <<Acc/binary, ?SessionTimeout, 6, SessionTimeout:32>>); 
 attributes([{?IdleTimeout, IdleTimeout} | T], Acc) ->
