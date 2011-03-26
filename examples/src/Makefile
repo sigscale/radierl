@@ -43,7 +43,7 @@ $(beamdir)/%.app:	%.app-in
 
 .PHONY=clean
 clean:
-	-rm -f $(beamdir)/radius.app
+	-rm -f $(beamdir)/radius_example.app
 	-rm -f $(beamfiles)
 	-rm -f $(htmlfiles)
 
