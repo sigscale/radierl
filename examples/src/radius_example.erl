@@ -111,11 +111,11 @@ find_client(Address) when is_tuple(Address) ->
 %% @spec (UserName, Password, Attributes) -> true
 %% 	UserName = string()
 %% 	Password = string()
-%% 	Attributes = list()
+%% 	Attributes = list() | binary()
 %% @doc Store the password and static attributes for a user.
 %%
 add_user(UserName, Password, Attributes) when is_list(UserName),
-		is_list(Password), is_list(Attributes) -> 
+		is_list(Password), (is_list(Attributes) orelse is_binary(Attributes)) -> 
 	F = fun() ->
 				R = #radius_user{name = UserName, password = Password,
 						attributes = Attributes},
