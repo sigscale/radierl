@@ -63,13 +63,6 @@ ifdef ERL_TOP
 	cd src && $(MAKE) $@
 	cd include && $(MAKE) $@
 	cd doc && $(MAKE) $@
-else
-	@echo "You must set the ERL_TOP environment variable."
-endif
-
-.PHONY=install_examples
-install_examples:	install
-ifdef ERL_TOP
 	cd examples && EXAMPLES_DIR=$(ERL_TOP)/lib/radius-$(APP_VERSION)/examples \
 			$(MAKE) install_examples
 else

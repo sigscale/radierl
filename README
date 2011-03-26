@@ -21,7 +21,8 @@ To install the radius application:
 
 To install the radius_example application:
 
-	$ ERL_TOP=/Users/otpuser/lib/erlang make install_examples
+	$ cd examples
+	$ ERL_TOP=/Users/otpuser/lib/erlang make install
 
 Everything here is distributed under a New BSD style license.
 
