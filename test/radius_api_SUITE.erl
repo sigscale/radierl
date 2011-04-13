@@ -190,8 +190,7 @@ lost_response(Config) ->
 %%---------------------------------------------------------------------
 
 start() ->
-	Port = random:uniform(64512) + 1023,
-	{ok, Sup} = radius:start(radius_test_callback, Port),
+	{ok, Sup} = radius:start(radius_test_callback, 0),
 	Sup.
 
 stop(Sup) ->
