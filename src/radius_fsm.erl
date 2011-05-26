@@ -147,7 +147,14 @@ idle(<<_Code, Identifier, _/binary>> = _Event,
 	end;
 idle(timeout, StateData) ->
 	{stop, normal, StateData}.
-% An exit reason other than `normal' causes a sasl report
+% 
+% As of stdlib-1.16 the exit reason `{shutdown,term()}' will no longer cause
+% a cause a crash report allowing a clean shutdown but also passing additional
+% data to a linked process (Own Id: OTP-7740).  The supervisor module has not
+% yet been adapted to this change and so will attempt a restart and a 
+% supervisor report will be generated.  This should be fixed in R15 at which
+% time the following clause should replace the one above.  -Vance
+% 
 % idle(timeout, #statedata{address = Address, port = Port,
 % 		identifier = Identifier} = StateData) ->
 % 	Id = {Address, Port, Identifier},

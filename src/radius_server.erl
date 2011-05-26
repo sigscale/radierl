@@ -242,7 +242,6 @@ handle_info({udp, Socket, Address, Port,
 		{error, Reason} ->
 			{stop, Reason, NewState}
 	end;
-%% Unfortunately SASL will print a report if reason is other than `normal'
 handle_info({'EXIT', _Pid, {shutdown, Key}},
 		#state{handlers = Handlers} = State) ->
 	NewHandlers = gb_trees:delete(Key, Handlers),
