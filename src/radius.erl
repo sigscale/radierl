@@ -49,11 +49,11 @@
 -export([port/1, authenticator/2]).
 
 %% define the functions a radius callback module must export
--export([behaviour_info/1]).
-behaviour_info(callbacks) ->
-	[{init, 2}, {request, 3}, {terminate, 1}];
-behaviour_info(_Other) ->
-    undefined.
+-callback init(Address :: inets:ip_address(), Port :: integer()) ->
+	ok | {error, Reason :: term()}.
+-callback request(Address :: inets:ip_address(), Port :: integer(),
+		Packet :: binary()) -> binary() | {error, Reason :: ignore | term()}.
+-callback terminate(Reason :: term()) -> any().
 
 %% @headerfile "radius.hrl"
 -include("radius.hrl").
