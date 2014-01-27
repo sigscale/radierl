@@ -11,11 +11,11 @@ endif
 ERLC = erlc
 ERLCFLAGS = -v -W -I $(incdir) -o $(beamdir) -pa ../ebin +debug_info
 
-incdir	= ../include 
+incdir	= ../include
 beamdir	= ../ebin
 htmldir	= ../doc
 
-incfiles	= 
+incfiles	= $(incdir)/radius.hrl
 
 erlfiles	= radius_app.erl radius_sup.erl radius_server_sup.erl \
 			radius_fsm_sup.erl radius_server.erl radius_fsm.erl \
@@ -28,7 +28,7 @@ htmlfiles	= $(addprefix $(htmldir)/, $(erlfiles:.erl=.html))
 .PHONY=beams
 beams:	$(beamfiles) $(beamdir)/radius.app
 
-$(beamdir)/%.beam:%.erl	$(incfiles)
+$(beamdir)/%.beam:%.erl $(incfiles)
 	$(ERLC) $(ERLCFLAGS) $<
 
 $(beamdir)/%.app:	%.app-in
