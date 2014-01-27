@@ -64,11 +64,8 @@
 %%  The radius_example public API
 %%----------------------------------------------------------------------
 
-%% @spec (Address, Secret) -> Result
-%% 	Address = ip_address()
-%% 	Secret = string()
-%% 	Result = ok | {error, Reason}
-%% 	Reason = term()
+-spec add_client(Address :: inet:ip_address(), Secret :: string()) ->
+	Result :: ok | {error, Reason :: term()}.
 %% @doc Store the shared secret for a client.
 %%
 add_client(Address, Secret) when is_list(Address), is_list(Secret) ->
@@ -86,10 +83,8 @@ add_client(Address, Secret) when is_tuple(Address), is_list(Secret) ->
 			{error, Reason}
 	end.
 
-%% @spec (Address) -> Result
-%% 	Address = ip_address()
-%% 	Result = {ok, Secret} | error
-%% 	Secret = string()
+-spec find_client(Address :: inet:ip_address()) ->
+	Result :: {ok, Secret :: string()} | error.
 %% @doc Look up the shared secret for a client.
 %%
 find_client(Address) when is_list(Address) ->
@@ -108,10 +103,8 @@ find_client(Address) when is_tuple(Address) ->
 			exit(Reason)
 	end.
 
-%% @spec (UserName, Password, Attributes) -> true
-%% 	UserName = string()
-%% 	Password = string()
-%% 	Attributes = list() | binary()
+-spec add_user(UserName :: string(), Password :: string(),
+		Attributes :: binary() | [byte()]) -> ok | {error, Reason :: term()}.
 %% @doc Store the password and static attributes for a user.
 %%
 add_user(UserName, Password, Attributes) when is_list(UserName),
@@ -128,11 +121,9 @@ add_user(UserName, Password, Attributes) when is_list(UserName),
 			{error, Reason}
 	end.
 
-%% @spec (UserName) -> Result
-%% 	UserName = string()
-%% 	Result = {ok, Password, Attributes} | error
-%% 	Password = string()
-%% 	Attributes = list()
+-spec find_user(UserName :: string()) ->
+	Result :: {ok, Password :: string(),
+		Attributes :: binary() | [byte()]} | error.
 %% @doc Look up a user and return the password and attributes assigned.
 %%
 find_user(UserName) when is_list(UserName) ->
@@ -148,7 +139,7 @@ find_user(UserName) when is_list(UserName) ->
 			exit(Reason)
 	end.
 
-%% @spec (FileName) -> ok
+-spec log_file(FileName :: string()) -> ok.
 %% @doc Write all logged accounting records to a file.
 %% 
 log_file(FileName) when is_list(FileName) ->
@@ -159,10 +150,7 @@ log_file(FileName) when is_list(FileName) ->
 %%  The radius_example private API
 %%----------------------------------------------------------------------
 
-%% @spec (Nodes) -> {ok, Tables}
-%% 	Nodes = [node()]
-%% 	Tables = [atom()]
-%%
+-spec install(Nodes :: [node()]) -> {ok, Tables :: [atom()]}.
 %% @doc Initialize a new installation.
 %% 	`Nodes' is a list of the nodes where the 
 %% 	{@link //radius_example. radius_example} application will run.

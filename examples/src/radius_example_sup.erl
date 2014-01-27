@@ -48,13 +48,11 @@
 %%  The supervisor call back
 %%----------------------------------------------------------------------
 
-%% @spec (Args) -> Result
-%% 	Args = []
-%% 	Result = {ok,{{RestartStrategy,MaxR,MaxT},[ChildSpec]}} | ignore
-%% 	RestartStrategy = one_for_all | one_for_one | rest_for_one
-%% 		| simple_one_for_one
-%% 	MaxR = integer()
-%% 	MaxT = integer()
+-spec init(Args :: []) ->
+   Result :: {ok,{{RestartStrategy :: one_for_all | one_for_one
+      | rest_for_one | simple_one_for_one,
+      MaxR :: non_neg_integer(), MaxT :: pos_integer()},
+      [ChildSpec :: supervisor:child_spec()]}} | ignore.
 %% @doc Initialize the {@module} supervisor.
 %% @see //stdlib/supervisor:init/1
 %% @private
@@ -63,12 +61,14 @@ init(_Args) ->
 	ChildSpecs = [authentication(), accounting()],
 	{ok, {{one_for_one, 4, 3600}, ChildSpecs}}.
 
+%% @hidden
 authentication() ->
 	{ok, Port} = application:get_env(authentication_port),
 	StartMod = radius_example_authentication_sup,
 	StartFunc = {supervisor_bridge, start_link, [StartMod, [Port]]},
 	{StartMod, StartFunc, permanent, 4000, supervisor, [StartMod]}.
 
+%% @hidden
 accounting() ->
 	{ok, Port} = application:get_env(accounting_port),
 	StartMod = radius_example_accounting_sup,

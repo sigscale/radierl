@@ -56,13 +56,13 @@
 
 -include("radius.hrl").
 
-%% @type statedata() = #statedata{
-%% 	socket = socket(),
-%% 	module = atom(),
-%% 	address = ip_address(),
-%% 	port = integer(),
-%% 	identifier = integer()}.
--record(statedata, {socket, module, address, port, identifier, response}).
+-record(statedata,
+		{socket :: inet:socket(),
+		module :: atom(),
+		address :: inet:ip_address(),
+		port :: pos_integer(),
+		identifier :: non_neg_integer(),
+		response :: ignore | undefined | term()}).
 
 -define(WAITSTART,   4000).
 -define(WAITRETRIES, 8000).
@@ -75,21 +75,16 @@
 %%  The radius_fsm gen_fsm call backs
 %%----------------------------------------------------------------------
 
-%% @spec (Args) -> Result
-%% 	Args = list()
-%% 	Socket = //kernel/gen_udp:socket()
-%% 	Address = //kernel/gen_udp:ip_address()
-%% 	Port = integer()
-%% 	Identifier = integer()
-%% 	Result = {ok, StateName, StateData}
-%% 		| {ok, StateName, StateData, Timeout}
-%% 		| {ok, StateName, StateData, hibernate}
-%% 		| {stop,Reason} | ignore
-%% 	StateName = atom()
-%% 	StateData = statedata()
-%% 	Timeout = integer() | infinity
-%% 	Reason = term()
+-spec init(Args :: list()) ->
+	Result :: {ok, StateName :: atom(), StateData :: #statedata{}}
+		| {ok, StateName :: atom(), StateData :: #statedata{},
+			Timeout :: non_neg_integer() | infinity}
+		| {ok, StateName :: atom(), StateData :: #statedata{}, hibernate}
+		| {stop, Reason :: term()} | ignore.
 %% @doc Initialize the {@module} finite state machine.
+%% 	Args :: [Socket :: socket(), Module :: atom(),
+%% 	Address :: inet:ip_address(), Port :: non_neg_integer(),
+%% 	Identifier = non_neg_integer()].
 %% @see //stdlib/gen_fsm:init/1
 %% @private
 %%
@@ -99,16 +94,11 @@ init([Socket, Module, Address, Port, Identifier] = _Args) ->
 			address = Address, port = Port, identifier = Identifier},
 	{ok, idle, StateData, ?WAITSTART}.
 
-%% @spec (Event, StateData::statedata()) -> Result
-%% 	Event = timeout | term()
-%% 	Result = {next_state, NextStateName, NewStateData}
-%% 	         | {next_state, NextStateName, NewStateData, Timeout}
-%% 	         | {next_state, NextStateName, NewStateData, hibernate}
-%% 	         | {stop, Reason, NewStateData}
-%% 	NextStateName = atom()
-%% 	NewStateData = statedata()
-%% 	Timeout = integer() | infinity
-%% 	Reason = normal | term()
+-spec idle(Event :: timeout | term(), StateData :: #statedata{}) ->
+	Result :: {next_state, NextStateName :: atom(), NewStateData :: #statedata{}}
+		| {next_state, NextStateName :: atom(), NewStateData :: #statedata{}, Timeout :: non_neg_integer() | infinity}
+		| {next_state, NextStateName :: atom(), NewStateData :: #statedata{}, hibernate}
+		| {stop, Reason :: normal | term(), NewStateData :: #statedata{}}.
 %% @doc Handle events sent with {@link //stdlib/gen_fsm:send_event/2.
 %% 	gen_fsm:send_event/2} in the <b>idle</b> state.
 %% @@see //stdlib/gen_fsm:StateName/2
@@ -150,15 +140,12 @@ idle(timeout, #statedata{address = Address, port = Port,
 	Id = {Address, Port, Identifier},
 	{stop, {shutdown, Id}, StateData}.
 
-%% @spec (Event::term(), StateName::atom(), StateData::statedata()) -> Result
-%% 	Result = {next_state, NextStateName, NewStateData}
-%% 	         | {next_state, NextStateName, NewStateData, Timeout}
-%% 	         | {next_state, NextStateName, NewStateData, hibernate}
-%% 	         | {stop, Reason, NewStateData}
-%% 	NextStateName = atom()
-%% 	NewStateData = statedata()
-%% 	Timeout = integer() | infinity
-%% 	Reason = normal | term()
+-spec handle_event(Event :: term(), StateName :: atom(),
+		StateData :: #statedata{}) ->
+	Result :: {next_state, NextStateName :: atom(), NewStateData :: #statedata{}}
+		| {next_state, NextStateName :: atom(), NewStateData :: #statedata{}, Timeout :: non_neg_integer() | infinity}
+		| {next_state, NextStateName :: atom(), NewStateData :: #statedata{}, hibernate}
+		| {stop, Reason :: normal | term(), NewStateData :: #statedata{}}.
 %% @doc Handle an event sent with
 %% 	{@link //stdlib/gen_fsm:send_all_state_event/2.
 %% 	gen_fsm:send_all_state_event/2}.
@@ -168,23 +155,16 @@ idle(timeout, #statedata{address = Address, port = Port,
 handle_event(_Event, StateName, StateData) ->
 	{next_state, StateName, StateData}.
 
-%% @spec (Event::term(), From, StateName::atom(), StateData::statedata()) ->
-%% 		Result
-%% 	From = {pid(), Tag}
-%% 	Tag = any()
-%% 	Result = {reply, Reply, NextStateName, NewStateData}
-%% 	         | {reply, Reply, NextStateName, NewStateData, Timeout}
-%% 	         | {reply, Reply, NextStateName, NewStateData, hibernate}
-%% 	         | {next_state, NextStateName, NewStateData}
-%% 	         | {next_state, NextStateName, NewStateData, Timeout}
-%% 	         | {next_state, NextStateName, NewStateData, hibernate}
-%% 	         | {stop, Reason, Reply, NewStateData}
-%% 	         | {stop, Reason, NewStateData}
-%% 	Reply = term()
-%% 	NextStateName = atom()
-%% 	NewStateData = statedata()
-%% 	Timeout = integer() | infinity
-%% 	Reason = normal | term()
+-spec handle_sync_event(Event :: term(), From :: {Pid :: pid(), Tag :: term()},
+		StateName :: atom(), StateData :: #statedata{}) ->
+	Result :: {reply, Reply :: term(), NextStateName :: atom(), NewStateData :: #statedata{}}
+		| {reply, Reply :: term(), NextStateName :: atom(), NewStateData :: #statedata{}, Timeout :: non_neg_integer() | infinity}
+		| {reply, Reply :: term(), NextStateName :: atom(), NewStateData :: #statedata{}, hibernate}
+		| {next_state, NextStateName :: atom(), NewStateData :: #statedata{}}
+		| {next_state, NextStateName :: atom(), NewStateData :: #statedata{}, Timeout :: non_neg_integer() | infinity}
+		| {next_state, NextStateName :: atom(), NewStateData :: #statedata{}, hibernate}
+		| {stop, Reason :: normal | term(), Reply :: term(), NewStateData :: #statedata{}}
+		| {stop, Reason :: normal | term(), NewStateData :: #statedata{}}.
 %% @doc Handle an event sent with
 %% 	{@link //stdlib/gen_fsm:sync_send_all_state_event/2.
 %% 	gen_fsm:sync_send_all_state_event/2,3}.
@@ -194,15 +174,11 @@ handle_event(_Event, StateName, StateData) ->
 handle_sync_event(_Event, _From, StateName, StateData) ->
 	{reply, ok, StateName, StateData}.
 
-%% @spec (Info::term(), StateName::atom(), StateData::statedata()) -> Result
-%% 	Result = {next_state, NextStateName, NewStateData}
-%% 	         | {next_state, NextStateName, NewStateData, Timeout}
-%% 	         | {next_state, NextStateName, NewStateData, hibernate}
-%% 	         | {stop, Reason, NewStateData}
-%% 	NextStateName = atom()
-%% 	NewStateData = statedata()
-%% 	Timeout = integer() | infinity
-%% 	Reason = normal | term()
+-spec handle_info(Info :: term(), StateName :: atom(), StateData :: #statedata{}) ->
+	Result :: {next_state, NextStateName :: atom(), NewStateData :: #statedata{}}
+		| {next_state, NextStateName :: atom(), NewStateData :: #statedata{}, Timeout :: non_neg_integer() | infinity}
+		| {next_state, NextStateName :: atom(), NewStateData :: #statedata{}, hibernate}
+		| {stop, Reason :: normal | term(), NewStateData :: #statedata{}}.
 %% @doc Handle a received message.
 %% @see //stdlib/gen_fsm:handle_info/3
 %% @private
@@ -210,8 +186,8 @@ handle_sync_event(_Event, _From, StateName, StateData) ->
 handle_info(_Info, StateName, StateData) ->
 	{next_state, StateName, StateData}.
 
-%% @spec (Reason, StateName::atom(), StateData::statedata()) -> any()
-%% 	Reason = normal | shutdown | term()
+-spec terminate(Reason :: normal | shutdown | term(), StateName :: atom(),
+		StateData :: #statedata{}) -> any().
 %% @doc Cleanup and exit.
 %% @see //stdlib/gen_fsm:terminate/3
 %% @private
@@ -219,13 +195,9 @@ handle_info(_Info, StateName, StateData) ->
 terminate(_Reason, _StateName, _StateData) ->
 	ok.
 
-%% @spec (OldVsn, StateName::atom(), StateData::statedata(), Extra::term()) ->
-%% 		Result
-%% 	OldVsn = Vsn | {down, Vsn}
-%% 	Vsn = term()
-%% 	Result = {ok, NextStateName, NewStateData}
-%% 	NextStateName = atom()
-%% 	NewStateData = statedata()
+-spec code_change(OldVsn :: (Vsn :: term() | {down, Vsn :: term()}),
+		StateName :: atom(), StateData :: #statedata{}, Extra :: term()) ->
+	Result :: {ok, NextStateName :: atom(), NewStateData :: #statedata{}}.
 %% @doc Update internal state data during a release upgrade&#047;downgrade.
 %% @see //stdlib/gen_fsm:code_change/4
 %% @private

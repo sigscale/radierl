@@ -49,13 +49,11 @@
 %%  The supervisor call back
 %%----------------------------------------------------------------------
 
-%% @spec (Args) -> Result
-%% 	Args = list()
-%% 	Result = {ok,{{RestartStrategy,MaxR,MaxT},[ChildSpec]}} | ignore
-%% 	RestartStrategy = one_for_all | one_for_one | rest_for_one
-%% 		| simple_one_for_one
-%% 	MaxR = integer()
-%% 	MaxT = integer()
+-spec init(Args :: list()) ->
+	Result :: {ok,{{RestartStrategy :: one_for_all | one_for_one
+		| rest_for_one | simple_one_for_one,
+		MaxR :: non_neg_integer(), MaxT :: pos_integer()},
+		[ChildSpec :: supervisor:child_spec()]}} | ignore.
 %% @doc Initialize the {@module} supervisor.
 %% @see //stdlib/supervisor:init/1
 %% @private

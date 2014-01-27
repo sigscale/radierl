@@ -49,9 +49,9 @@
 -export([port/1, authenticator/2]).
 
 %% define the functions a radius callback module must export
--callback init(Address :: inets:ip_address(), Port :: integer()) ->
+-callback init(Address :: inet:ip_address(), Port :: integer()) ->
 	ok | {error, Reason :: term()}.
--callback request(Address :: inets:ip_address(), Port :: integer(),
+-callback request(Address :: inet:ip_address(), Port :: integer(),
 		Packet :: binary()) -> binary() | {error, Reason :: ignore | term()}.
 -callback terminate(Reason :: term()) -> any().
 
@@ -62,12 +62,10 @@
 %%  The radius public API
 %%----------------------------------------------------------------------
 
-%% @spec (Module, Port) -> Result
-%% 	Module = atom()
-%% 	Port = integer()
-%% 	Result = {ok, Pid} | {error, Error}
-%% 	Pid = pid()
-%% 	Error = already_present | {already_started, Pid} | term()
+-spec start(Module :: atom(), Port :: non_neg_integer()) ->
+	{ok, Pid :: pid()}
+		| {error, Error :: already_present
+		| {already_started, Pid :: pid()} | term()}.
 %% @doc Start a RADIUS protocol server using the callback module
 %% 	`Module' listening on `Port'.
 %%
@@ -75,13 +73,11 @@ start(Module, Port) when is_atom(Module), is_integer(Port) ->
 	{ok, Address} = application:get_env(radius, address),
 	start(Module, Port, Address).
 
-%% @spec (Module, Port, Address) -> Result
-%% 	Module = atom()
-%% 	Port = integer()
-%% 	Address = ip_address()
-%% 	Result = {ok, Sup} | {error, Error}
-%% 	Sup = pid()
-%% 	Error = already_present | {already_started, Sup} | term()
+-spec start(Module :: atom(), Port :: non_neg_integer(),
+		Address :: inet:ip_address()) ->
+	{ok, Pid :: pid()}
+		| {error, Error :: already_present
+		| {already_started, Pid :: pid()} | term()}.
 %% @doc Start a RADIUS protocol server using the callback module
 %% 	`Module' listening on `Port' with address `Address'.
 %%
@@ -96,12 +92,10 @@ start(Module, Port, Address) when is_atom(Module),
 		is_integer(Port), is_tuple(Address) ->
 	supervisor:start_child(radius, [[Module, Port, Address]]).
 
-%% @spec (Module, Port) -> Result
-%% 	Module = atom()
-%% 	Port = integer()
-%% 	Result = {ok, Pid} | {error, Error}
-%% 	Pid = pid()
-%% 	Error = already_present | {already_started, Pid} | term()
+-spec start_link(Module :: atom(), Port :: non_neg_integer()) ->
+	{ok, Pid :: pid()}
+		| {error, Error :: already_present
+		| {already_started, Pid :: pid()} | term()}.
 %% @doc Start a RADIUS protocol server as part of a supervision tree
 %% 	 using the callback module `Module' listening on `Port'.
 %%
@@ -110,13 +104,11 @@ start_link(Module, Port) ->
 	link(Sup),
 	{ok, Sup}.
 
-%% @spec (Module, Port, Address) -> Result
-%% 	Module = atom()
-%% 	Port = integer()
-%% 	Address = ip_address()
-%% 	Result = {ok, Sup} | {error, Error}
-%% 	Sup = pid()
-%% 	Error = already_present | {already_started, Sup} | term()
+-spec start_link(Module :: atom(), Port :: non_neg_integer(),
+		Address :: inet:ip_address()) ->
+	{ok, Pid :: pid()}
+		| {error, Error :: already_present
+		| {already_started, Pid :: pid()} | term()}.
 %% @doc Start a RADIUS protocol server as part of a supervision tree
 %% 	using the callback module `Module' listening on `Port' with
 %% 	address `Address'.
@@ -126,15 +118,13 @@ start_link(Module, Port, Address) ->
 	link(Sup),
 	{ok, Sup}.
 
-%% @spec (Pid) -> ok
-%% 	Pid = pid()
+-spec stop(Pid :: pid()) -> ok.
 %% @doc Stop a running RADIUS protocol server.
 %%
 stop(Pid) ->
 	supervisor:terminate_child(whereis(radius), Pid).
 
-%% @spec (In) -> Out
-%% 	In = binary() | radius()
+-spec codec(In :: binary() | #radius{}) -> Out :: #radius{} | binary().
 %% 	Out = radius() | binary()
 %% @doc Encode or decode a binary RADIUS protocol packet.
 %%
@@ -162,9 +152,7 @@ codec(#radius{code = Code, id = Identifier,
 %%  The radius private API
 %%----------------------------------------------------------------------
 
-%% @spec (Pid) -> Port
-%% 	Pid= pid()
-%% 	Port = integer()
+-spec port(Pid :: pid()) -> Port :: pos_integer().
 %% @doc Return the `Port' which the RADIUS server is listening on.
 %% @private
 port(Pid) ->
@@ -172,10 +160,8 @@ port(Pid) ->
    {_Id, Server, _Type, _Modules} = lists:keyfind(radius_server, 1, Children),
 	gen_server:call(Server, port).
 
-%% @spec (SharedSecret, Id) -> Authenticator
-%% 	SharedSecret = string()
-%% 	Id = integer()
-%% 	Authenticator = [integer()]
+-spec authenticator(SharedSecret :: string(), Id :: integer()) ->
+	Authenticator :: [byte()].
 %% @doc Return a 16 octet random number to use as a request Authenticator.
 %% @private
 authenticator(SharedSecret, Id) ->

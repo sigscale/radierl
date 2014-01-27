@@ -54,11 +54,8 @@
 %%  The radius callbacks
 %%----------------------------------------------------------------------
 
-%% @spec (Address, Port) -> Result
-%% 	Address = ip_address()
-%% 	Port = integer()
-%% 	Result = ok | {error, Reason}
-%% 	Reason = term()
+-spec init(Address :: inet:ip_address(), Port :: pos_integer()) ->
+	Result :: ok | {error, Reason :: term()}.
 %% @doc This callback function is called when a
 %% 	{@link //radius/radius_server. radius_server} behaviour process
 %% 	initializes.
@@ -66,12 +63,9 @@
 init(_Address, _Port) ->
 	ok.
 
-%% @spec (Address, Port, Packet) -> Result
-%% 	Address = ip_address()
-%% 	Port = integer()
-%% 	Packet = binary()
-%% 	Result = binary() | {error, Reason}
-%% 	Reason = ignore | term()
+-spec request(Address :: inet:ip_address(), Port :: pos_integer(),
+		Packet :: binary()) ->
+	Result :: binary() | {error, Reason :: ignore | term()}.
 %% @doc This function is called when a request is received on the port.
 %%
 request(Address, _Port, Packet) ->
@@ -152,8 +146,7 @@ request(Packet, Secret) ->
 			reject(Packet, Secret)
 	end.
 
-%% @spec (Reason) -> ok
-%% 	Reason = term()
+-spec terminate(Reason :: term()) -> ok.
 %% @doc This callback function is called just before the server exits.
 %%
 terminate(_Reason) ->
@@ -163,7 +156,8 @@ terminate(_Reason) ->
 %%  internal functions
 %%----------------------------------------------------------------------
 
-%% @spec (Request, Secret) -> AccessReject
+-spec reject(Request :: binary(), Secret :: string()) ->
+	AccessReject :: binary().
 %% @hidden
 reject(<<_Code, Id, _Len:16, Authenticator:16/binary, _/binary>>, Secret) ->
 	Attributes = [],
@@ -174,7 +168,9 @@ reject(<<_Code, Id, _Len:16, Authenticator:16/binary, _/binary>>, Secret) ->
 			authenticator = ResponseAuthenticator, attributes = []},
 	radius:codec(Response).
 
-%% @spec (Id, RequestAuthenticator, Secret, Attributes) -> AccessAccept
+-spec accept(Id :: byte(), RequestAuthenticator :: [byte()],
+		Secret :: string(), Attributes :: binary() | [byte()]) ->
+	AccessAccept :: binary().
 %% @hidden
 accept(Id, RequestAuthenticator, Secret, AttributeList)
 		when is_list(AttributeList) -> 

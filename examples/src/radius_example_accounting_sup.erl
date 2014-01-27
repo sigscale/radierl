@@ -50,14 +50,11 @@
 %%  The supervisor_bridge callbacks
 %%----------------------------------------------------------------------
 
-%% @spec (Args) -> Result
-%% 	Args = [Port]
-%% 	Port = integer()
-%% 	Result = {ok, Pid, State} | ignore | {error, Error}
-%% 	Pid = pid()
-%% 	State = term()
-%% 	Error = term()
+-spec init(Args :: list()) ->
+	Result :: {ok, Pid :: pid(), State :: #state{}}
+		| ignore | {error, Error :: term()}.
 %% @doc Initialize the {@module} supervisor_bridge.
+%% 	Args :: [Port : pos_integer()].
 %% @see //stdlib/supervisor_bridge:init/1
 %% @private
 %%
@@ -66,9 +63,8 @@ init([Port] = _Args) ->
 	{ok, Pid} = radius:start_link(StartMod, Port),
 	{ok, Pid, #state{sup = Pid}}.
 
-%% @spec (Reason, State) -> any()
-%% 	Reason = shutdown | term()
-%% 	State = term()
+-spec terminate(Reason :: shutdown | term(), State :: #state{}) -> any().
+%% @doc This function is called when it is about to terminate.
 terminate(_Reason, #state{sup = Sup} = _State) ->
 	radius:stop(Sup).
 

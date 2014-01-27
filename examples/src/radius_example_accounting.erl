@@ -56,11 +56,8 @@
 %%  The radius callbacks
 %%----------------------------------------------------------------------
 
-%% @spec (Address, Port) -> Result
-%% 	Address = ip_address()
-%% 	Port = integer()
-%% 	 Result = ok | {error, Reason}
-%% 	Reason = term()
+-spec init(Address :: inet:ip_address(), Port :: pos_integer()) ->
+	Result :: ok | {error, Reason :: term()}.
 %% @doc This callback function is called when a
 %% 	{@link //radius/radius_server. radius_server} behaviour process
 %% 	initializes.
@@ -82,12 +79,9 @@ init(_Address, _Port) ->
 			{error, Reason}
 	end.
 
-%% @spec (Address, Port, Packet) -> Result
-%% 	Address = ip_address()
-%% 	Port = integer()
-%% 	Packet = binary()
-%% 	Result = binary() | {error, Reason}
-%% 	Reason = ignore | term()
+-spec request(Address :: inet:ip_address(), Port :: pos_integer(),
+		Packet :: binary()) ->
+	Result :: binary() | {error, Reason :: term()}.
 %% @doc This callback function is called when a request is received
 %% 	on the port.
 %%
@@ -132,8 +126,7 @@ request(<<_Code, Id, Length:16, _/binary>> = Packet, Secret) ->
 			{error, ignore}
 	end.
 
-%% @spec (Reason) -> ok
-%% 	Reason = term()
+-spec terminate(Reason :: term()) -> ok.
 %% @doc This callback function is called just before the server exits.
 %%
 terminate(_Reason) ->
@@ -143,7 +136,9 @@ terminate(_Reason) ->
 %%  internal functions
 %%----------------------------------------------------------------------
 
-%% @spec (Id, RequestAuthenticator, Secret, Attributes) -> AccessAccept
+-spec response(Id :: byte(), RequestAuthenticator :: [byte()],
+		Secret :: string(), Attributes :: binary() | [byte()]) ->
+	AccessAccept :: binary().
 %% @hidden
 response(Id, RequestAuthenticator, Secret, AttributeList)
 		when is_list(AttributeList) ->

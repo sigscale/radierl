@@ -52,16 +52,14 @@
 
 -include("radius.hrl").
 
-%% @type state() = #state{
-%% 	sup = pid(),
-%% 	socket = socket(),
-%% 	address = ip_address(),
-%% 	port = integer(),
-%% 	module = atom(),
-%% 	fsm_sup = pid(),
-%% 	handlers = gb_tree()}.
--record(state, {sup, socket, address, port, module, fsm_sup,
-		handlers = gb_trees:empty()}).
+-record(state,
+		{sup :: pid(),
+		socket :: inet:socket(),
+		address :: inet:ip_address(),
+		port :: non_neg_integer(),
+		module :: atom(),
+		fsm_sup :: pid(),
+		handlers = gb_trees:empty() :: gb_tree()}).
 
 %%----------------------------------------------------------------------
 %%  The radius_server API
@@ -71,13 +69,12 @@
 %%  The radius_server gen_server call backs
 %%----------------------------------------------------------------------
 
-%% @spec (Args) -> Result
-%% 	Args = list()
-%% 	Result = {ok,State} | {ok,State,Timeout} | {stop,Reason} | ignore
-%% 	State = state()
-%% 	Timeout = integer() | infinity
-%% 	Reason = term()
+-spec init(Args :: list()) -> Result :: {ok, State :: #state{}}
+		| {ok, State :: #state{}, Timeout :: non_neg_integer() | infinity}
+		| {stop, Reason :: term()} | ignore.
 %% @doc Initialize the {@module} server.
+%% 	Args :: [Sup :: pid(), Module :: atom(), Port :: non_neg_integer(),
+%% 	Address :: inet:ip_address()].
 %% @see //stdlib/gen_server:init/1
 %% @private
 %%
@@ -128,21 +125,16 @@ init([Sup, Module, Port, Address] = _Args) ->
 			{error, Error}
 	end.
 
-%% @spec (Request::term(), From, State::state()) -> Result
-%% 	From = {pid(), Tag}
-%% 	Tag = any()
-%% 	Result = {reply, Reply, NewState}
-%% 	         | {reply, Reply, NewState, Timeout}
-%% 	         | {reply, Reply, NewState, hibernate}
-%% 	         | {noreply, NewState}
-%% 	         | {noreply, NewState, Timeout}
-%% 	         | {noreply, NewState, hibernate}
-%% 	         | {stop, Reason, Reply, NewState}
-%% 	         | {stop, Reason, NewState}
-%% 	Reply = term()
-%% 	NewState = state()
-%% 	Timeout = integer() | infinity
-%% 	Reason = term()
+-spec handle_call(Request :: term(), From :: {Pid :: pid(), Tag :: any()},
+		State :: #state{}) ->
+	Result :: {reply, Reply :: term(), NewState :: #state{}} 
+		| {reply, Reply :: term(), NewState :: #state{}, Timeout :: non_neg_integer() | infinity}
+		| {reply, Reply :: term(), NewState :: #state{}, hibernate}
+		| {noreply, NewState :: #state{}}
+		| {noreply, NewState :: #state{}, Timeout :: non_neg_integer() | infinity}
+		| {noreply, NewState :: #state{}, hibernate}
+		| {stop, Reason :: term(), Reply :: term(), NewState :: #state{}}
+		| {stop, Reason :: term(), NewState :: #state{}}.
 %% @doc Handle a request sent using {@link //stdlib/gen_server:call/2.
 %% 	gen_server:call/2,3} or {@link //stdlib/gen_server:multi_call/2.
 %% 	gen_server:multi_call/2,3,4}.
@@ -157,13 +149,11 @@ handle_call(_Request, {Pid, _Tag}, State) ->
 	exit(Pid, badarg),
 	{noreply, State}.
 
-%% @spec (Request::term(), State::state()) -> Result
-%% 	Result = {noreply, NewState} | {noreply, NewState, Timeout}
-%% 	         | {noreply, NewState, hibernate}
-%% 	         | {stop, Reason, NewState}
-%% 	NewState = state()
-%% 	Timeout = integer() | infinity
-%% 	Reason = term()
+-spec handle_cast(Request :: term(), State :: #state{}) ->
+	Result :: {noreply, NewState :: #state{}}
+		| {noreply, NewState :: #state{}, Timeout :: non_neg_integer() | infinity}
+		| {noreply, NewState :: #state{}, hibernate}
+		| {stop, Reason :: term(), NewState :: #state{}}.
 %% @doc Handle a request sent using {@link //stdlib/gen_server:cast/2.
 %% 	gen_server:cast/2} or {@link //stdlib/gen_server:abcast/2.
 %% 	gen_server:abcast/2,3}.
@@ -173,14 +163,11 @@ handle_call(_Request, {Pid, _Tag}, State) ->
 handle_cast(_Request, State) ->
 	{noreply, State}.
 
-%% @spec (Info, State::state()) -> Result
-%% 	Info = timeout | term()
-%% 	Result = {noreply, NewState} | {noreply, NewState, Timeout}
-%% 	         | {noreply, NewState, hibernate}
-%% 	         | {stop, Reason, NewState}
-%% 	NewState = state()
-%% 	Timeout = integer() | infinity
-%% 	Reason = normal | term()
+-spec handle_info(Info :: timeout | term(), State :: #state{}) ->
+	Result :: {noreply, NewState :: #state{}}
+		| {noreply, NewState :: #state{}, Timeout :: non_neg_integer() | infinity}
+		| {noreply, NewState :: #state{}, hibernate}
+		| {stop, Reason :: term(), NewState :: #state{}}.
 %% @doc Handle a received message.
 %% @see //stdlib/gen_server:handle_info/2
 %% @private
@@ -266,8 +253,8 @@ handle_info({'EXIT', Fsm, _Reason},
 			{noreply, NewState}
 	end.
 
-%% @spec (Reason, State::state()) -> any()
-%% 	Reason = normal | shutdown | term()
+-spec terminate(Reason :: normal | shutdown | term(),
+		State :: #state{}) -> any().
 %% @doc Cleanup and exit.
 %% @see //stdlib/gen_server:terminate/3
 %% @private
@@ -275,11 +262,9 @@ handle_info({'EXIT', Fsm, _Reason},
 terminate(Reason, #state{module = Module} = _State) ->
 	Module:terminate(Reason).
 
-%% @spec (OldVsn, State::state(), Extra::term()) -> Result
-%% 	OldVsn = Vsn | {down, Vsn}
-%% 	Vsn = term()
-%% 	Result = {ok, NewState}
-%% 	NewState = state()
+-spec code_change(OldVsn :: (Vsn :: term() | {down, Vsn :: term()}),
+		State :: #state{}, Extra :: term()) ->
+	Result :: {ok, NewState :: #state{}}.
 %% @doc Update internal state data during a release upgrade&#047;downgrade.
 %% @see //stdlib/gen_server:code_change/3
 %% @private
@@ -291,13 +276,10 @@ code_change(_OldVsn, State, _Extra) ->
 %%  internal functions
 %%----------------------------------------------------------------------
 
-%% @spec (State, Address, Port, Identifier, Packet) -> NewState
-%% 	State = state()
-%% 	Address = //kernel/gen_udp:ip_address()
-%% 	Port = integer()
-%% 	Identifier = integer()
-%% 	Packet = binary()
-%% 	NewState = state()
+-spec start_fsm(State :: #state{}, Address :: inet:ip_address(),
+		Port :: pos_integer(), Identifier :: non_neg_integer(),
+		Packet :: binary()) ->
+	NewState :: #state{}.
 %% @doc Start a new {@link radius_fsm. radius_fsm} transaction state
 %%% 	handler and forward the request to it.
 %% @hidden

@@ -53,30 +53,32 @@
 %%  The radius_attributes public API
 %%----------------------------------------------------------------------
 
-%% @spec () -> attributes()
+-type attributes() :: orddict:orddict().
+
+-spec new() -> Attributes :: attributes().
 %% @doc Create a new RADIUS protocol attributes list.
 %%
 new() ->
 	orddict:new().
 
-%% @spec (Attribute, Value, Attributes) -> attributes()
+-spec store(Attribute :: pos_integer(), Value :: term(),
+	Attributes :: attributes()) -> NewAttributes :: attributes().
 %% @doc Add a new attribute to a RADIUS protocol attributes list.
 %%
 store(Attribute, Value, Attributes) when is_integer(Attribute),
 		is_list(Attributes) -> 
 	orddict:store(Attribute, Value, Attributes).
 
-%% @spec (Attribute, Attributes) -> Value
-%% 	Attribute = integer()
-%% 	Attributes = attributes()
-%% 	Value = term()
+-spec fetch(Attribute :: pos_integer(), Attributes :: attributes()) ->
+	Value :: term().
 %% @doc Returns the value for an attribute in a RADIUS protocol
 %% 	attributes list.  Assumes that the attribute is present.
 %%
 fetch(Attribute, Attributes) -> 
 	orddict:fetch(Attribute, Attributes).
 
-%% @spec (Attribute, Attributes) -> Result
+-spec find(Attribute :: pos_integer(), Attributes :: attributes()) ->
+	Result :: {ok, Value :: term()} | error.
 %% 	Attribute = integer()
 %% 	Attributes = attributes()
 %% 	Result = {ok, Value} | error
@@ -86,9 +88,7 @@ fetch(Attribute, Attributes) ->
 find(Attribute, Attributes) -> 
 	orddict:find(Attribute, Attributes).
 
-%% @spec (In) -> Out
-%% 	In = binary() | attributes()
-%% 	Out = attributes() | binary()
+-spec codec(In :: binary() | attributes()) -> attributes() | binary().
 %% @doc Encode or decode a binary RADIUS protocol attributes field.
 %%
 codec(In) when is_binary(In) ->
@@ -96,11 +96,8 @@ codec(In) when is_binary(In) ->
 codec(In) when is_list(In) ->
 	attributes(orddict:to_list(In), <<>>).
 
-%% @spec (SharedSecret, Authenticator, Password) -> UserPassword
-%% 	SharedSecret = string()
-%% 	Authenticator = [integer()]
-%% 	Password = string()
-%% 	UserPassword = [integer()]
+-spec hide(SharedSecret :: string(), Authenticator :: [byte()],
+	Password :: string()) -> UserPassword :: [byte()].
 %% @doc Hide the password in the User-Password attribute.
 %%
 hide(SharedSecret, Authenticator, Password)
@@ -114,11 +111,8 @@ hide(SharedSecret, Authenticator, Password)
 		length(Password) rem 16 == 0 -> 
 	hide(SharedSecret, Authenticator, Password, []).
 
-%% @spec (SharedSecret, Authenticator, UserPassword) -> Password
-%% 	SharedSecret = string()
-%% 	Authenticator = [integer()]
-%% 	UserPassword = [integer()]
-%% 	Password = string()
+-spec unhide(SharedSecret :: string(), Authenticator :: [byte()],
+	UserPassword :: [byte()]) -> Password :: string().
 %% @doc Return the password hidden in the User-Password attribute.
 %%
 unhide(SharedSecret, Authenticator, UserPassword)

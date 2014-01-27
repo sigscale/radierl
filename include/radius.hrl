@@ -11,16 +11,11 @@
 -define(StatusServer,       12).
 -define(StatusClient,       13).
 
-%% @type radius(). #radius{
-%%    code = integer(),
-%%    id = integer(),
-%%    authenticator = binary(),
-%%    attributes = binary()}.
 -record(radius,
-      {code,
-      id,
-      authenticator,
-      attributes}).
+      {code :: byte(),
+      id :: byte(),
+      authenticator :: binary() | [byte()],
+      attributes :: binary() | [byte()]}).
 
 %% define macros for RADIUS Attribute Types
 -define(UserName,                1).
@@ -76,6 +71,4 @@
 -define(NasPortType,            61).
 -define(PortLimit,              62).
 -define(LoginLatPort,           63).
-
-%% @type attributes(). //stdlib/orddict:ordered_dictionary().
 

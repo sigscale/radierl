@@ -57,12 +57,9 @@
 %%  The radius_example_app aplication call backs
 %%----------------------------------------------------------------------
 
-%% @spec (StartType, StartArgs) -> {ok, Pid, state()}
-%% 	StartType = normal | {takeover, Node} | {failover, Node}
-%% 	StartArgs = []
-%% 	Node = node()
-%% 	Pid = pid()
-%%
+-spec start(StartType :: normal | {takeover, Node :: node()}
+		| {failover, Node :: node()}, StartArgs :: []) ->
+	{ok, Pid :: pid(), #state{}}.
 %% @doc Starts the application.
 %% @private
 %%
@@ -98,8 +95,7 @@ start({takeover, _Node}, _StartArgs) ->
 start({failover, _Node}, _StartArgs) ->
 	{error, not_implemented}.
 
-%% @spec (State::state()) -> state()
-%%
+-spec prep_stop(State :: #state{}) -> #state{}.
 %% @doc Called when the application is about to be shut down,
 %% 		before any processes are terminated.
 %% @private
@@ -107,8 +103,7 @@ start({failover, _Node}, _StartArgs) ->
 prep_stop(State) ->
 	State.
 
-%% @spec (State::state()) -> ok
-%%
+-spec stop(State :: #state{}) -> ok.
 %% @doc Called when the application is about to be shut down,
 %% 		before any processes are terminated.
 %% @private
@@ -116,13 +111,9 @@ prep_stop(State) ->
 stop(_State = #state{}) ->
 	ok.
 
-%% @spec (Changed, New, Removed) -> ok
-%% 	Changed = [{Par, Val}]
-%% 	New = [{Par, Val}]
-%% 	Removed = [Par]
-%% 	Par = atom()
-%% 	Val = term()
-%%
+-spec config_change(Changed :: [{Par :: atom(), Val :: term()}],
+		New :: [{Par :: atom(), Val :: term()}],
+		Removed :: [Par :: atom()]) -> ok.
 %% @doc Called after a code  replacement, if there are any 
 %% 		changes to the configuration  parameters.
 %% @private
@@ -133,9 +124,7 @@ config_change(_Changed, _New, _Removed) -> ok.
 %%  internal functions
 %%----------------------------------------------------------------------
 
-%% @spec (Tables) -> ok
-%% 	Tables = [atom()]
-%%
+-spec force(Tables :: [atom()]) -> ok.
 %% @doc Force load the list of tables.
 %% @hidden
 %%
