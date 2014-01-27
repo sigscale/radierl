@@ -40,7 +40,7 @@ clean:
 			overview-summary.html packages-frame.html \
 			stylesheet.css overview.edoc erlang.png
 	-cd test && rm -f *.beam
-	-cd test/log && rm -rf *.html ct_run.* variables-ct*
+	-cd test/log && rm -rf *.html *.css *.js ct_run.* variables-ct* ct_log_cache
 
 .PHONY=check
 check:	beams
