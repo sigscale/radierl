@@ -129,10 +129,9 @@ start_link(Module, Port, Address) ->
 %% @spec (Pid) -> ok
 %% 	Pid = pid()
 %% @doc Stop a running RADIUS protocol server.
-%% @todo Contribute a patch to supervisor.erl to add terminate/1.
 %%
 stop(Pid) ->
-	erlang:send(Pid, {'EXIT', whereis(radius), shutdown}, []).
+	supervisor:terminate_child(whereis(radius), Pid).
 
 %% @spec (In) -> Out
 %% 	In = binary() | radius()
