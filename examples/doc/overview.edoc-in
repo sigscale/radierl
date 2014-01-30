@@ -1,7 +1,7 @@
 @author Vance Shipley <vances@cmotivity.ca>
 @copyright 2011 Motivity Telecom
-@version %VERSION%
-@title %DESCRIPTION%
+@version %APP_VERSION%
+@title %APP_NAME%
 @reference The {@link //radius. radius} application.
 @reference <a href="http://www.ietf.org/rfc/rfc2865.txt">RFC2865</a>
 	Remote Authentication Dial In User Service (RADIUS).

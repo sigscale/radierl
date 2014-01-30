@@ -1,0 +1,6 @@
+January 2014
+------------
+	- version change to 1.0
+	- changed from edoc to language level type specifications
+	- implement autotools build
+

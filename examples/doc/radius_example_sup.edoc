@@ -1,0 +1,10 @@
+@doc This {@link //stdlib/supervisor. supervisor} behaviour callback
+	module implements a supervisor within the
+	{@link //radius_example. radius_example} application.
+
+The supervision heirachy is depicted in
+<a href="supervision.png">Figure 1-1</a>.
+
+<img alt="supervision heirachy" src="supervision.png" /><br />
+<a href="supervision.png">Figure 1-1</a>
+

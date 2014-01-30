@@ -1,9 +1,8 @@
 %%% radius_example.app
 
-{application, radius_example,
-   [{description, "%DESC%"},
-   {id, "%ID%"},
-   {vsn, "%VERSION%"},
+{application, %APP_NAME%,
+   [{description, "RADIUS example callbacks"},
+   {vsn, "%APP_VERSION%"},
    {modules, [radius_eaxmple_app, radius_example_sup,
 			radius_example_authentication_sup, radius_example_accounting_sup,
 			radius_example_authentication, radius_example_accounting,

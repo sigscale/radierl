@@ -1,28 +1,8 @@
 %%% README
 %%%
 
-The radierl project implements a RADIUS protocol stack.
-
-Port the radius application to your environment:
-
-	$ aclocal; autoheader; autoconf; automake --add-missing
-	$ ./configure
-
-Build the radius application and documentation:
-
-	$ make
-
-Test the radius application:
-
-	$ make check
-
-Install the radius application:
-
-	$ make install
-
 Port the example callbacks application to your environment:
 
-   $ cd examples
 	$ aclocal; autoheader; autoconf; automake --add-missing
 	$ ./configure
 

@@ -1,7 +1,7 @@
 @copyright 2011 Motivity Telecom
 @author Vance Shipley <vances@cmotivity.ca>
-@version %VERSION%
-@title %DESCRIPTION%
+@version %APP_VERSION%
+@title %APP_NAME%
 @reference <a href="http://www.ietf.org/rfc/rfc2865.txt">RFC2865</a>
 	Remote Authentication Dial In User Service (RADIUS).
 @doc This application implements a RADIUS protocol stack.

@@ -34,7 +34,7 @@
 %%% OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 %%%
 %%%---------------------------------------------------------------------
-%%% @docfile "doc/radius_fsm_sup.edoc"
+%%% @docfile "radius_fsm_sup.edoc"
 %%%
 -module(radius_fsm_sup).
 -copyright('Copyright (c) 2011 Motivity Telecom').

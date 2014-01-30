@@ -48,7 +48,7 @@
 -export([init/2, request/3, terminate/1]).
 
 %% @headerfile "../../include/radius.hrl"
--include("radius.hrl").
+-include_lib("../../include/radius.hrl").
 
 %%----------------------------------------------------------------------
 %%  The radius callbacks
