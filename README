@@ -22,7 +22,7 @@ Install the radius application:
 
 Port the example callbacks application to your environment:
 
-   $ cd examples
+	$ cd examples
 	$ aclocal; autoheader; autoconf; automake --add-missing
 	$ ./configure
 
