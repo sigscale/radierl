@@ -70,6 +70,7 @@
 		address :: inet:ip_address(),
 		port :: pos_integer(),
 		identifier :: non_neg_integer(),
+		authenticator :: binary(),
 		response :: ignore | undefined | term()}).
 
 -define(WAITSTART,   4000).
@@ -112,31 +113,36 @@ init([Socket, Module, Address, Port, Identifier] = _Args) ->
 %% @@see //stdlib/gen_fsm:StateName/2
 %% @private
 %%
-idle(<<_Code, Identifier, _/binary>> = _Event,
-		#statedata{identifier = Identifier, response = ignore} = StateData) ->
+idle(<<_Code, Identifier, Authenticator:128, _/binary>> = _Event,
+		#statedata{identifier = Identifier, authenticator = Authenticator,
+				response = ignore} = StateData) ->
 		{next_state, idle, StateData, ?WAITRETRIES};
-idle(<<_Code, Identifier, _/binary>> = Event,
-		#statedata{identifier = Identifier, response = undefined,
+idle(<<_Code, Identifier, Authenticator:128, _/binary>> = Event,
+		#statedata{identifier = Identifier, authenticator = CachedAuthenticator,
 		socket = Socket, module = Module, address = Address,
-		port = Port} = StateData) ->
+		port = Port} = StateData) when Authenticator /= CachedAuthenticator ->
 	case Module:request(Address, Port, Event) of
 		{error, ignore} ->
-			NewStateData = StateData#statedata{response = ignore},
+			NewStateData = StateData#statedata{authenticator = Authenticator,
+					response = ignore},
 			{next_state, idle, NewStateData, ?WAITRETRIES};
 		{error, Reason} ->
-			{stop, Reason, StateData};
-		Response ->
-			NewStateData = StateData#statedata{response = Response},
-			case gen_udp:send(Socket, Address, Port, Response) of
+			NewStateData = StateData#statedata{authenticator = Authenticator},
+			{stop, Reason, NewStateData};
+		RadiusResponse ->
+			NewStateData = StateData#statedata{authenticator = Authenticator,
+					response = RadiusResponse},
+			case gen_udp:send(Socket, Address, Port, RadiusResponse) of
 				ok ->
 					{next_state, idle, NewStateData, ?WAITRETRIES};
 				{error, Reason} ->
 					{stop, Reason, NewStateData}
 			end
 	end;
-idle(<<_Code, Identifier, _/binary>> = _Event,
-		#statedata{identifier = Identifier, response = Response,
-		socket = Socket, address = Address, port = Port} = StateData) ->
+idle(<<_Code, Identifier, Authenticator:128, _/binary>> = _Event,
+		#statedata{identifier = Identifier, authenticator = Authenticator,
+				response = Response, socket = Socket,
+				address = Address, port = Port} = StateData) ->
 	case gen_udp:send(Socket, Address, Port, Response) of
 		ok ->
 			{next_state, idle, StateData, ?WAITRETRIES};
