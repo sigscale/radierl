@@ -37,6 +37,14 @@
 %%% @doc This {@link //stdlib/gen_fsm. gen_fsm} behaviour callback module
 %%% 	implements a transaction state handler in the
 %%% 	{@link //radius. radius} application.
+%%% 	This transaction handler executes the handlers in the callback
+%%% 	module and handles retransmission of responses, when retransmitted 
+%%% 	requests are received, without calling the callback handler. 
+%%% 
+%%% 	The process communication is as depicted in <a href="messages.png">
+%%% 	Figure-1.1</a>.
+%%% 
+%%% 	<img alt="Figure-1.1" src="../examples/doc/callbacks-request.png" />
 %%%
 -module(radius_fsm).
 -copyright('Copyright (c) 2011-2014 Motivity Telecom').

@@ -37,6 +37,59 @@
 %%% @doc This library module implements the user API to the
 %%% 		{@link //radius. radius} application.
 %%%
+%%% 	===Callback Functions===
+%%% 	====init/2====
+%%% 	<b><tt>Module:init(Address :: {@link //kernel/inet:ip_address(). ip_address()},
+%%% 	Port :: pos_integer()) -> ok | {error, Reason :: term()}</tt></b>
+%%%
+%%% 	Whenever a {@link //radius/radius_server. radius_server} is started
+%%% 	using {@link //radius/radius:start/3. radius:start/3,4}, or
+%%% 	{@link //radius/radius:start_link/3. radius:start_link/3,4},
+%%% 	this function is called by the new process to initialize.
+%%% 
+%%% 	<tt>Address</tt> is the {@link //kernel/inet:ip_address(). ip_address()}
+%%% 	which the {@link //kernel/inet:socket(). socket()} is listening on.
+%%% 
+%%% 	<tt>Port</tt> is the {@link //kernel/inet:port_number(). port_number()}
+%%% 	which the {@link //kernel/inet:socket(). socket()} is listening on.
+%%% 
+%%% 	This function should return <tt>ok</tt> if the callback handler will
+%%% 	be able service RADIUS requests on this
+%%% 	{@link //radius/radius_server. radius_server} or
+%%% 	<tt>{error, Reason}</tt> indicating the problem.
+%%% 
+%%% 	====request/3====
+%%% 	<b><tt>Module:request(Address :: {@link //kernel/inet:ip_address(). ip_address()},
+%%% 	Port :: pos_integer(), RadiusRequest:: binary()) -> {error, Reason :: ignore | term()} | RadiusResponse :: binary()</tt></b>
+%%%
+%%% 	When a new valid RADIUS packet is received a
+%%% 	{@link //radius/radius_fsm. radius_fsm} transaction handler is started
+%%% 	which will call this function to process the request. 
+%%% 
+%%% 	<tt>Address</tt> is the {@link //kernel/inet:ip_address(). ip_address()}
+%%% 	of the client making the request.
+%%% 
+%%% 	<tt>Port</tt> is the {@link //kernel/inet:port_number(). port_number()}
+%%% 	of the client making the request.
+%%% 
+%%% 	This function should return a <tt>RadiusResponse</tt>, as returned
+%%% 	by {@link //radius/codec. radius:codec/1}, if the request was valid.
+%%% 	If the RADIUS Authenticator or Attributes were badly formed
+%%% 	<tt>{error, ignore}</tt> should be returned to silently discard the
+%%% 	received packet and ignore retransmissions.  In the event of an error
+%%% 	<tt>{error, Reason}</tt> should be returned which will stop the
+%%% 	{@link //radius/radius_fsm. radius_fsm} transaction handler and report
+%%% 	an error.
+%%% 
+%%% 	====terminate/1====
+%%% 	<b><tt>Module:terminate(Reason :: term()) -> any()</tt></b>
+%%%
+%%% 	This function is called by a {@link //radius/radius_server. radius_server}
+%%% 	when it is about to terminate. It should be the opposite of
+%%% 	<tt>Module:init/1</tt> and do any necessary cleaning up. When it
+%%% 	returns, the {@link //radius/radius_server. radius_server} terminates
+%%% 	with <tt>Reason</tt>. The return value is ignored.
+%%% 
 -module(radius).
 -copyright('Copyright (c) 2011-2014 Motivity Telecom').
 -author('vances@motivity.ca').

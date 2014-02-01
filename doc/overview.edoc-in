@@ -42,12 +42,17 @@ Figure-2.1</a>.
 
 The {@link //radius/radius_server.  radius_server} process receives
 incoming RADIUS requests from it's open {@link //kernel/gen_udp. gen_udp}
-socket.  For each new transaction request it will start a 
-{@link //radius/radius_fsm. radius_fsm} process to handle the request,
-passing in the open {@link //kernel/gen_udp:socket(). socket()}, the client's
-IP {@link //kernel/gen_udp:ip_address(). ip_address()}, port and
-the received UDP packet.
+socket and verifies them for valid RADIUS Code and Length, silently discarding
+badly formed packets.  For each new request it will start a 
+{@link //radius/radius_fsm. radius_fsm} transaction handler process and send
+it the received request.  The {@link //radius/radius_server.  radius_server}
+process tracks the soure address, port and RADIUS Identifier of each
+transaction so that repeated requests are routed to the active
+{@link //radius/radius_fsm. radius_fsm} transaction handler.
 
-The  {@link //radius/radius_fsm. radius_fsm} process sends it's response
+The  {@link //radius/radius_fsm. radius_fsm} transaction handler process
+calls the callback handler to process the request and sends the response
 to the client directly using the {@link //kernel/gen_udp:socket(). socket}.
+The process remains idle and available to handle retransmission requests,
+without calling the callback handler, until it times out and terminates.
 

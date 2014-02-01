@@ -38,5 +38,27 @@ Install the example callbacks application:
 
 	$ make install
 
+Initialize the example callbacks application:
+
+	1> mnesia:create_schema([node()]).
+	ok
+	2> mnesia:start().
+	ok
+	3> radius_example:install([node()]).
+	
+	=INFO REPORT==== 30-Jan-2014::13:49:54 ===
+	Created new radius_client table.
+	
+	=INFO REPORT==== 30-Jan-2014::13:49:55 ===
+	Created new radius_user table.
+	{ok,[radius_client,radius_user]}
+
+Start the stack and example applications:
+
+	4> application:start(radius).
+	ok
+	5> application:start(radius_example).
+	ok
+
 Everything here is distributed under a New BSD style license.
 

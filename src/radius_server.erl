@@ -35,7 +35,17 @@
 %%%
 %%%---------------------------------------------------------------------
 %%% @doc A {@link //stdlib/gen_server. gen_server} callback module
-%%% 	for the {@link //radius. radius} application..
+%%% 	for the {@link //radius. radius} application.
+%%% 	This server handles all incoming packets on the socket and spawns
+%%% 	a {@link //radius/radius_fsm. radius_fsm} process to handle a new
+%%% 	transaction based on the source address, port and RADIUS Identifier.
+%%% 	It first verifies that the RADIUS Code and Length are valid, 
+%%% 	otherwise it silently discards.
+%%% 
+%%% 	The process communication is as depicted in <a href="messages.png">
+%%% 	Figure-1.1</a>.
+%%% 
+%%% 	<img alt="Figure-1.1" src="messages.png" />
 %%%
 -module(radius_server).
 -copyright('Copyright (c) 2011-2014 Motivity Telecom').
