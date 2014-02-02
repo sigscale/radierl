@@ -72,3 +72,10 @@
 -define(PortLimit,              62).
 -define(LoginLatPort,           63).
 
+%% define macros for AcctStatusType attribute values
+-define(AccountingStart, 1).
+-define(AccountingStop, 2).
+-define(AccountingInterimUpdate, 3).
+-define(AccountingON, 7).
+-define(AccountingOFF, 8).
+
