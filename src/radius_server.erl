@@ -300,6 +300,7 @@ start_fsm(#state{socket = Socket, module = Module, fsm_sup = Sup,
 	ChildSpec = [[Socket, Module, Address, Port, Identifier], []],
 	case supervisor:start_child(Sup, ChildSpec) of
 		{ok, Fsm} ->
+			link(Fsm),
 			gen_fsm:send_event(Fsm, Packet),
 			Key = {Address, Port, Identifier},
 			NewHandlers = gb_trees:insert(Key, Fsm, Handlers),
