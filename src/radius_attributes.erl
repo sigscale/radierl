@@ -4,18 +4,18 @@
 %%% @end
 %%%
 %%% Copyright (c) 2011-2014, Motivity Telecom
-%%% 
+%%%
 %%% All rights reserved.
-%%% 
+%%%
 %%% Redistribution and use in source and binary forms, with or without
 %%% modification, are permitted provided that the following conditions
 %%% are met:
-%%% 
+%%%
 %%%    - Redistributions of source code must retain the above copyright
 %%%      notice, this list of conditions and the following disclaimer.
 %%%    - Redistributions in binary form must reproduce the above copyright
 %%%      notice, this list of conditions and the following disclaimer in
-%%%      the documentation and/or other materials provided with the 
+%%%      the documentation and/or other materials provided with the
 %%%      distribution.
 %%%    - Neither the name of Motivity Telecom nor the names of its
 %%%      contributors may be used to endorse or promote products derived
@@ -29,7 +29,7 @@
 %%% SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
 %%% LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
 %%% DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
-%%% THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT 
+%%% THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 %%% (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 %%% OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 %%%
@@ -66,7 +66,7 @@ new() ->
 %% @doc Add a new attribute to a RADIUS protocol attributes list.
 %%
 store(Attribute, Value, Attributes) when is_integer(Attribute),
-		is_list(Attributes) -> 
+		is_list(Attributes) ->
 	orddict:store(Attribute, Value, Attributes).
 
 -spec fetch(Attribute :: pos_integer(), Attributes :: attributes()) ->
@@ -74,7 +74,7 @@ store(Attribute, Value, Attributes) when is_integer(Attribute),
 %% @doc Returns the value for an attribute in a RADIUS protocol
 %% 	attributes list.  Assumes that the attribute is present.
 %%
-fetch(Attribute, Attributes) -> 
+fetch(Attribute, Attributes) ->
 	orddict:fetch(Attribute, Attributes).
 
 -spec find(Attribute :: pos_integer(), Attributes :: attributes()) ->
@@ -85,7 +85,7 @@ fetch(Attribute, Attributes) ->
 %% 	Value = term()
 %% @doc Searches for an attribute in a RADIUS protocol attributes list.
 %%
-find(Attribute, Attributes) -> 
+find(Attribute, Attributes) ->
 	orddict:find(Attribute, Attributes).
 
 -spec codec(In :: binary() | attributes()) -> attributes() | binary().
@@ -108,7 +108,7 @@ hide(SharedSecret, Authenticator, Password)
 hide(SharedSecret, Authenticator, Password)
 		when length(SharedSecret) > 0, length(Authenticator) == 16,
 		length(Password) div 16 >= 1, length(Password) div 16 =< 8,
-		length(Password) rem 16 == 0 -> 
+		length(Password) rem 16 == 0 ->
 	hide(SharedSecret, Authenticator, Password, []).
 
 -spec unhide(SharedSecret :: string(), Authenticator :: [byte()],
@@ -118,7 +118,7 @@ hide(SharedSecret, Authenticator, Password)
 unhide(SharedSecret, Authenticator, UserPassword)
 		when length(SharedSecret) > 0, length(Authenticator) == 16,
 		length(UserPassword) div 16 >= 1, length(UserPassword) div 16 =< 8,
-		length(UserPassword) rem 16 == 0 -> 
+		length(UserPassword) rem 16 == 0 ->
 	unhide(SharedSecret, Authenticator, UserPassword, []).
 
 %%----------------------------------------------------------------------
@@ -156,7 +156,7 @@ attributes(Bin, Offset, Acc) ->
 	Value = binary:part(Bin, Offset + 2, Length - 2),
 	NewAcc = attribute(Type, Value, Acc),
 	attributes(Bin, Offset + Length, NewAcc).
-	
+
 %% @hidden
 attribute(?UserName, Value, Acc) when size(Value) >= 1 ->
 	UserName = binary_to_list(Value),
@@ -333,11 +333,11 @@ attributes([], Attributes) ->
 attributes([{?UserName, UserName} | T], Acc) ->
 	UN = list_to_binary(UserName),
 	Length = size(UN) + 2,
-	attributes(T, <<Acc/binary, ?UserName, Length, UN/binary>>); 
+	attributes(T, <<Acc/binary, ?UserName, Length, UN/binary>>);
 attributes([{?UserPassword, UserPassword} | T], Acc) ->
 	UP = list_to_binary(UserPassword),
 	Length = size(UP) + 2,
-	attributes(T, <<Acc/binary, ?UserPassword, Length, UP/binary>>); 
+	attributes(T, <<Acc/binary, ?UserPassword, Length, UP/binary>>);
 attributes([{?ChapPassword, {ChapId, ChapPassword}} | T], Acc)
 		when is_integer(ChapId), length(ChapPassword) =:= 16 ->
 	BinChapPassword = list_to_binary(ChapPassword),
@@ -347,144 +347,144 @@ attributes([{?ChapPassword, {ChapId, ChapPassword}} | T], Acc)
 		size(ChapPassword) =:= 16 ->
 	Length = size(ChapPassword) + 3,
 	attributes(T, <<Acc/binary, ?ChapPassword,
-			Length, ChapId, ChapPassword/binary>>); 
+			Length, ChapId, ChapPassword/binary>>);
 attributes([{?NasIpAddress, {A, B, C, D}} | T], Acc) ->
-	attributes(T, <<Acc/binary, ?NasIpAddress, 6, A, B, C, D>>); 
+	attributes(T, <<Acc/binary, ?NasIpAddress, 6, A, B, C, D>>);
 attributes([{?NasPort, NasPort} | T], Acc) ->
-	attributes(T, <<Acc/binary, ?NasPort, 6, NasPort:32>>); 
+	attributes(T, <<Acc/binary, ?NasPort, 6, NasPort:32>>);
 attributes([{?ServiceType, ServiceType} | T], Acc) ->
-	attributes(T, <<Acc/binary, ?ServiceType, 6, ServiceType:32>>); 
+	attributes(T, <<Acc/binary, ?ServiceType, 6, ServiceType:32>>);
 attributes([{?FramedProtocol, FramedProtocol} | T], Acc) ->
-	attributes(T, <<Acc/binary, ?FramedProtocol, 6, FramedProtocol:32>>); 
+	attributes(T, <<Acc/binary, ?FramedProtocol, 6, FramedProtocol:32>>);
 attributes([{?FramedIpAddress, {A, B, C, D}} | T], Acc) ->
-	attributes(T, <<Acc/binary, ?FramedIpAddress, 6, A, B, C, D>>); 
+	attributes(T, <<Acc/binary, ?FramedIpAddress, 6, A, B, C, D>>);
 attributes([{?FramedIpNetmask, {A, B, C, D}} | T], Acc) ->
-	attributes(T, <<Acc/binary, ?FramedIpNetmask, 6, A, B, C, D>>); 
+	attributes(T, <<Acc/binary, ?FramedIpNetmask, 6, A, B, C, D>>);
 attributes([{?FramedRouting, FramedRouting} | T], Acc) ->
-	attributes(T, <<Acc/binary, ?FramedRouting, 6, FramedRouting:32>>); 
+	attributes(T, <<Acc/binary, ?FramedRouting, 6, FramedRouting:32>>);
 attributes([{?FilterId, FilterId} | T], Acc) ->
 	FI = list_to_binary(FilterId),
 	Length = size(FI) + 2,
-	attributes(T, <<Acc/binary, ?FilterId, Length, FI/binary>>); 
+	attributes(T, <<Acc/binary, ?FilterId, Length, FI/binary>>);
 attributes([{?FramedMtu, FramedMtu} | T], Acc) ->
-	attributes(T, <<Acc/binary, ?FramedMtu, 6, FramedMtu:32>>); 
+	attributes(T, <<Acc/binary, ?FramedMtu, 6, FramedMtu:32>>);
 attributes([{?FramedCompression, FramedCompression} | T], Acc) ->
-	attributes(T, <<Acc/binary, ?FramedCompression, 6, FramedCompression:32>>); 
+	attributes(T, <<Acc/binary, ?FramedCompression, 6, FramedCompression:32>>);
 attributes([{?LoginIpHost, {A, B, C, D}} | T], Acc) ->
-	attributes(T, <<Acc/binary, ?LoginIpHost, 6, A, B, C, D>>); 
+	attributes(T, <<Acc/binary, ?LoginIpHost, 6, A, B, C, D>>);
 attributes([{?LoginService, LoginService} | T], Acc) ->
-	attributes(T, <<Acc/binary, ?LoginService, 6, LoginService:32>>); 
+	attributes(T, <<Acc/binary, ?LoginService, 6, LoginService:32>>);
 attributes([{?LoginTcpPort, LoginTcpPort} | T], Acc) ->
-	attributes(T, <<Acc/binary, ?LoginTcpPort, 6, LoginTcpPort:32>>); 
+	attributes(T, <<Acc/binary, ?LoginTcpPort, 6, LoginTcpPort:32>>);
 attributes([{?ReplyMessage, ReplyMessage} | T], Acc) ->
 	RM = list_to_binary(ReplyMessage),
 	Length = size(RM) + 2,
-	attributes(T, <<Acc/binary, ?ReplyMessage, Length, RM/binary>>); 
+	attributes(T, <<Acc/binary, ?ReplyMessage, Length, RM/binary>>);
 attributes([{?CallbackNumber, CallbackNumber} | T], Acc) ->
 	CN = list_to_binary(CallbackNumber),
 	Length = size(CN) + 2,
-	attributes(T, <<Acc/binary, ?CallbackNumber, Length, CN/binary>>); 
+	attributes(T, <<Acc/binary, ?CallbackNumber, Length, CN/binary>>);
 attributes([{?CallbackId, CallbackId} | T], Acc) ->
 	CI = list_to_binary(CallbackId),
 	Length = size(CI) + 2,
-	attributes(T, <<Acc/binary, ?CallbackId, Length, CI/binary>>); 
+	attributes(T, <<Acc/binary, ?CallbackId, Length, CI/binary>>);
 attributes([{?FramedRoute, FramedRoute} | T], Acc) ->
 	FR = list_to_binary(FramedRoute),
 	Length = size(FR) + 2,
-	attributes(T, <<Acc/binary, ?FramedRoute, Length, FR/binary>>); 
+	attributes(T, <<Acc/binary, ?FramedRoute, Length, FR/binary>>);
 attributes([{?FramedIpxNetwork, FramedIpxNetwork} | T], Acc) ->
-	attributes(T, <<Acc/binary, ?FramedIpxNetwork, 6, FramedIpxNetwork:32>>); 
+	attributes(T, <<Acc/binary, ?FramedIpxNetwork, 6, FramedIpxNetwork:32>>);
 attributes([{?State, State} | T], Acc) ->
 	ST = list_to_binary(State),
 	Length = size(ST) + 2,
-	attributes(T, <<Acc/binary, ?State, Length, ST/binary>>); 
+	attributes(T, <<Acc/binary, ?State, Length, ST/binary>>);
 attributes([{?Class, Class} | T], Acc) ->
 	CL = list_to_binary(Class),
 	Length = size(CL) + 2,
-	attributes(T, <<Acc/binary, ?Class, Length, CL/binary>>); 
+	attributes(T, <<Acc/binary, ?Class, Length, CL/binary>>);
 attributes([{?VendorSpecific, {VendorId, Bin}} | T], Acc)
 		when is_integer(VendorId), is_binary(Bin) ->
 	Length = size(Bin) + 6,
 	attributes(T, <<Acc/binary, ?VendorSpecific, Length,
-			0, VendorId:24, Bin/binary>>); 
+			0, VendorId:24, Bin/binary>>);
 attributes([{?SessionTimeout, SessionTimeout} | T], Acc) ->
-	attributes(T, <<Acc/binary, ?SessionTimeout, 6, SessionTimeout:32>>); 
+	attributes(T, <<Acc/binary, ?SessionTimeout, 6, SessionTimeout:32>>);
 attributes([{?IdleTimeout, IdleTimeout} | T], Acc) ->
-	attributes(T, <<Acc/binary, ?IdleTimeout, 6, IdleTimeout:32>>); 
+	attributes(T, <<Acc/binary, ?IdleTimeout, 6, IdleTimeout:32>>);
 attributes([{?TerminationAction, TerminationAction} | T], Acc) ->
-	attributes(T, <<Acc/binary, ?TerminationAction, 6, TerminationAction:32>>); 
+	attributes(T, <<Acc/binary, ?TerminationAction, 6, TerminationAction:32>>);
 attributes([{?CalledStationId, CalledStationId} | T], Acc) ->
 	CI = list_to_binary(CalledStationId),
 	Length = size(CI) + 2,
-	attributes(T, <<Acc/binary, ?CalledStationId, Length, CI/binary>>); 
+	attributes(T, <<Acc/binary, ?CalledStationId, Length, CI/binary>>);
 attributes([{?CallingStationId, CallingStationId} | T], Acc) ->
 	CI = list_to_binary(CallingStationId),
 	Length = size(CI) + 2,
-	attributes(T, <<Acc/binary, ?CallingStationId, Length, CI/binary>>); 
+	attributes(T, <<Acc/binary, ?CallingStationId, Length, CI/binary>>);
 attributes([{?NasIdentifier, NasIdentifier} | T], Acc) ->
 	NI = list_to_binary(NasIdentifier),
 	Length = size(NI) + 2,
-	attributes(T, <<Acc/binary, ?NasIdentifier, Length, NI/binary>>); 
+	attributes(T, <<Acc/binary, ?NasIdentifier, Length, NI/binary>>);
 attributes([{?ProxyState, ProxyState} | T], Acc) ->
 	PS = list_to_binary(ProxyState),
 	Length = size(PS) + 2,
-	attributes(T, <<Acc/binary, ?ProxyState, Length, PS/binary>>); 
+	attributes(T, <<Acc/binary, ?ProxyState, Length, PS/binary>>);
 attributes([{?LoginLatService, LoginLatService} | T], Acc) ->
 	LT = list_to_binary(LoginLatService),
 	Length = size(LT) + 2,
-	attributes(T, <<Acc/binary, ?LoginLatService, Length, LT/binary>>); 
+	attributes(T, <<Acc/binary, ?LoginLatService, Length, LT/binary>>);
 attributes([{?LoginLatNode, LoginLatNode} | T], Acc) ->
 	LT = list_to_binary(LoginLatNode),
 	Length = size(LT) + 2,
-	attributes(T, <<Acc/binary, ?LoginLatNode, Length, LT/binary>>); 
+	attributes(T, <<Acc/binary, ?LoginLatNode, Length, LT/binary>>);
 attributes([{?LoginLatGroup, LoginLatGroup} | T], Acc) ->
 	LT = list_to_binary(LoginLatGroup),
 	Length = size(LT) + 2,
-	attributes(T, <<Acc/binary, ?LoginLatGroup, Length, LT/binary>>); 
+	attributes(T, <<Acc/binary, ?LoginLatGroup, Length, LT/binary>>);
 attributes([{?FramedAppleTalkLink, FramedAppleTalkLink} | T], Acc) ->
-	attributes(T, <<Acc/binary, ?FramedAppleTalkLink, 6, FramedAppleTalkLink:32>>); 
+	attributes(T, <<Acc/binary, ?FramedAppleTalkLink, 6, FramedAppleTalkLink:32>>);
 attributes([{?FramedAppleTalkNetwork, FramedAppleTalkNetwork} | T], Acc) ->
-	attributes(T, <<Acc/binary, ?FramedAppleTalkNetwork, 6, FramedAppleTalkNetwork:32>>); 
+	attributes(T, <<Acc/binary, ?FramedAppleTalkNetwork, 6, FramedAppleTalkNetwork:32>>);
 attributes([{?FramedAppleTalkZone, FramedAppleTalkZone} | T], Acc) ->
 	FZ = list_to_binary(FramedAppleTalkZone),
 	Length = size(FZ) + 2,
-	attributes(T, <<Acc/binary, ?FramedAppleTalkZone, Length, FZ/binary>>); 
+	attributes(T, <<Acc/binary, ?FramedAppleTalkZone, Length, FZ/binary>>);
 attributes([{?AcctStatusType, AcctStatusType} | T], Acc) ->
-	attributes(T, <<Acc/binary, ?AcctStatusType, 6, AcctStatusType:32>>); 
+	attributes(T, <<Acc/binary, ?AcctStatusType, 6, AcctStatusType:32>>);
 attributes([{?AcctDelayTime, AcctDelayTime} | T], Acc) ->
-	attributes(T, <<Acc/binary, ?AcctDelayTime, 6, AcctDelayTime:32>>); 
+	attributes(T, <<Acc/binary, ?AcctDelayTime, 6, AcctDelayTime:32>>);
 attributes([{?AcctInputOctets, AcctInputOctets} | T], Acc) ->
-	attributes(T, <<Acc/binary, ?AcctInputOctets, 6, AcctInputOctets:32>>); 
+	attributes(T, <<Acc/binary, ?AcctInputOctets, 6, AcctInputOctets:32>>);
 attributes([{?AcctOutputOctets, AcctOutputOctets} | T], Acc) ->
-	attributes(T, <<Acc/binary, ?AcctOutputOctets, 6, AcctOutputOctets:32>>); 
+	attributes(T, <<Acc/binary, ?AcctOutputOctets, 6, AcctOutputOctets:32>>);
 attributes([{?AcctSessionId, AcctSessionId} | T], Acc) ->
 	SI = list_to_binary(AcctSessionId),
 	Length = size(SI) + 2,
-	attributes(T, <<Acc/binary, ?AcctSessionId, Length, SI/binary>>); 
+	attributes(T, <<Acc/binary, ?AcctSessionId, Length, SI/binary>>);
 attributes([{?AcctAuthentic, AcctAuthentic} | T], Acc) ->
-	attributes(T, <<Acc/binary, ?AcctAuthentic, 6, AcctAuthentic:32>>); 
+	attributes(T, <<Acc/binary, ?AcctAuthentic, 6, AcctAuthentic:32>>);
 attributes([{?AcctSessionTime, AcctSessionTime} | T], Acc) ->
-	attributes(T, <<Acc/binary, ?AcctSessionTime, 6, AcctSessionTime:32>>); 
+	attributes(T, <<Acc/binary, ?AcctSessionTime, 6, AcctSessionTime:32>>);
 attributes([{?AcctInputPackets, AcctInputPackets} | T], Acc) ->
-	attributes(T, <<Acc/binary, ?AcctInputPackets, 6, AcctInputPackets:32>>); 
+	attributes(T, <<Acc/binary, ?AcctInputPackets, 6, AcctInputPackets:32>>);
 attributes([{?AcctOutputPackets, AcctOutputPackets} | T], Acc) ->
-	attributes(T, <<Acc/binary, ?AcctOutputPackets, 6, AcctOutputPackets:32>>); 
+	attributes(T, <<Acc/binary, ?AcctOutputPackets, 6, AcctOutputPackets:32>>);
 attributes([{?AcctTerminateCause, AcctTerminateCause} | T], Acc) ->
-	attributes(T, <<Acc/binary, ?AcctTerminateCause, 6, AcctTerminateCause:32>>); 
+	attributes(T, <<Acc/binary, ?AcctTerminateCause, 6, AcctTerminateCause:32>>);
 attributes([{?AcctMultiSessionId, AcctMultiSessionId} | T], Acc) ->
 	SI = list_to_binary(AcctMultiSessionId),
 	Length = size(SI) + 2,
-	attributes(T, <<Acc/binary, ?AcctMultiSessionId, Length, SI/binary>>); 
+	attributes(T, <<Acc/binary, ?AcctMultiSessionId, Length, SI/binary>>);
 attributes([{?AcctLinkCount, AcctLinkCount} | T], Acc) ->
-	attributes(T, <<Acc/binary, ?AcctLinkCount, 6, AcctLinkCount:32>>); 
+	attributes(T, <<Acc/binary, ?AcctLinkCount, 6, AcctLinkCount:32>>);
 attributes([{?ChapChallenge, ChapChallenge} | T], Acc) ->
 	CC = list_to_binary(ChapChallenge),
 	Length = size(CC) + 2,
-	attributes(T, <<Acc/binary, ?ChapChallenge, Length, CC/binary>>); 
+	attributes(T, <<Acc/binary, ?ChapChallenge, Length, CC/binary>>);
 attributes([{?NasPortType, NasPortType} | T], Acc) ->
-	attributes(T, <<Acc/binary, ?NasPortType, 6, NasPortType:32>>); 
+	attributes(T, <<Acc/binary, ?NasPortType, 6, NasPortType:32>>);
 attributes([{?PortLimit, PortLimit} | T], Acc) ->
-	attributes(T, <<Acc/binary, ?PortLimit, 6, PortLimit:32>>); 
+	attributes(T, <<Acc/binary, ?PortLimit, 6, PortLimit:32>>);
 attributes([{?LoginLatPort, LoginLatPort} | T], Acc) ->
-	attributes(T, <<Acc/binary, ?LoginLatPort, 6, LoginLatPort:32>>). 
+	attributes(T, <<Acc/binary, ?LoginLatPort, 6, LoginLatPort:32>>).
 
