@@ -4,18 +4,18 @@
 %%% @end
 %%%
 %%% Copyright (c) 2011-2014, Motivity Telecom
-%%% 
+%%%
 %%% All rights reserved.
-%%% 
+%%%
 %%% Redistribution and use in source and binary forms, with or without
 %%% modification, are permitted provided that the following conditions
 %%% are met:
-%%% 
+%%%
 %%%    - Redistributions of source code must retain the above copyright
 %%%      notice, this list of conditions and the following disclaimer.
 %%%    - Redistributions in binary form must reproduce the above copyright
 %%%      notice, this list of conditions and the following disclaimer in
-%%%      the documentation and/or other materials provided with the 
+%%%      the documentation and/or other materials provided with the
 %%%      distribution.
 %%%    - Neither the name of Motivity Telecom nor the names of its
 %%%      contributors may be used to endorse or promote products derived
@@ -29,7 +29,7 @@
 %%% SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
 %%% LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
 %%% DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
-%%% THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT 
+%%% THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 %%% (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 %%% OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 %%%
@@ -39,12 +39,12 @@
 %%% 	This server handles all incoming packets on the socket and spawns
 %%% 	a {@link //radius/radius_fsm. radius_fsm} process to handle a new
 %%% 	transaction based on the source address, port and RADIUS Identifier.
-%%% 	It first verifies that the RADIUS Code and Length are valid, 
+%%% 	It first verifies that the RADIUS Code and Length are valid,
 %%% 	otherwise it silently discards.
-%%% 
+%%%
 %%% 	The process communication is as depicted in <a href="messages.png">
 %%% 	Figure-1.1</a>.
-%%% 
+%%%
 %%% 	<img alt="Figure-1.1" src="messages.png" />
 %%%
 -module(radius_server).
@@ -139,7 +139,7 @@ init([Sup, Module, Port, Address] = _Args) ->
 
 -spec handle_call(Request :: term(), From :: {Pid :: pid(), Tag :: any()},
 		State :: #state{}) ->
-	Result :: {reply, Reply :: term(), NewState :: #state{}} 
+	Result :: {reply, Reply :: term(), NewState :: #state{}}
 		| {reply, Reply :: term(), NewState :: #state{}, Timeout :: non_neg_integer() | infinity}
 		| {reply, Reply :: term(), NewState :: #state{}, hibernate}
 		| {noreply, NewState :: #state{}}
