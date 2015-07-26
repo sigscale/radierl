@@ -222,6 +222,10 @@ handle_info({udp, Socket, Address, Port,
 		{error, Reason} ->
 			{stop, Reason, NewState}
 	end;
+handle_info({udp_error, Socket, Reason}, #state{socket = Socket, address = Address, port = Port} = State) ->
+	error_logger:error_report(["error on the socket",
+		{error, Reason}, {socket, Socket}, {address, Address}, {port, Port}]),
+	{noreply, State};
 handle_info({'EXIT', _Pid, {shutdown, Key}},
 		#state{handlers = Handlers} = State) ->
 	NewHandlers = gb_trees:delete(Key, Handlers),
