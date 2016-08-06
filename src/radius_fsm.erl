@@ -113,11 +113,11 @@ init([Socket, Module, Address, Port, Identifier] = _Args) ->
 %% @@see //stdlib/gen_fsm:StateName/2
 %% @private
 %%
-idle(<<_Code, Identifier, Authenticator:128, _/binary>> = _Event,
+idle(<<_Code, Identifier, Authenticator:168/binary, _/binary>> = _Event,
 		#statedata{identifier = Identifier, authenticator = Authenticator,
 				response = ignore} = StateData) ->
 		{next_state, idle, StateData, ?WAITRETRIES};
-idle(<<_Code, Identifier, Authenticator:128, _/binary>> = Event,
+idle(<<_Code, Identifier, Authenticator:16/binary, _/binary>> = Event,
 		#statedata{identifier = Identifier, authenticator = CachedAuthenticator,
 		socket = Socket, module = Module, address = Address,
 		port = Port} = StateData) when Authenticator /= CachedAuthenticator ->
@@ -139,7 +139,7 @@ idle(<<_Code, Identifier, Authenticator:128, _/binary>> = Event,
 					{stop, Reason, NewStateData}
 			end
 	end;
-idle(<<_Code, Identifier, Authenticator:128, _/binary>> = _Event,
+idle(<<_Code, Identifier, Authenticator:16/binary, _/binary>> = _Event,
 		#statedata{identifier = Identifier, authenticator = Authenticator,
 				response = Response, socket = Socket,
 				address = Address, port = Port} = StateData) ->
