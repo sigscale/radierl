@@ -21,12 +21,18 @@ overview.edoc: overview.edoc-in
 
 %.html:$(top_srcdir)/src/%.erl	overview.edoc
 	$(ERL) -noshell -run edoc_run application \
-			"'$(PACKAGE_NAME)'" "'$(top_srcdir)'" \
-			'[{sort_functions,false},{private,true},{todo,true}]'
-	for i in `ls *.html`; do sed -e 's!erlang logo!Motivity logo!' \
-			-e 's!erlang.org!motivity.ca!' \
-			-e 's!erlang.png!motivitylogo.png!' < $$i > t.html; \
-					mv t.html $$i; done
+			"'$(PACKAGE_NAME)'" "'$(top_builddir)'" \
+			'[{sort_functions,false},{private,true},{todo,true},{source_path,["$(top_srcdir)/src"]},{subpackages,false},{def,{docsrc,"$(top_srcdir)/doc/{@?}"}},{includes, ["$(top_srcdir)/include"]}]'
+	for i in `ls *.html`; do \
+			sed -i -e 's!erlang logo!motivity logo!' $$i; \
+			sed -i -e 's!erlang.org!motivity.ca!' $$i; \
+			sed -i -e 's!erlang.png!motivitylogo.png!' $$i; done
+	if [ ! -e $(top_builddir)/doc/motivitylogo.png ]; then \
+		cp $(top_srcdir)/doc/motivitylogo.png $(top_builddir)/doc; fi
+	if [ ! -e $(top_builddir)/doc/supervision.png ]; then \
+		cp $(top_srcdir)/doc/supervision.png $(top_builddir)/doc; fi
+	if [ ! -e $(top_builddir)/doc/messages.png ]; then \
+		cp $(top_srcdir)/doc/messages.png $(top_builddir)/doc; fi
 
 CLEANFILES = overview.edoc edoc-info index.html \
 		modules-frame.html overview-summary.html packages-frame.html \

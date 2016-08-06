@@ -16,7 +16,7 @@ beam_DATA = radius.beam \
 		radius_sup.beam
 
 %.beam:$(top_srcdir)/src/%.erl
-	$(ERLC) $(ERLCFLAGS) -I $(top_builddir)/include -I $(top_builddir)/src $<
+	$(ERLC) $(ERLCFLAGS) -I $(top_srcdir)/include -I $(top_srcdir)/src $<
 
 %.app:   %.app-in
 	sed -e 's/%APP_NAME%/$(PACKAGE_NAME)/' \

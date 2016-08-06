@@ -34,7 +34,7 @@
 %%% OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 %%%
 %%%---------------------------------------------------------------------
-%%% @docfile "radius_sup.edoc"
+%%% @docfile "{@docsrc radius_sup.edoc}"
 %%%
 -module(radius_sup).
 -copyright('Copyright (c) 2011-2014 Motivity Telecom').
