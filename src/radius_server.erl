@@ -69,7 +69,9 @@
 		port :: non_neg_integer(),
 		module :: atom(),
 		fsm_sup :: pid(),
-		handlers = gb_trees:empty() :: gb_tree()}).
+		handlers = gb_trees:empty() :: gb_trees:tree(Key ::
+				{Address :: inet:ip_address(), Port :: pos_integer(),
+				Identifier :: non_neg_integer()}, Value :: (Fsm :: pid()))}).
 
 %%----------------------------------------------------------------------
 %%  The radius_server API
