@@ -1,9 +1,9 @@
 %%%---------------------------------------------------------------------
-%%% @copyright 2011-2014 Motivity Telecom
+%%% @copyright 2011-2016 Motivity Telecom
 %%% @author Vance Shipley <vances@motivity.ca> [http://www.motivity.ca]
 %%% @end
 %%%
-%%% Copyright (c) 2011-2014, Motivity Telecom
+%%% Copyright (c) 2011-2016, Motivity Telecom
 %%% 
 %%% All rights reserved.
 %%% 
@@ -39,7 +39,7 @@
 %%% 		the {@link //radius. radius} application.
 %%%
 -module(radius_app).
--copyright('Copyright (c) 2011-2014 Motivity Telecom').
+-copyright('Copyright (c) 2011-2016 Motivity Telecom').
 -author('vances@motivity.ca').
 
 -behaviour(application).

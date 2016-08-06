@@ -1,9 +1,9 @@
 %%%---------------------------------------------------------------------
-%%% @copyright 2011-2014 Motivity Telecom
+%%% @copyright 2011-2016 Motivity Telecom
 %%% @author Vance Shipley <vances@motivity.ca> [http://www.motivity.ca]
 %%% @end
 %%%
-%%% Copyright (c) 2011-2014, Motivity Telecom
+%%% Copyright (c) 2011-2016, Motivity Telecom
 %%% 
 %%% All rights reserved.
 %%% 
@@ -91,7 +91,7 @@
 %%% 	with <tt>Reason</tt>. The return value is ignored.
 %%% 
 -module(radius).
--copyright('Copyright (c) 2011-2014 Motivity Telecom').
+-copyright('Copyright (c) 2011-2016 Motivity Telecom').
 -author('vances@motivity.ca').
 
 %% export the radius public API
