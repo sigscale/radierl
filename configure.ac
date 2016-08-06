@@ -69,5 +69,5 @@ AC_SUBST(eincludedir)
 ##
 ## Output:  create output files
 ## 
-AC_OUTPUT([Makefile include/Makefile ebin/Makefile doc/Makefile])
+AC_OUTPUT([Makefile include/Makefile ebin/Makefile doc/Makefile test/Makefile])
 

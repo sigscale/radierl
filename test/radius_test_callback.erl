@@ -41,7 +41,7 @@
 
 -export([init/2, request/3, terminate/1]).
 
--include("../include/radius.hrl").
+-include("radius.hrl").
 
 %%----------------------------------------------------------------------
 %%  The radius callbacks

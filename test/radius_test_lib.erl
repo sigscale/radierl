@@ -41,7 +41,7 @@
 
 -export([init_per_suite/1, end_per_suite/1]).
 
--include_lib("ct.hrl").
+-include_lib("common_test/include/ct.hrl").
 
 %% @spec (Config) -> Config
 %% 	Config = [tuple()]
