@@ -16,7 +16,7 @@ AM_INIT_AUTOMAKE
 ## Options:  control options to configure, support code for the options
 ##
 AC_ARG_ENABLE([debug],
-		[AS_HELP_STRING([--enable-debug], [enable debugging (default is no)])])
+		[AS_HELP_STRING([--disable-debug], [disable debugging (default is enabled)])])
 
 ##
 ## Programs:  check for programs needed by the configure process,
@@ -27,7 +27,7 @@ AC_ERLANG_NEED_ERLC
 if test -z "${ERLCFLAGS}" ; then
 	ERLCFLAGS="-W -v"
 fi
-if test "x$enable_debug" == xyes ; then
+if test "x$enable_debug" != xno; then
 	ERLCFLAGS="$ERLCFLAGS +debug_info"
 fi
 AC_ERLANG_SUBST_LIB_DIR
