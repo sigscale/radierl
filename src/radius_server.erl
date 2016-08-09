@@ -68,6 +68,7 @@
 		address :: inet:ip_address(),
 		port :: non_neg_integer(),
 		module :: atom(),
+		user_state :: term(),
 		fsm_sup :: pid(),
 		handlers = gb_trees:empty() :: gb_trees:tree(Key ::
 				{Address :: inet:ip_address(), Port :: pos_integer(),
@@ -122,9 +123,10 @@ init([Sup, Module, Port, Address] = _Args) ->
 				throw(Reason1)
 		end,
 		case Module:init(Address, PortUsed) of
-			ok ->
+			{ok, UserState} ->
 				#state{sup = Sup, socket = Socket, address = IP,
-						port = PortUsed, module = Module};
+						port = PortUsed, module = Module,
+						user_state = UserState};
 			{error, Reason2} ->
 				throw(Reason2)
 		end
@@ -271,8 +273,9 @@ handle_info({'EXIT', Fsm, _Reason},
 %% @see //stdlib/gen_server:terminate/3
 %% @private
 %%
-terminate(Reason, #state{module = Module} = _State) ->
-	Module:terminate(Reason).
+terminate(Reason, #state{module = Module,
+		user_state = UserState} = _State) ->
+	Module:terminate(Reason, UserState).
 
 -spec code_change(OldVsn :: (Vsn :: term() | {down, Vsn :: term()}),
 		State :: #state{}, Extra :: term()) ->
@@ -295,9 +298,10 @@ code_change(_OldVsn, State, _Extra) ->
 %% @doc Start a new {@link radius_fsm. radius_fsm} transaction state
 %%% 	handler and forward the request to it.
 %% @hidden
-start_fsm(#state{socket = Socket, module = Module, fsm_sup = Sup,
-		handlers = Handlers} = State, Address, Port, Identifier, Packet) ->
-	ChildSpec = [[Socket, Module, Address, Port, Identifier], []],
+start_fsm(#state{socket = Socket, module = Module, user_state = UserState,
+		fsm_sup = Sup, handlers = Handlers} = State,
+		Address, Port, Identifier, Packet) ->
+	ChildSpec = [[Socket, Module, UserState, Address, Port, Identifier], []],
 	case supervisor:start_child(Sup, ChildSpec) of
 		{ok, Fsm} ->
 			link(Fsm),

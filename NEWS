@@ -1,3 +1,8 @@
+August 2016
+-----------
+	- version changed to 1.0
+	- changed radius behaviour callbacks to include state
+
 January 2014
 ------------
 	- version change to 1.0

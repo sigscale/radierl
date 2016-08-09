@@ -45,7 +45,7 @@
 -behaviour(radius).
 
 %% export the radius behaviour callbacks
--export([init/2, request/3, terminate/1]).
+-export([init/2, request/4, terminate/2]).
 
 %% @headerfile "../../include/radius.hrl"
 -include_lib("../../include/radius.hrl").
@@ -55,20 +55,20 @@
 %%----------------------------------------------------------------------
 
 -spec init(Address :: inet:ip_address(), Port :: pos_integer()) ->
-	Result :: ok | {error, Reason :: term()}.
+	{ok, State :: term()} | {error, Reason :: term()}.
 %% @doc This callback function is called when a
 %% 	{@link //radius/radius_server. radius_server} behaviour process
 %% 	initializes.
 %%
 init(_Address, _Port) ->
-	ok.
+	{ok, []}.
 
 -spec request(Address :: inet:ip_address(), Port :: pos_integer(),
-		Packet :: binary()) ->
-	Result :: binary() | {error, Reason :: ignore | term()}.
+		Packet :: binary(), State :: term()) ->
+	{ok, Result :: binary()} | {error, Reason :: ignore | term()}.
 %% @doc This function is called when a request is received on the port.
 %%
-request(Address, _Port, Packet) ->
+request(Address, _Port, Packet, _State) ->
 	case radius_example:find_client(Address) of
 		{ok, Secret} ->
 			request(Packet, Secret);
@@ -146,10 +146,10 @@ request(Packet, Secret) ->
 			reject(Packet, Secret)
 	end.
 
--spec terminate(Reason :: term()) -> ok.
+-spec terminate(Reason :: term(), State :: term()) -> ok.
 %% @doc This callback function is called just before the server exits.
 %%
-terminate(_Reason) ->
+terminate(_Reason, _State) ->
 	ok.
 
 %%----------------------------------------------------------------------
@@ -157,7 +157,7 @@ terminate(_Reason) ->
 %%----------------------------------------------------------------------
 
 -spec reject(Request :: binary(), Secret :: string()) ->
-	AccessReject :: binary().
+	{ok, AccessReject :: binary()}.
 %% @hidden
 reject(<<_Code, Id, _Len:16, Authenticator:16/binary, _/binary>>, Secret) ->
 	Attributes = [],
@@ -166,11 +166,11 @@ reject(<<_Code, Id, _Len:16, Authenticator:16/binary, _/binary>>, Secret) ->
 			Authenticator, Secret]), 
 	Response = #radius{code = ?AccessReject, id = Id,
 			authenticator = ResponseAuthenticator, attributes = []},
-	radius:codec(Response).
+	{ok, radius:codec(Response)}.
 
 -spec accept(Id :: byte(), RequestAuthenticator :: [byte()],
 		Secret :: string(), Attributes :: binary() | [byte()]) ->
-	AccessAccept :: binary().
+	{ok, AccessAccept :: binary()}.
 %% @hidden
 accept(Id, RequestAuthenticator, Secret, AttributeList)
 		when is_list(AttributeList) -> 
@@ -184,5 +184,5 @@ accept(Id, RequestAuthenticator, Secret, ResponseAttributes)
 	Response = #radius{code = ?AccessAccept, id = Id,
 			authenticator = ResponseAuthenticator,
 			attributes = ResponseAttributes},
-	radius:codec(Response).
+	{ok, radius:codec(Response)}.
 

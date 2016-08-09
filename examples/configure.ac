@@ -4,7 +4,7 @@
 ##
 ## Boilerplate:  standard boilerplate code
 ##
-AC_INIT([radius_example], [1.0], [vances@motivity.ca])
+AC_INIT([radius_example], [1.1], [vances@motivity.ca])
 AC_COPYRIGHT([Copyright (c) 2011-14 Motivity Telecom])
 AC_PREREQ(2.64)
 AC_LANG([Erlang])

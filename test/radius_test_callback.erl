@@ -39,7 +39,7 @@
 %%%
 -module(radius_test_callback).
 
--export([init/2, request/3, terminate/1]).
+-export([init/2, request/4, terminate/2]).
 
 -include("radius.hrl").
 
@@ -50,24 +50,26 @@
 %% @spec (Address, Port) -> Result
 %% 	Address = ip_address()
 %% 	Port = integer()
-%% 	Result = ok | {error, Reason}
+%% 	Result = {ok, State} | {error, Reason}
+%% 	State = term()
 %% 	Reason = term()
 %% @doc This callback function is called when a
 %% 	{@link //radius/radius_server. radius_server} behaviour process
 %% 	initializes.
 %%
 init(_Address, _Port) ->
-	ok.
+	{ok, ?MODULE}.
 
-%% @spec (Address, Port, Packet) -> Result
+%% @spec (Address, Port, Packet, State) -> Result
 %% 	Address = ip_address()
 %% 	Port = integer()
 %% 	Packet = binary()
+%% 	State = term()
 %% 	Result = binary() | {error, Reason}
 %% 	Reason = ignore | term()
 %% @doc This function is called when a request is received on the port.
 %%
-request(_Address, _Port, Packet) ->
+request(_Address, _Port, Packet, ?MODULE = _State) ->
 	Secret = "xyzzy5461",
 	case radius:codec(Packet) of
 		#radius{code = ?AccessRequest, id = Id,
@@ -90,11 +92,12 @@ request(_Address, _Port, Packet) ->
 			{error, ignore}
 	end.
 
-%% @spec (Reason) -> ok
+%% @spec (Reason, State) -> ok
 %% 	Reason = term()
+%% 	State = term()
 %% @doc This callback function is called just before the server exits.
 %%
-terminate(_Reason) ->
+terminate(_Reason, ?MODULE = _State) ->
 	ok.
 
 %%----------------------------------------------------------------------
@@ -107,7 +110,7 @@ accept(Id, RequestAuthenticator, Secret) ->
 			RequestAuthenticator, Secret]), 
 	Response = #radius{code = ?AccessAccept, id = Id,
 			authenticator = ResponseAuthenticator, attributes = []},
-	radius:codec(Response).
+	{ok, radius:codec(Response)}.
 
 %% @hidden
 reject(<<_Code, Id, _Len:16, Authenticator:16/binary, _/binary>>, Secret) ->
@@ -115,5 +118,5 @@ reject(<<_Code, Id, _Len:16, Authenticator:16/binary, _/binary>>, Secret) ->
 			Authenticator, Secret]), 
 	Response = #radius{code = ?AccessReject, id = Id,
 			authenticator = ResponseAuthenticator, attributes = []},
-	radius:codec(Response).
+	{ok, radius:codec(Response)}.
 

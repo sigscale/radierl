@@ -45,7 +45,7 @@
 -behaviour(radius).
 
 %% export the radius behaviour callbacks
--export([init/2, request/3, terminate/1]).
+-export([init/2, request/4, terminate/2]).
 
 %% @headerfile "../../include/radius.hrl"
 -include("../../include/radius.hrl").
@@ -57,7 +57,7 @@
 %%----------------------------------------------------------------------
 
 -spec init(Address :: inet:ip_address(), Port :: pos_integer()) ->
-	Result :: ok | {error, Reason :: term()}.
+	Result :: {ok, State :: term()} | {error, Reason :: term()}.
 %% @doc This callback function is called when a
 %% 	{@link //radius/radius_server. radius_server} behaviour process
 %% 	initializes.
@@ -69,23 +69,23 @@ init(_Address, _Port) ->
 	case disk_log:open([{name, Log}, {file, FileName},
 			{type, wrap}, {size, {1048575, 20}}]) of
 		{ok, Log} ->
-			ok;
+			{ok, []};
 		{repaired, Log, {recovered, Rec}, {badbytes, Bad}} ->
 			error_logger:warning_report(["Disk log repaired",
 					{log, Log}, {path, FileName}, {recovered, Rec},
 					{badbytes, Bad}]),
-			ok;
+			{ok, []};
 		{error, Reason} ->
 			{error, Reason}
 	end.
 
 -spec request(Address :: inet:ip_address(), Port :: pos_integer(),
-		Packet :: binary()) ->
-	Result :: binary() | {error, Reason :: term()}.
+		Packet :: binary(), State :: term()) ->
+	{ok, Response :: binary()} | {error, Reason :: term()}.
 %% @doc This callback function is called when a request is received
 %% 	on the port.
 %%
-request(Address, _Port, Packet) ->
+request(Address, _Port, Packet, _State) ->
 	case radius_example:find_client(Address) of
 		{ok, Secret} ->
 			request(Packet, Secret);
@@ -126,10 +126,10 @@ request(<<_Code, Id, Length:16, _/binary>> = Packet, Secret) ->
 			{error, ignore}
 	end.
 
--spec terminate(Reason :: term()) -> ok.
+-spec terminate(Reason :: term(), State :: term()) -> ok.
 %% @doc This callback function is called just before the server exits.
 %%
-terminate(_Reason) ->
+terminate(_Reason, _State) ->
 	disk_log:close(?LOGNAME).
 
 %%----------------------------------------------------------------------
@@ -138,7 +138,7 @@ terminate(_Reason) ->
 
 -spec response(Id :: byte(), RequestAuthenticator :: [byte()],
 		Secret :: string(), Attributes :: binary() | [byte()]) ->
-	AccessAccept :: binary().
+	{ok, AccessAccept :: binary()}.
 %% @hidden
 response(Id, RequestAuthenticator, Secret, AttributeList)
 		when is_list(AttributeList) ->
@@ -151,5 +151,5 @@ response(Id, RequestAuthenticator, Secret, Attributes)
 			RequestAuthenticator, Attributes, Secret]),
 	Response = #radius{code = ?AccountingResponse, id = Id,
 			authenticator = ResponseAuthenticator, attributes = Attributes},
-	radius:codec(Response).
+	{ok, radius:codec(Response)}.
 

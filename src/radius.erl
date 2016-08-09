@@ -40,7 +40,8 @@
 %%% 	===Callback Functions===
 %%% 	====init/2====
 %%% 	<b><tt>Module:init(Address :: {@link //kernel/inet:ip_address(). ip_address()},
-%%% 	Port :: pos_integer()) -> ok | {error, Reason :: term()}</tt></b>
+%%% 	Port :: pos_integer()) ->
+%%% 		{ok, State :: term()} | {error, Reason :: term()}</tt></b>
 %%%
 %%% 	Whenever a {@link //radius/radius_server. radius_server} is started
 %%% 	using {@link //radius/radius:start/3. radius:start/3,4}, or
@@ -53,14 +54,18 @@
 %%% 	<tt>Port</tt> is the {@link //kernel/inet:port_number(). port_number()}
 %%% 	which the {@link //kernel/inet:socket(). socket()} is listening on.
 %%% 
-%%% 	This function should return <tt>ok</tt> if the callback handler will
-%%% 	be able service RADIUS requests on this
+%%% 	This function should return <tt>{ok, State}</tt> if the callback handler
+%%% 	will be able service RADIUS requests on this
 %%% 	{@link //radius/radius_server. radius_server} or
 %%% 	<tt>{error, Reason}</tt> indicating the problem.
+%%%
+%%% 	<tt>State</tt> may be any term.
 %%% 
-%%% 	====request/3====
+%%% 	====request/4====
 %%% 	<b><tt>Module:request(Address :: {@link //kernel/inet:ip_address(). ip_address()},
-%%% 	Port :: pos_integer(), RadiusRequest:: binary()) -> {error, Reason :: ignore | term()} | RadiusResponse :: binary()</tt></b>
+%%% 	Port :: pos_integer(), RadiusRequest :: binary(), State :: term()) ->
+%%% 	{ok, RadiusResponse :: binary()}
+%%% 			| {error, Reason :: ignore | term()}</tt></b>
 %%%
 %%% 	When a new valid RADIUS packet is received a
 %%% 	{@link //radius/radius_fsm. radius_fsm} transaction handler is started
@@ -71,9 +76,13 @@
 %%% 
 %%% 	<tt>Port</tt> is the {@link //kernel/inet:port_number(). port_number()}
 %%% 	of the client making the request.
+%%%
+%%% 	<tt>State</tt> has the value returned from <tt>Module:init/2</tt>.
 %%% 
-%%% 	This function should return a <tt>RadiusResponse</tt>, as returned
-%%% 	by {@link //radius/codec. radius:codec/1}, if the request was valid.
+%%% 	This function should return <tt>{ok, RadiusResponse}</tt>,
+%%% 	if the request was valid, where  <tt>RadiusResponse</tt> is a result
+%%% 	from a call to {@link //radius/codec. radius:codec/1}.
+%%% 	
 %%% 	If the RADIUS Authenticator or Attributes were badly formed
 %%% 	<tt>{error, ignore}</tt> should be returned to silently discard the
 %%% 	received packet and ignore retransmissions.  In the event of an error
@@ -81,14 +90,17 @@
 %%% 	{@link //radius/radius_fsm. radius_fsm} transaction handler and report
 %%% 	an error.
 %%% 
-%%% 	====terminate/1====
-%%% 	<b><tt>Module:terminate(Reason :: term()) -> any()</tt></b>
+%%% 	====terminate/2====
+%%% 	<b><tt>Module:terminate(Reason :: term(), State :: term()) ->
+%%% 		any()</tt></b>
 %%%
 %%% 	This function is called by a {@link //radius/radius_server. radius_server}
 %%% 	when it is about to terminate. It should be the opposite of
 %%% 	<tt>Module:init/1</tt> and do any necessary cleaning up. When it
 %%% 	returns, the {@link //radius/radius_server. radius_server} terminates
 %%% 	with <tt>Reason</tt>. The return value is ignored.
+%%%
+%%% 	<tt>State</tt> has the value returned from <tt>Module:init/2</tt>.
 %%% 
 -module(radius).
 -copyright('Copyright (c) 2011-2016 Motivity Telecom').
@@ -103,10 +115,11 @@
 
 %% define the functions a radius callback module must export
 -callback init(Address :: inet:ip_address(), Port :: integer()) ->
-	ok | {error, Reason :: term()}.
+	{ok, State :: term()} | {error, Reason :: term()}.
 -callback request(Address :: inet:ip_address(), Port :: integer(),
-		Packet :: binary()) -> binary() | {error, Reason :: ignore | term()}.
--callback terminate(Reason :: term()) -> any().
+		Packet :: binary(), State :: term()) ->
+	{ok, Response :: binary()} | {error, Reason :: ignore | term()}.
+-callback terminate(Reason :: term(), State :: term()) -> any().
 
 %% @headerfile "radius.hrl"
 -include("radius.hrl").

@@ -67,6 +67,7 @@
 -record(statedata,
 		{socket :: inet:socket(),
 		module :: atom(),
+		user_state :: term(),
 		address :: inet:ip_address(),
 		port :: pos_integer(),
 		identifier :: non_neg_integer(),
@@ -91,16 +92,17 @@
 		| {ok, StateName :: atom(), StateData :: #statedata{}, hibernate}
 		| {stop, Reason :: term()} | ignore.
 %% @doc Initialize the {@module} finite state machine.
-%% 	Args :: [Socket :: socket(), Module :: atom(),
-%% 	Address :: inet:ip_address(), Port :: non_neg_integer(),
+%% 	Args :: [Socket :: socket(), Module :: atom(), UserState :: term,
+%%% 	Address :: inet:ip_address(), Port :: non_neg_integer(),
 %% 	Identifier = non_neg_integer()].
 %% @see //stdlib/gen_fsm:init/1
 %% @private
 %%
-init([Socket, Module, Address, Port, Identifier] = _Args) ->
+init([Socket, Module, UserState, Address, Port, Identifier] = _Args) ->
 	process_flag(trap_exit, true),
 	StateData = #statedata{socket = Socket, module = Module,
-			address = Address, port = Port, identifier = Identifier},
+			user_state = UserState, address = Address,
+			port = Port, identifier = Identifier},
 	{ok, idle, StateData, ?WAITSTART}.
 
 -spec idle(Event :: timeout | term(), StateData :: #statedata{}) ->
@@ -119,17 +121,11 @@ idle(<<_Code, Identifier, Authenticator:168/binary, _/binary>> = _Event,
 		{next_state, idle, StateData, ?WAITRETRIES};
 idle(<<_Code, Identifier, Authenticator:16/binary, _/binary>> = Event,
 		#statedata{identifier = Identifier, authenticator = CachedAuthenticator,
-		socket = Socket, module = Module, address = Address,
-		port = Port} = StateData) when Authenticator /= CachedAuthenticator ->
-	case Module:request(Address, Port, Event) of
-		{error, ignore} ->
-			NewStateData = StateData#statedata{authenticator = Authenticator,
-					response = ignore},
-			{next_state, idle, NewStateData, ?WAITRETRIES};
-		{error, Reason} ->
-			NewStateData = StateData#statedata{authenticator = Authenticator},
-			{stop, Reason, NewStateData};
-		RadiusResponse ->
+		socket = Socket, module = Module, user_state = UserState,
+		address = Address, port = Port} = StateData)
+		when Authenticator /= CachedAuthenticator ->
+	case Module:request(Address, Port, Event, UserState) of
+		{ok, RadiusResponse} ->
 			NewStateData = StateData#statedata{authenticator = Authenticator,
 					response = RadiusResponse},
 			case gen_udp:send(Socket, Address, Port, RadiusResponse) of
@@ -137,7 +133,14 @@ idle(<<_Code, Identifier, Authenticator:16/binary, _/binary>> = Event,
 					{next_state, idle, NewStateData, ?WAITRETRIES};
 				{error, Reason} ->
 					{stop, Reason, NewStateData}
-			end
+			end;
+		{error, ignore} ->
+			NewStateData = StateData#statedata{authenticator = Authenticator,
+					response = ignore},
+			{next_state, idle, NewStateData, ?WAITRETRIES};
+		{error, Reason} ->
+			NewStateData = StateData#statedata{authenticator = Authenticator},
+			{stop, Reason, NewStateData}
 	end;
 idle(<<_Code, Identifier, Authenticator:16/binary, _/binary>> = _Event,
 		#statedata{identifier = Identifier, authenticator = Authenticator,
