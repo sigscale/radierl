@@ -21,7 +21,7 @@ overview.edoc: overview.edoc-in
 %.html:$(top_srcdir)/src/%.erl	overview.edoc
 	$(ERL) -noshell -run edoc_run application \
 			"'$(PACKAGE_NAME)'" "'$(top_srcdir)'" \
-			'[{sort_functions,false},{private,true},{todo,true}]'
+			'[{sort_functions,false},{private,true},{todo,true},{source_path,["$(top_srcdir)/src"]},{subpackages,false},{def,{docsrc,"$(top_srcdir)/doc/{@?}"}},{includes,["$(ERLANG_LIB_DIR_radius)/include"]}]'
 	for i in `ls *.html`; do sed -e 's!erlang logo!Motivity logo!' \
 			-e 's!erlang.org!motivity.ca!' \
 			-e 's!erlang.png!motivitylogo.png!' < $$i > t.html; \

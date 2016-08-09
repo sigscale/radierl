@@ -44,8 +44,8 @@
 
 -compile(export_all).
 
--include("ct.hrl").
--include("../../include/radius.hrl").
+-include_lib("common_test/include/ct.hrl").
+-include("radius.hrl").
 
 -define(TIMEOUT, 2000).
 

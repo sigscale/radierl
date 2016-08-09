@@ -46,7 +46,7 @@ AC_SUBST(beamdir)
 ##
 ## Libraries:  check for libraries
 ##
-#AC_ERLANG_CHECK_LIB([radius], [], [AC_MSG_ERROR([radius was not found!])])
+AC_ERLANG_CHECK_LIB([radius], [], [AC_MSG_ERROR([radius was not found!])])
 
 ##
 ## Headers:  check for header files
@@ -67,5 +67,5 @@ AC_SUBST(beamdir)
 ##
 ## Output:  create output files
 ## 
-AC_OUTPUT([Makefile ebin/Makefile doc/Makefile])
+AC_OUTPUT([Makefile ebin/Makefile doc/Makefile test/Makefile])
 

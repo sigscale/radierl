@@ -1,10 +1,16 @@
 %%% README
 %%%
 
+The build and test phases expect the radius application to
+be in the runtime path.  Run 'make install' in the parent
+directory first.
+
 Port the example callbacks application to your environment:
 
 	$ aclocal; autoheader; autoconf; automake --add-missing
-	$ ./configure
+	$ mkdir ../../radierl-examples.build
+	$ cd ../../radierl-examples.build
+	$ ../radirl/examples/configure
 
 Build the example callbacks application and documentation:
 
