@@ -12,7 +12,7 @@ Build the radius application and documentation:
 
 	$ make
 
-Test the radius application:
+Run the test suites for the radius application:
 
 	$ make check
 
@@ -30,7 +30,7 @@ Build the example callbacks application and documentation:
 
 	$ make
 
-Test the example callbacks applications:
+Run the test suites for the example callbacks application:
 
 	$ make check
 
