@@ -77,13 +77,28 @@ request(_Address, _Port, Packet, ?MODULE = _State) ->
 				attributes = BinaryAttributes} ->
 			try
 				Attributes = radius_attributes:codec(BinaryAttributes),
-				"nemo" = radius_attributes:fetch(?UserName, Attributes),
-				UserPassword  = radius_attributes:fetch(?UserPassword, Attributes),
-				"arctangent" = radius_attributes:unhide(Secret,
-						Authenticator, UserPassword)
+				case radius_attributes:fetch(?UserName, Attributes) of
+					"nemo" ->
+						UserPassword  = radius_attributes:fetch(?UserPassword,
+								Attributes),
+						"arctangent" = radius_attributes:unhide(Secret,
+								Authenticator, UserPassword),
+						immediate;
+					"walter" ->
+						UserPassword  = radius_attributes:fetch(?UserPassword,
+								Attributes),
+						"white" = radius_attributes:unhide(Secret,
+								Authenticator, UserPassword),
+						delayed
+				end
 			of
-				_ ->
-					accept(Id, Authenticator, Secret)
+				immediate ->
+					accept(Id, Authenticator, Secret);
+				delayed ->
+					RadiusFsm = self(),
+					{ok, Response} = accept(Id, Authenticator, Secret),
+					timer:apply_after(200, radius, response, [RadiusFsm, Response]),
+					{ok, wait}
 			catch
 				_:_ ->
 					reject(Packet, Secret)

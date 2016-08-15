@@ -1,6 +1,14 @@
-August 2016
------------
-	- version changed to 1.0
+August 15, 2016
+---------------
+	- version changed to 1.2
+	- changed radius behaviour callbacks to allow a callback
+	  handler to send a delayed response
+	- radius_fsm has an added state to wait for a response
+	- radius api now include response/2 to send a response
+
+August 8, 2016
+--------------
+	- version changed to 1.1
 	- changed radius behaviour callbacks to include state
 
 January 2014

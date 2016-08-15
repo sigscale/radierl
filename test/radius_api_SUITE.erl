@@ -116,7 +116,7 @@ sequences() ->
 %% @doc Returns a list of all test cases in this test suite.
 %%
 all() -> 
-	[start_and_stop, access_request, lost_response].
+	[start_and_stop, access_request, wait_response, lost_response].
 
 %%---------------------------------------------------------------------
 %%  Test cases
@@ -155,6 +155,32 @@ access_request(Config) ->
 	{ok, {Address, Port, ResponsePacket}} = gen_udp:recv(Socket, 0),
 	#radius{code = ?AccessAccept, id = Id} = radius:codec(ResponsePacket).
 
+wait_response() ->
+	[{userdata, [{doc, "Callback sends delayed response"}]}].
+
+wait_response(Config) ->
+	Secret = ?config(secret, Config),
+	User = "walter",
+	Password = "white",
+	Authenticator = radius:authenticator(Secret, 0),
+	UserPassword = radius_attributes:hide(Secret, Authenticator, Password), 
+	AttributeList0 = radius_attributes:new(),
+	AttributeList1 = radius_attributes:store(?UserName, User, AttributeList0),
+	AttributeList2 = radius_attributes:store(?UserPassword, UserPassword,
+			AttributeList1),
+	Id = 1,
+	Request = #radius{code = ?AccessRequest,
+			id = Id,
+			authenticator = Authenticator,
+			attributes = AttributeList2},
+	RequestPacket = radius:codec(Request),
+	Port = ?config(port, Config),
+	Address = {127, 0, 0, 1},
+	Socket = ?config(socket, Config),
+	ok = gen_udp:send(Socket, Address, Port, RequestPacket),
+	{ok, {Address, Port, ResponsePacket}} = gen_udp:recv(Socket, 0),
+	#radius{code = ?AccessAccept, id = Id} = radius:codec(ResponsePacket).
+
 lost_response() ->
 	[{userdata, [{doc, "Resend a RADIUS access request"}]}].
 
@@ -168,7 +194,7 @@ lost_response(Config) ->
 	AttributeList1 = radius_attributes:store(?UserName, User, AttributeList0),
 	AttributeList2 = radius_attributes:store(?UserPassword, UserPassword,
 			AttributeList1),
-	Id = 0,
+	Id = 2,
 	Request = #radius{code = ?AccessRequest,
 			id = Id,
 			authenticator = Authenticator,

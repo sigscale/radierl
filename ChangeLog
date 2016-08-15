@@ -1,3 +1,8 @@
+2016-08-15  Vance Shipley  <vances@sigscale.org>
+
+	* radius.erl: behaviour callbacks changed to include delayed response
+	* radius_fsm.erl: added state to handle delayed response from handler
+
 2016-08-09  Vance Shipley  <vances@sigscale.org>
 
 	* radius.erl: behaviour callbacks changed to include state

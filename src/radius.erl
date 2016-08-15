@@ -64,7 +64,7 @@
 %%% 	====request/4====
 %%% 	<b><tt>Module:request(Address :: {@link //kernel/inet:ip_address(). ip_address()},
 %%% 	Port :: pos_integer(), RadiusRequest :: binary(), State :: term()) ->
-%%% 	{ok, RadiusResponse :: binary()}
+%%% 	{ok, RadiusResponse :: binary()} | {ok, wait}
 %%% 			| {error, Reason :: ignore | term()}</tt></b>
 %%%
 %%% 	When a new valid RADIUS packet is received a
@@ -78,11 +78,17 @@
 %%% 	of the client making the request.
 %%%
 %%% 	<tt>State</tt> has the value returned from <tt>Module:init/2</tt>.
-%%% 
-%%% 	This function should return <tt>{ok, RadiusResponse}</tt>,
-%%% 	if the request was valid, where  <tt>RadiusResponse</tt> is a result
-%%% 	from a call to {@link //radius/codec. radius:codec/1}.
-%%% 	
+%%%
+%%% 	This function may return <tt>{ok, RadiusResponse}</tt> if the request
+%%% 	was valid, and a response is immediately available, where
+%%% 	<tt>RadiusResponse</tt> is a result from a call to
+%%% 	{@link //radius/codec. radius:codec/1}.
+%%%
+%%% 	This function may also return <tt>{ok, wait}</tt> if the request
+%%% 	was valid but a response is not immediately available, in which case
+%%% 	{@link //radius/radius_fsm. radius_fsm} process will wait to receive
+%%% 	a response sent with {@link //radius/radius:response/2. response/2}.
+%%%
 %%% 	If the RADIUS Authenticator or Attributes were badly formed
 %%% 	<tt>{error, ignore}</tt> should be returned to silently discard the
 %%% 	received packet and ignore retransmissions.  In the event of an error
@@ -108,7 +114,7 @@
 
 %% export the radius public API
 -export([start/2, start/3, start_link/2, start_link/3, stop/1]).
--export([codec/1]).
+-export([codec/1, response/2]).
 
 %% export the radius private API
 -export([port/1, authenticator/2]).
@@ -118,7 +124,8 @@
 	{ok, State :: term()} | {error, Reason :: term()}.
 -callback request(Address :: inet:ip_address(), Port :: integer(),
 		Packet :: binary(), State :: term()) ->
-	{ok, Response :: binary()} | {error, Reason :: ignore | term()}.
+	{ok, Response :: binary()} | {ok, wait}
+		| {error, Reason :: ignore | term()}.
 -callback terminate(Reason :: term(), State :: term()) -> any().
 
 %% @headerfile "radius.hrl"
@@ -213,7 +220,13 @@ codec(#radius{code = Code, id = Identifier,
 	Length = size(Attributes) + 20,
 	<<Code, Identifier, Length:16,
 			Authenticator/binary, Attributes/binary>>.
-	
+
+-spec response(RadiusFsm :: pid(), Response :: binary()) -> ok.
+%% @doc Send a delayed response to a {@link //radius/radius_fsm. radius_fsm}.
+response(RadiusFsm, Response)
+		when is_pid(RadiusFsm), is_binary(Response) ->
+	gen_fsm:send_event(RadiusFsm, {response, Response}).
+
 %%----------------------------------------------------------------------
 %%  The radius private API
 %%----------------------------------------------------------------------

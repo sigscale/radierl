@@ -60,7 +60,7 @@
 			terminate/3, code_change/4]).
 
 %% export the gen_fsm state call backs
--export([idle/2]).
+-export([idle/2, wait_for_response/2]).
 
 -include("radius.hrl").
 
@@ -125,6 +125,9 @@ idle(<<_Code, Identifier, Authenticator:16/binary, _/binary>> = Event,
 		address = Address, port = Port} = StateData)
 		when Authenticator /= CachedAuthenticator ->
 	case Module:request(Address, Port, Event, UserState) of
+		{ok, wait} ->
+			NewStateData = StateData#statedata{authenticator = Authenticator},
+			{next_state, wait_for_response, NewStateData, ?WAITRETRIES};
 		{ok, RadiusResponse} ->
 			NewStateData = StateData#statedata{authenticator = Authenticator,
 					response = RadiusResponse},
@@ -153,6 +156,35 @@ idle(<<_Code, Identifier, Authenticator:16/binary, _/binary>> = _Event,
 			{stop, Reason, StateData}
 	end;
 idle(timeout, #statedata{address = Address, port = Port,
+		identifier = Identifier} = StateData) ->
+	Id = {Address, Port, Identifier},
+	{stop, {shutdown, Id}, StateData}.
+
+-spec wait_for_response(Event :: timeout | term(), StateData :: #statedata{}) ->
+	Result :: {next_state, NextStateName :: atom(), NewStateData :: #statedata{}}
+		| {next_state, NextStateName :: atom(), NewStateData :: #statedata{}, Timeout :: non_neg_integer() | infinity}
+		| {next_state, NextStateName :: atom(), NewStateData :: #statedata{}, hibernate}
+		| {stop, Reason :: normal | term(), NewStateData :: #statedata{}}.
+%% @doc Handle events sent with {@link //stdlib/gen_fsm:send_event/2.
+%% 	gen_fsm:send_event/2} in the <b>idle</b> state.
+%% @@see //stdlib/gen_fsm:StateName/2
+%% @private
+%%
+wait_for_response(<<_Code, Identifier,
+		Authenticator:168/binary, _/binary>> = _Event,
+		#statedata{identifier = Identifier, authenticator = Authenticator,
+				response = ignore} = StateData) ->
+		{next_state, wait_for_response, StateData, ?WAITRETRIES};
+wait_for_response({response, RadiusResponse}, #statedata{socket = Socket,
+		address = Address, port = Port} = StateData) ->
+	NewStateData = StateData#statedata{response = RadiusResponse},
+	case gen_udp:send(Socket, Address, Port, RadiusResponse) of
+		ok ->
+			{next_state, idle, NewStateData, ?WAITRETRIES};
+		{error, Reason} ->
+			{stop, Reason, NewStateData}
+	end;
+wait_for_response(timeout, #statedata{address = Address, port = Port,
 		identifier = Identifier} = StateData) ->
 	Id = {Address, Port, Identifier},
 	{stop, {shutdown, Id}, StateData}.
