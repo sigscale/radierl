@@ -324,6 +324,31 @@ attribute(?PortLimit, Value, Acc) when size(Value) == 4 ->
 attribute(?LoginLatPort, Value, Acc) when size(Value) >= 1 ->
 	LoginLatPort = binary_to_list(Value),
 	orddict:store(?LoginLatPort, LoginLatPort, Acc);
+attribute(?TunnelType, <<Tag, Value:24>>, Acc) ->
+	orddict:store(?TunnelType, {Tag, Value}, Acc);
+attribute(?TunnelMediumType, <<Tag, Value:24>>, Acc) ->
+	orddict:store(?TunnelMediumType, {Tag, Value}, Acc);
+attribute(?TunnelClientEndpoint, <<Tag, String/binary>>, Acc) ->
+	orddict:store(?TunnelClientEndpoint, {Tag, binary_to_list(String)}, Acc);
+attribute(?TunnelServerEndpoint, <<Tag, String/binary>>, Acc) ->
+	orddict:store(?TunnelServerEndpoint, {Tag, binary_to_list(String)}, Acc);
+attribute(?TunnelPassword, <<Tag, Salt:16, String/binary>>, Acc) ->
+	orddict:store(?TunnelPassword, {Tag, Salt, String}, Acc);
+attribute(?TunnelPrivateGroupID, <<Tag, String/binary>>, Acc) ->
+	orddict:store(?TunnelPrivateGroupID, {Tag, binary_to_list(String)}, Acc);
+attribute(?TunnelAssignmentID, <<Tag, String/binary>>, Acc) ->
+	orddict:store(?TunnelAssignmentID, {Tag, binary_to_list(String)}, Acc);
+attribute(?TunnelPreference, <<Tag, Value:24>>, Acc) ->
+	orddict:store(?TunnelPreference, {Tag, Value}, Acc);
+attribute(?TunnelClientAuthID, <<Tag, String/binary>>, Acc) ->
+	orddict:store(?TunnelClientAuthID, {Tag, binary_to_list(String)}, Acc);
+attribute(?TunnelServerAuthID, <<Tag, String/binary>>, Acc) ->
+	orddict:store(?TunnelServerAuthID, {Tag, binary_to_list(String)}, Acc);
+attribute(?AcctTunnelConnection, Value, Acc) ->
+	orddict:store(?AcctTunnelConnection, binary_to_list(Value), Acc);
+attribute(?AcctTunnelPacketsLost, Value, Acc) ->
+	Lost = binary:decode_unsigned(Value),
+	orddict:store(?AcctTunnelPacketsLost, Lost, Acc);
 attribute(_, _Value, Acc) ->
 	Acc.
 
@@ -486,5 +511,44 @@ attributes([{?NasPortType, NasPortType} | T], Acc) ->
 attributes([{?PortLimit, PortLimit} | T], Acc) ->
 	attributes(T, <<Acc/binary, ?PortLimit, 6, PortLimit:32>>);
 attributes([{?LoginLatPort, LoginLatPort} | T], Acc) ->
-	attributes(T, <<Acc/binary, ?LoginLatPort, 6, LoginLatPort:32>>).
+	attributes(T, <<Acc/binary, ?LoginLatPort, 6, LoginLatPort:32>>);
+attributes([{?TunnelType, {Tag, Value}} | T], Acc) ->
+	attributes(T, <<Acc/binary, ?TunnelType, 6, Tag, Value:24>>);
+attributes([{?TunnelMediumType, {Tag, Value}} | T], Acc) ->
+	attributes(T, <<Acc/binary, ?TunnelMediumType, 6, Tag, Value:24>>);
+attributes([{?TunnelClientEndpoint, {Tag, String}} | T], Acc) ->
+	S = list_to_binary(String),
+	Length = size(S) + 2,
+	attributes(T, <<Acc/binary, ?TunnelClientEndpoint, Length, Tag, S/binary>>);
+attributes([{?TunnelServerEndpoint, {Tag, String}} | T], Acc) ->
+	S = list_to_binary(String),
+	Length = size(S) + 2,
+	attributes(T, <<Acc/binary, ?TunnelServerEndpoint, Length, Tag, S/binary>>);
+attributes([{?TunnelPassword, {Tag, Salt, String}} | T], Acc) ->
+	Length = size(String) + 5,
+	attributes(T, <<Acc/binary, ?TunnelPassword, Length, Tag, Salt:16, String/binary>>);
+attributes([{?TunnelPrivateGroupID, {Tag, String}} | T], Acc) ->
+	S = list_to_binary(String),
+	Length = size(S) + 2,
+	attributes(T, <<Acc/binary, ?TunnelPrivateGroupID, Length, Tag, S/binary>>);
+attributes([{?TunnelAssignmentID, {Tag, String}} | T], Acc) ->
+	S = list_to_binary(String),
+	Length = size(S) + 2,
+	attributes(T, <<Acc/binary, ?TunnelAssignmentID, Length, Tag, S/binary>>);
+attributes([{?TunnelPreference, {Tag, Value}} | T], Acc) ->
+	attributes(T, <<Acc/binary, ?TunnelPreference, 6, Tag, Value:24>>);
+attributes([{?TunnelClientAuthID, {Tag, String}} | T], Acc) ->
+	S = list_to_binary(String),
+	Length = size(S) + 2,
+	attributes(T, <<Acc/binary, ?TunnelClientAuthID, Length, Tag, S/binary>>);
+attributes([{?TunnelServerAuthID, {Tag, String}} | T], Acc) ->
+	S = list_to_binary(String),
+	Length = size(S) + 2,
+	attributes(T, <<Acc/binary, ?TunnelServerAuthID, Length, Tag, S/binary>>);
+attributes([{?AcctTunnelConnection, String} | T], Acc) ->
+	S = list_to_binary(String),
+	Length = size(S) + 2,
+	attributes(T, <<Acc/binary, ?AcctTunnelConnection, Length, S/binary>>);
+attributes([{?AcctTunnelPacketsLost, Lost} | T], Acc) ->
+	attributes(T, <<Acc/binary, ?AcctTunnelPacketsLost, 6, Lost:32>>).
 
