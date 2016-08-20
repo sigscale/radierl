@@ -532,32 +532,33 @@ attributes([{?TunnelMediumType, {Tag, Value}} | T], Acc) ->
 	attributes(T, <<Acc/binary, ?TunnelMediumType, 6, Tag, Value:24>>);
 attributes([{?TunnelClientEndpoint, {Tag, String}} | T], Acc) ->
 	S = list_to_binary(String),
-	Length = size(S) + 2,
+	Length = size(S) + 3,
 	attributes(T, <<Acc/binary, ?TunnelClientEndpoint, Length, Tag, S/binary>>);
 attributes([{?TunnelServerEndpoint, {Tag, String}} | T], Acc) ->
 	S = list_to_binary(String),
-	Length = size(S) + 2,
+	Length = size(S) + 3,
 	attributes(T, <<Acc/binary, ?TunnelServerEndpoint, Length, Tag, S/binary>>);
 attributes([{?TunnelPassword, {Tag, Salt, String}} | T], Acc) ->
-	Length = size(String) + 5,
-	attributes(T, <<Acc/binary, ?TunnelPassword, Length, Tag, Salt:16, String/binary>>);
+	S = list_to_binary(String),
+	Length = size(S) + 5,
+	attributes(T, <<Acc/binary, ?TunnelPassword, Length, Tag, Salt:16, S/binary>>);
 attributes([{?TunnelPrivateGroupID, {Tag, String}} | T], Acc) ->
 	S = list_to_binary(String),
-	Length = size(S) + 2,
+	Length = size(S) + 3,
 	attributes(T, <<Acc/binary, ?TunnelPrivateGroupID, Length, Tag, S/binary>>);
 attributes([{?TunnelAssignmentID, {Tag, String}} | T], Acc) ->
 	S = list_to_binary(String),
-	Length = size(S) + 2,
+	Length = size(S) + 3,
 	attributes(T, <<Acc/binary, ?TunnelAssignmentID, Length, Tag, S/binary>>);
 attributes([{?TunnelPreference, {Tag, Value}} | T], Acc) ->
 	attributes(T, <<Acc/binary, ?TunnelPreference, 6, Tag, Value:24>>);
 attributes([{?TunnelClientAuthID, {Tag, String}} | T], Acc) ->
 	S = list_to_binary(String),
-	Length = size(S) + 2,
+	Length = size(S) + 3,
 	attributes(T, <<Acc/binary, ?TunnelClientAuthID, Length, Tag, S/binary>>);
 attributes([{?TunnelServerAuthID, {Tag, String}} | T], Acc) ->
 	S = list_to_binary(String),
-	Length = size(S) + 2,
+	Length = size(S) + 3,
 	attributes(T, <<Acc/binary, ?TunnelServerAuthID, Length, Tag, S/binary>>);
 attributes([{?AcctTunnelConnection, String} | T], Acc) ->
 	S = list_to_binary(String),
