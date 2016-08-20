@@ -338,14 +338,16 @@ attribute(?TunnelServerEndpoint, <<Tag, String/binary>>, Acc)
 	orddict:store(?TunnelServerEndpoint, {Tag, S}, Acc);
 attribute(?TunnelPassword, <<Tag, Salt:16, String/binary>>, Acc)
 		when size(Value) >= 3 ->
-	orddict:store(?TunnelPassword, {Tag, Salt, String}, Acc);
+	S = binary_to_list(String),
+	orddict:store(?TunnelPassword, {Tag, Salt, S}, Acc);
 attribute(?TunnelPrivateGroupID, <<Tag, String/binary>>, Acc)
 		when size(Value) >= 1 ->
 	S = binary_to_list(String),
 	orddict:store(?TunnelPrivateGroupID, {Tag, S}, Acc);
 attribute(?TunnelAssignmentID, <<Tag, String/binary>>, Acc)
 		when size(Value) >= 1 ->
-	orddict:store(?TunnelAssignmentID, {Tag, String}, Acc);
+	S = binary_to_list(String),
+	orddict:store(?TunnelAssignmentID, {Tag, S}, Acc);
 attribute(?TunnelPreference, <<Tag, Value:24>>, Acc) ->
 	orddict:store(?TunnelPreference, {Tag, Value}, Acc);
 attribute(?TunnelClientAuthID, <<Tag, String/binary>>, Acc)
