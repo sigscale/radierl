@@ -12,7 +12,7 @@ modhtml = radius.html \
 			radius_sup.html
 
 doc_DATA = overview.edoc $(modhtml) \
-		modules-frame.html overview-summary.html packages-frame.html \
+		modules-frame.html overview-summary.html \
 		index.html stylesheet.css
 
 overview.edoc: overview.edoc-in
