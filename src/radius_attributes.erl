@@ -651,7 +651,7 @@ attributes([{?NASPortId, Text} | T], Acc) ->
 attributes([{?FramedPool, String} | T], Acc) ->
 	S = list_to_binary(String),
 	Length = size(S) + 2,
-	attributes(T, <<Acc/binary, ?NASPortId, Length, S/binary>>);
+	attributes(T, <<Acc/binary, ?FramedPool, Length, S/binary>>);
 attributes([{?TunnelClientAuthID, {Tag, String}} | T], Acc) ->
 	S = list_to_binary(String),
 	Length = size(S) + 3,
