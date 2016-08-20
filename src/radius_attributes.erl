@@ -312,6 +312,15 @@ attribute(?AcctMultiSessionId, Value, Acc) when size(Value) >= 1 ->
 attribute(?AcctLinkCount, Value, Acc) when size(Value) == 4 ->
 	AcctLinkCount = binary:decode_unsigned(Value),
 	orddict:store(?AcctLinkCount, AcctLinkCount, Acc);
+attribute(?AcctInputGigawords, Value, Acc) when size(Value) == 4 ->
+	GigaWordsCount = binary:decode_unsigned(Value),
+	orddict:store(?AcctInputGigawords, GigaWordsCount, Acc);
+attribute(?AcctOutputGigawords, Value, Acc) when size(Value) == 4 ->
+	GigaWordsCount = binary:decode_unsigned(Value),
+	orddict:store(?AcctOutputGigawords, GigaWordsCount, Acc);
+attribute(?EventTimestamp, Value, Acc) when size(Value) == 4 ->
+	Seconds = binary:decode_unsigned(Value),
+	orddict:store(?EventTimestamp, Seconds, Acc);
 attribute(?ChapChallenge, Value, Acc) when size(Value) >= 5 ->
 	ChapChallenge = binary_to_list(Value),
 	orddict:store(?ChapChallenge, ChapChallenge, Acc);
@@ -328,41 +337,74 @@ attribute(?TunnelType, <<Tag, Value:24>>, Acc) ->
 	orddict:store(?TunnelType, {Tag, Value}, Acc);
 attribute(?TunnelMediumType, <<Tag, Value:24>>, Acc) ->
 	orddict:store(?TunnelMediumType, {Tag, Value}, Acc);
-attribute(?TunnelClientEndpoint, <<Tag, String/binary>>, Acc)
-		when size(Value) >= 1 ->
+attribute(?TunnelClientEndpoint, <<Tag, String/binary>>, Acc) ->
 	S = binary_to_list(String),
 	orddict:store(?TunnelClientEndpoint, {Tag, S}, Acc);
-attribute(?TunnelServerEndpoint, <<Tag, String/binary>>, Acc)
-		when size(Value) >= 1 ->
+attribute(?TunnelServerEndpoint, <<Tag, String/binary>>, Acc) ->
 	S = binary_to_list(String),
 	orddict:store(?TunnelServerEndpoint, {Tag, S}, Acc);
-attribute(?TunnelPassword, <<Tag, Salt:16, String/binary>>, Acc)
-		when size(Value) >= 3 ->
+attribute(?AcctTunnelConnection, Value, Acc) when size(Value) >= 1 ->
+	orddict:store(?AcctTunnelConnection, binary_to_list(Value), Acc);
+attribute(?TunnelPassword, <<Tag, Salt:16, String/binary>>, Acc) ->
 	S = binary_to_list(String),
 	orddict:store(?TunnelPassword, {Tag, Salt, S}, Acc);
-attribute(?TunnelPrivateGroupID, <<Tag, String/binary>>, Acc)
-		when size(Value) >= 1 ->
+attribute(?ARAPPassword, <<Challenge:8/binary, Response:8/binary>>, Acc) ->
+	orddict:store(?ARAPPassword, {Challenge, Response}, Acc);
+attribute(?ARAPFeatures, <<Change, Length, Created:32, Expires:32, Time:32>>, Acc) ->
+	orddict:store(?ARAPFeatures, {Change, Length, Created, Expires, Time}, Acc);
+attribute(?ARAPZoneAccess, Value, Acc) when size(Value) == 4 ->
+	ZoneAccess = binary:decode_unsigned(Value),
+	orddict:store(?ARAPZoneAccess, ZoneAccess, Acc);
+attribute(?ARAPSecurity, Value, Acc) when size(Value) == 4 ->
+	Security = binary:decode_unsigned(Value),
+	orddict:store(?ARAPSecurity, Security, Acc);
+attribute(?ARAPSecurityData, Data, Acc) when size(Data) >= 1 ->
+	orddict:store(?ARAPSecurityData, Data, Acc);
+attribute(?PasswordRetry, Value, Acc) when size(Value) == 4 ->
+	Retries = binary:decode_unsigned(Value),
+	orddict:store(?PasswordRetry, Retries, Acc);
+attribute(?Prompt, <<0:32>>, Acc) ->
+	orddict:store(?Prompt, false, Acc);
+attribute(?Prompt, <<1:32>>, Acc) ->
+	orddict:store(?Prompt, true, Acc);
+attribute(?ConnectInfo, Value, Acc) when size(Value) >= 1 ->
+	Text = binary_to_list(Value),
+	orddict:store(?ConnectInfo, Text, Acc);
+attribute(?ConfigurationToken, Value, Acc) when size(Value) >= 1 ->
+	String= binary_to_list(Value),
+	orddict:store(?ConfigurationToken, String, Acc);
+attribute(?EAPMessage, Data, Acc) when size(Data) >= 1 ->
+	orddict:store(?EAPMessage, Data, Acc);
+attribute(?MessageAuthenticator, String, Acc) when size(String) == 18 ->
+	orddict:store(?MessageAuthenticator, String, Acc);
+attribute(?TunnelPrivateGroupID, <<Tag, String/binary>>, Acc) ->
 	S = binary_to_list(String),
 	orddict:store(?TunnelPrivateGroupID, {Tag, S}, Acc);
-attribute(?TunnelAssignmentID, <<Tag, String/binary>>, Acc)
-		when size(Value) >= 1 ->
+attribute(?TunnelAssignmentID, <<Tag, String/binary>>, Acc) ->
 	S = binary_to_list(String),
 	orddict:store(?TunnelAssignmentID, {Tag, S}, Acc);
 attribute(?TunnelPreference, <<Tag, Value:24>>, Acc) ->
 	orddict:store(?TunnelPreference, {Tag, Value}, Acc);
-attribute(?TunnelClientAuthID, <<Tag, String/binary>>, Acc)
-		when size(Value) >= 1 ->
-	S = binary_to_list(String),
-	orddict:store(?TunnelClientAuthID, {Tag, S}, Acc);
-attribute(?TunnelServerAuthID, <<Tag, String/binary>>, Acc)
-		when size(Value) >= 1 ->
-	S = binary_to_list(String),
-	orddict:store(?TunnelServerAuthID, {Tag, S}, Acc);
-attribute(?AcctTunnelConnection, Value, Acc) when size(Value) >= 1 ->
-	orddict:store(?AcctTunnelConnection, binary_to_list(Value), Acc);
+attribute(?ARAPChallengeResponse, String, Acc) when size(String) == 18 ->
+	orddict:store(?ARAPChallengeResponse, String, Acc);
+attribute(?AcctInterimInterval, Value, Acc) when size(Value) == 4 ->
+	Count = binary:decode_unsigned(Value),
+	orddict:store(?AcctInterimInterval, Count, Acc);
 attribute(?AcctTunnelPacketsLost, Value, Acc) when size(Value) == 4 ->
 	Lost = binary:decode_unsigned(Value),
 	orddict:store(?AcctTunnelPacketsLost, Lost, Acc);
+attribute(?NASPortId, Text, Acc) when size(Text) >= 1 ->
+	S = binary_to_list(Text),
+	orddict:store(?TunnelPrivateGroupID, S, Acc);
+attribute(?FramedPool, String, Acc) when size(String) >= 1 ->
+	S = binary_to_list(String),
+	orddict:store(?FramedPool, S, Acc);
+attribute(?TunnelClientAuthID, <<Tag, String/binary>>, Acc) ->
+	S = binary_to_list(String),
+	orddict:store(?TunnelClientAuthID, {Tag, S}, Acc);
+attribute(?TunnelServerAuthID, <<Tag, String/binary>>, Acc) ->
+	S = binary_to_list(String),
+	orddict:store(?TunnelServerAuthID, {Tag, S}, Acc);
 attribute(_, _Value, Acc) ->
 	Acc.
 
@@ -516,6 +558,12 @@ attributes([{?AcctMultiSessionId, AcctMultiSessionId} | T], Acc) ->
 	attributes(T, <<Acc/binary, ?AcctMultiSessionId, Length, SI/binary>>);
 attributes([{?AcctLinkCount, AcctLinkCount} | T], Acc) ->
 	attributes(T, <<Acc/binary, ?AcctLinkCount, 6, AcctLinkCount:32>>);
+attributes([{?AcctInputGigawords, GigaWordCount} | T], Acc) ->
+	attributes(T, <<Acc/binary, ?AcctInputGigawords, 6, GigaWordCount:32>>);
+attributes([{?AcctOutputGigawords, GigaWordCount} | T], Acc) ->
+	attributes(T, <<Acc/binary, ?AcctOutputGigawords, 6, GigaWordCount:32>>);
+attributes([{?EventTimestamp, Seconds} | T], Acc) ->
+	attributes(T, <<Acc/binary, ?EventTimestamp, 6, Seconds:32>>);
 attributes([{?ChapChallenge, ChapChallenge} | T], Acc) ->
 	CC = list_to_binary(ChapChallenge),
 	Length = size(CC) + 2,
@@ -538,10 +586,48 @@ attributes([{?TunnelServerEndpoint, {Tag, String}} | T], Acc) ->
 	S = list_to_binary(String),
 	Length = size(S) + 3,
 	attributes(T, <<Acc/binary, ?TunnelServerEndpoint, Length, Tag, S/binary>>);
+attributes([{?AcctTunnelConnection, String} | T], Acc) ->
+	S = list_to_binary(String),
+	Length = size(S) + 2,
+	attributes(T, <<Acc/binary, ?AcctTunnelConnection, Length, S/binary>>);
 attributes([{?TunnelPassword, {Tag, Salt, String}} | T], Acc) ->
 	S = list_to_binary(String),
 	Length = size(S) + 5,
 	attributes(T, <<Acc/binary, ?TunnelPassword, Length, Tag, Salt:16, S/binary>>);
+attributes([{?ARAPPassword, {Challenge, Response}} | T], Acc)
+		when size(Challenge) == 8, size(Response) == 8  ->
+	attributes(T, <<Acc/binary, ?ARAPPassword, 20,
+		Challenge/binary, Response/binary>>);
+attributes([{?ARAPFeatures, {Change, Length, Created, Expires, Time}} | T], Acc) ->
+	attributes(T, <<Acc/binary, ?ARAPFeatures, 18, Change, Length, Created:32,
+			Expires:32, Time:32>>);
+attributes([{?ARAPZoneAccess, ZoneAccess} | T], Acc) ->
+	attributes(T, <<Acc/binary, ?ARAPZoneAccess, 6, ZoneAccess:32>>);
+attributes([{?ARAPSecurity, Security} | T], Acc) ->
+	attributes(T, <<Acc/binary, ?ARAPSecurity, 6, Security:32>>);
+attributes([{?ARAPSecurityData, Data} | T], Acc) ->
+	Length = size(Data) + 2,
+	attributes(T, <<Acc/binary, ?ARAPSecurityData, Length, Data/binary>>);
+attributes([{?PasswordRetry, Retries} | T], Acc) ->
+	attributes(T, <<Acc/binary, ?PasswordRetry, 6, Retries:32>>);
+attributes([{?Prompt, false} | T], Acc) ->
+	attributes(T, <<Acc/binary, ?Prompt, 6, 0:32>>);
+attributes([{?Prompt, true} | T], Acc) ->
+	attributes(T, <<Acc/binary, ?Prompt, 6, 1:32>>);
+attributes([{?ConnectInfo, Text} | T], Acc) ->
+	S = list_to_binary(Text),
+	Length = size(S) + 2,
+	attributes(T, <<Acc/binary, ?ConnectInfo, Length, S/binary>>);
+attributes([{?ConfigurationToken, String} | T], Acc) ->
+	S = list_to_binary(String),
+	Length = size(S) + 2,
+	attributes(T, <<Acc/binary, ?ConfigurationToken, Length, S/binary>>);
+attributes([{?EAPMessage, Data} | T], Acc) ->
+	Length = size(Data) + 2,
+	attributes(T, <<Acc/binary, ?EAPMessage, Length, Data/binary>>);
+attributes([{?MessageAuthenticator, String} | T], Acc) ->
+	S = list_to_binary(String),
+	attributes(T, <<Acc/binary, ?MessageAuthenticator, 18, S/binary>>);
 attributes([{?TunnelPrivateGroupID, {Tag, String}} | T], Acc) ->
 	S = list_to_binary(String),
 	Length = size(S) + 3,
@@ -552,6 +638,20 @@ attributes([{?TunnelAssignmentID, {Tag, String}} | T], Acc) ->
 	attributes(T, <<Acc/binary, ?TunnelAssignmentID, Length, Tag, S/binary>>);
 attributes([{?TunnelPreference, {Tag, Value}} | T], Acc) ->
 	attributes(T, <<Acc/binary, ?TunnelPreference, 6, Tag, Value:24>>);
+attributes([{?ARAPChallengeResponse, Data} | T], Acc) ->
+	attributes(T, <<Acc/binary, ?ARAPChallengeResponse, 10, Data/binary>>);
+attributes([{?AcctInterimInterval, Count} | T], Acc) ->
+	attributes(T, <<Acc/binary, ?AcctInterimInterval, 6, Count:32>>);
+attributes([{?AcctTunnelPacketsLost, Lost} | T], Acc) ->
+	attributes(T, <<Acc/binary, ?AcctTunnelPacketsLost, 6, Lost:32>>);
+attributes([{?NASPortId, Text} | T], Acc) ->
+	S = list_to_binary(Text),
+	Length = size(S) + 2,
+	attributes(T, <<Acc/binary, ?NASPortId, Length, S/binary>>);
+attributes([{?FramedPool, String} | T], Acc) ->
+	S = list_to_binary(String),
+	Length = size(S) + 2,
+	attributes(T, <<Acc/binary, ?NASPortId, Length, S/binary>>);
 attributes([{?TunnelClientAuthID, {Tag, String}} | T], Acc) ->
 	S = list_to_binary(String),
 	Length = size(S) + 3,
@@ -559,11 +659,5 @@ attributes([{?TunnelClientAuthID, {Tag, String}} | T], Acc) ->
 attributes([{?TunnelServerAuthID, {Tag, String}} | T], Acc) ->
 	S = list_to_binary(String),
 	Length = size(S) + 3,
-	attributes(T, <<Acc/binary, ?TunnelServerAuthID, Length, Tag, S/binary>>);
-attributes([{?AcctTunnelConnection, String} | T], Acc) ->
-	S = list_to_binary(String),
-	Length = size(S) + 2,
-	attributes(T, <<Acc/binary, ?AcctTunnelConnection, Length, S/binary>>);
-attributes([{?AcctTunnelPacketsLost, Lost} | T], Acc) ->
-	attributes(T, <<Acc/binary, ?AcctTunnelPacketsLost, 6, Lost:32>>).
+	attributes(T, <<Acc/binary, ?TunnelServerAuthID, Length, Tag, S/binary>>).
 
