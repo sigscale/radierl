@@ -328,25 +328,37 @@ attribute(?TunnelType, <<Tag, Value:24>>, Acc) ->
 	orddict:store(?TunnelType, {Tag, Value}, Acc);
 attribute(?TunnelMediumType, <<Tag, Value:24>>, Acc) ->
 	orddict:store(?TunnelMediumType, {Tag, Value}, Acc);
-attribute(?TunnelClientEndpoint, <<Tag, String/binary>>, Acc) ->
-	orddict:store(?TunnelClientEndpoint, {Tag, binary_to_list(String)}, Acc);
-attribute(?TunnelServerEndpoint, <<Tag, String/binary>>, Acc) ->
-	orddict:store(?TunnelServerEndpoint, {Tag, binary_to_list(String)}, Acc);
-attribute(?TunnelPassword, <<Tag, Salt:16, String/binary>>, Acc) ->
+attribute(?TunnelClientEndpoint, <<Tag, String/binary>>, Acc)
+		when size(Value) >= 1 ->
+	S = binary_to_list(String),
+	orddict:store(?TunnelClientEndpoint, {Tag, S}, Acc);
+attribute(?TunnelServerEndpoint, <<Tag, String/binary>>, Acc)
+		when size(Value) >= 1 ->
+	S = binary_to_list(String),
+	orddict:store(?TunnelServerEndpoint, {Tag, S}, Acc);
+attribute(?TunnelPassword, <<Tag, Salt:16, String/binary>>, Acc)
+		when size(Value) >= 3 ->
 	orddict:store(?TunnelPassword, {Tag, Salt, String}, Acc);
-attribute(?TunnelPrivateGroupID, <<Tag, String/binary>>, Acc) ->
-	orddict:store(?TunnelPrivateGroupID, {Tag, binary_to_list(String)}, Acc);
-attribute(?TunnelAssignmentID, <<Tag, String/binary>>, Acc) ->
-	orddict:store(?TunnelAssignmentID, {Tag, binary_to_list(String)}, Acc);
+attribute(?TunnelPrivateGroupID, <<Tag, String/binary>>, Acc)
+		when size(Value) >= 1 ->
+	S = binary_to_list(String),
+	orddict:store(?TunnelPrivateGroupID, {Tag, S}, Acc);
+attribute(?TunnelAssignmentID, <<Tag, String/binary>>, Acc)
+		when size(Value) >= 1 ->
+	orddict:store(?TunnelAssignmentID, {Tag, String}, Acc);
 attribute(?TunnelPreference, <<Tag, Value:24>>, Acc) ->
 	orddict:store(?TunnelPreference, {Tag, Value}, Acc);
-attribute(?TunnelClientAuthID, <<Tag, String/binary>>, Acc) ->
-	orddict:store(?TunnelClientAuthID, {Tag, binary_to_list(String)}, Acc);
-attribute(?TunnelServerAuthID, <<Tag, String/binary>>, Acc) ->
-	orddict:store(?TunnelServerAuthID, {Tag, binary_to_list(String)}, Acc);
-attribute(?AcctTunnelConnection, Value, Acc) ->
+attribute(?TunnelClientAuthID, <<Tag, String/binary>>, Acc)
+		when size(Value) >= 1 ->
+	S = binary_to_list(String),
+	orddict:store(?TunnelClientAuthID, {Tag, S}, Acc);
+attribute(?TunnelServerAuthID, <<Tag, String/binary>>, Acc)
+		when size(Value) >= 1 ->
+	S = binary_to_list(String),
+	orddict:store(?TunnelServerAuthID, {Tag, S}, Acc);
+attribute(?AcctTunnelConnection, Value, Acc) when size(Value) >= 1 ->
 	orddict:store(?AcctTunnelConnection, binary_to_list(Value), Acc);
-attribute(?AcctTunnelPacketsLost, Value, Acc) ->
+attribute(?AcctTunnelPacketsLost, Value, Acc) when size(Value) == 4 ->
 	Lost = binary:decode_unsigned(Value),
 	orddict:store(?AcctTunnelPacketsLost, Lost, Acc);
 attribute(_, _Value, Acc) ->
