@@ -399,6 +399,9 @@ attribute(?NASPortId, Text, Acc) when size(Text) >= 1 ->
 attribute(?FramedPool, String, Acc) when size(String) >= 1 ->
 	S = binary_to_list(String),
 	orddict:store(?FramedPool, S, Acc);
+attribute(?CUI, String, Acc) when size(String) >= 1 ->
+	S = binary_to_list(String),
+	orddict:store(?CUI, S, Acc);
 attribute(?TunnelClientAuthID, <<Tag, String/binary>>, Acc) ->
 	S = binary_to_list(String),
 	orddict:store(?TunnelClientAuthID, {Tag, S}, Acc);
@@ -652,6 +655,10 @@ attributes([{?FramedPool, String} | T], Acc) ->
 	S = list_to_binary(String),
 	Length = size(S) + 2,
 	attributes(T, <<Acc/binary, ?FramedPool, Length, S/binary>>);
+attributes([{?CUI, String} | T], Acc) ->
+	S = list_to_binary(String),
+	Length = size(S) + 2,
+	attributes(T, <<Acc/binary, ?CUI, Length, S/binary>>);
 attributes([{?TunnelClientAuthID, {Tag, String}} | T], Acc) ->
 	S = list_to_binary(String),
 	Length = size(S) + 3,
