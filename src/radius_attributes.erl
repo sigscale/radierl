@@ -408,6 +408,8 @@ attribute(?TunnelClientAuthID, <<Tag, String/binary>>, Acc) ->
 attribute(?TunnelServerAuthID, <<Tag, String/binary>>, Acc) ->
 	S = binary_to_list(String),
 	orddict:store(?TunnelServerAuthID, {Tag, S}, Acc);
+attribute(?NASFilterRule, Data, Acc) when size(Data) >= 1 ->
+	orddict:store(?NASFilterRule, Data, Acc);
 attribute(_, _Value, Acc) ->
 	Acc.
 
@@ -666,5 +668,8 @@ attributes([{?TunnelClientAuthID, {Tag, String}} | T], Acc) ->
 attributes([{?TunnelServerAuthID, {Tag, String}} | T], Acc) ->
 	S = list_to_binary(String),
 	Length = size(S) + 3,
-	attributes(T, <<Acc/binary, ?TunnelServerAuthID, Length, Tag, S/binary>>).
+	attributes(T, <<Acc/binary, ?TunnelServerAuthID, Length, Tag, S/binary>>);
+attributes([{?NASFilterRule, Data} | T], Acc) ->
+	Length = size(Data) + 2,
+	attributes(T, <<Acc/binary, ?NASFilterRule, Length, Data/binary>>).
 
