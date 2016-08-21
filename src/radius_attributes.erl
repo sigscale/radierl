@@ -395,7 +395,7 @@ attribute(?AcctTunnelPacketsLost, Value, Acc) when size(Value) == 4 ->
 	orddict:store(?AcctTunnelPacketsLost, Lost, Acc);
 attribute(?NasPortId, Text, Acc) when size(Text) >= 1 ->
 	S = binary_to_list(Text),
-	orddict:store(?TunnelPrivateGroupID, S, Acc);
+	orddict:store(?NasPortId, S, Acc);
 attribute(?FramedPool, String, Acc) when size(String) >= 1 ->
 	S = binary_to_list(String),
 	orddict:store(?FramedPool, S, Acc);
@@ -420,7 +420,7 @@ attribute(?FramedInterfaceId, Value, Acc) when size(Value) == 8 ->
 	InterfaceID= binary_to_list(Value),
 	orddict:store(?FramedInterfaceId, InterfaceID, Acc);
 attribute(?FramedIPv6Prefix, <<0, PrefixLength, Prefix/binary>>, Acc) ->
-	orddict:store(?FramedInterfaceId, {PrefixLength, Prefix}, Acc);
+	orddict:store(?FramedIPv6Prefix, {PrefixLength, Prefix}, Acc);
 attribute(?LoginIPv6Host, <<A:16, B:16, C:16, D:16,
 		E:16, F:16, G:16, H:16>>, Acc) ->
 	orddict:store(?LoginIPv6Host, {A, B, C, D, E, F, G, H}, Acc);
@@ -831,7 +831,7 @@ attributes([{?NasFilterRule, Data} | T], Acc) ->
 	Length = size(Data) + 2,
 	attributes(T, <<Acc/binary, ?NasFilterRule, Length, Data/binary>>);
 attributes([{?OriginatingLineInfo, OLI} | T], Acc) ->
-	attributes(T, <<Acc/binary, ?NasFilterRule, 4, OLI:16>>);
+	attributes(T, <<Acc/binary, ?OriginatingLineInfo, 4, OLI:16>>);
 attributes([{?NasIPv6Address, {A, B, C, D, E, F, G, H}} | T], Acc) ->
 	attributes(T, <<Acc/binary, ?NasIPv6Address, 18, A:16, B:16, C:16,
 			D:16, E:16, F:16, G:16, H:16>>);
@@ -943,7 +943,7 @@ attributes([{?DelegatedIPv6Prefix, {PrefixLength, Prefix}} | T], Acc) ->
 	attributes(T, <<Acc/binary, ?DelegatedIPv6Prefix, Length, 0,
 			PrefixLength, Prefix/binary>>);
 attributes([{?MIP6FeatureVector, Caps} | T], Acc) ->
-	attributes(T, <<Acc/binary, ?PreauthTimeout, 6, Caps:32>>);
+	attributes(T, <<Acc/binary, ?MIP6FeatureVector, 6, Caps:32>>);
 attributes([{?MIP6HomeLinkPrefix, {PrefixLength, Prefix}} | T], Acc) ->
 	attributes(T, <<Acc/binary, ?MIP6HomeLinkPrefix, 19, 0,
 			PrefixLength, Prefix/binary>>);
