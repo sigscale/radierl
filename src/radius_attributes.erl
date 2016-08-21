@@ -433,6 +433,49 @@ attribute(?FramedIPv6Pool, String, Acc) when size(String) >= 1 ->
 attribute(?ErrorCause, Value, Acc) when size(Value) == 4 ->
 	Cause = binary:decode_unsigned(Value),
 	orddict:store(?ErrorCause, Cause, Acc);
+attribute(?EAPKeyName, Data, Acc) when size(Data) >= 1 ->
+	orddict:store(?EAPKeyName, Data, Acc);
+attribute(?AllowedCalledStationId, String, Acc) when size(String) >= 1 ->
+	S = binary_to_list(String),
+	orddict:store(?AllowedCalledStationId, S, Acc);
+attribute(?EAPPeerId, Data, Acc) when size(Data) >= 1 ->
+	orddict:store(?EAPPeerId, Data, Acc);
+attribute(?EAPServerId, Data, Acc) when size(Data) >= 1 ->
+	orddict:store(?EAPServerId, Data, Acc);
+attribute(?MobilityDomainId, <<_:16, MDID:16>>, Acc) ->
+	orddict:store(?MobilityDomainId, MDID, Acc);
+attribute(?PreauthTimeout, Value, Acc) when size(Value) == 4 ->
+	Seconds = binary:decode_unsigned(Value),
+	orddict:store(?PreauthTimeout, Seconds, Acc);
+attribute(?NetworkIdName, Data, Acc) when size(Data) >= 1 ->
+	orddict:store(?NetworkIdName, Data, Acc);
+attribute(?EAPoLAnnouncement, Data, Acc) when size(Data) >= 1 ->
+	orddict:store(?EAPoLAnnouncement, Data, Acc);
+attribute(?WLANHESSID, String, Acc) when size(String) == 17 ->
+	S = binary_to_list(String),
+	orddict:store(?WLANHESSID, S, Acc);
+attribute(?WLANVenueInfo, <<0:16, VenueGroup, VenueType>>, Acc) ->
+	orddict:store(?WLANVenueInfo, {VenueGroup, VenueType}, Acc);
+attribute(?WLANVenueLanguage, String, Acc)
+		when size(String) == 4, size(String) == 5 ->
+	Language  = binary_to_list(String),
+	orddict:store(?WLANVenueLanguage, Language, Acc);
+attribute(?WLANVenueName, String, Acc) when size(String) >= 1 ->
+	S = binary_to_list(String),
+	orddict:store(?WLANVenueName, S, Acc);
+attribute(?WLANReasonCode, Value, Acc) when size(Value) == 4 ->
+	Code = binary:decode_unsigned(Value),
+	orddict:store(?WLANReasonCode, Code, Acc);
+attribute(?WLANPairwiseCipher, <<OUI:24, SuiteType:8>>, Acc) ->
+	orddict:store(?WLANPairwiseCipher, {OUI, SuiteType}, Acc);
+attribute(?WLANGroupCipher, <<OUI:24, SuiteType:8>>, Acc) ->
+	orddict:store(?WLANGroupCipher, {OUI, SuiteType}, Acc);
+attribute(?WLANAKMSuite, <<OUI:24, SuiteType:8>>, Acc) ->
+	orddict:store(?WLANAKMSuite, {OUI, SuiteType}, Acc);
+attribute(?WLANGroupMgmtCipher, <<OUI:24, SuiteType:8>>, Acc) ->
+	orddict:store(?WLANGroupMgmtCipher, {OUI, SuiteType}, Acc);
+attribute(?WLANRFBand, <<_:24, RfBand:8>>, Acc) ->
+	orddict:store(?WLANRFBand, RfBand, Acc);
 attribute(_, _Value, Acc) ->
 	Acc.
 
@@ -719,5 +762,58 @@ attributes([{?FramedIPv6Pool, String} | T], Acc) ->
 	Length = size(S) + 2,
 	attributes(T, <<Acc/binary, ?FramedIPv6Pool, Length, S/binary>>);
 attributes([{?ErrorCause, Cause} | T], Acc) ->
-	attributes(T, <<Acc/binary, ?ErrorCause, 6, Cause:32>>).
+	attributes(T, <<Acc/binary, ?ErrorCause, 6, Cause:32>>);
+attributes([{?EAPKeyName, Data} | T], Acc) ->
+	Length = size(Data) + 2,
+	attributes(T, <<Acc/binary, ?EAPKeyName, Length, Data/binary>>);
+attributes([{?AllowedCalledStationId, String} | T], Acc) ->
+	S = list_to_binary(String),
+	Length = size(S) + 2,
+	attributes(T, <<Acc/binary, ?AllowedCalledStationId, Length, S/binary>>);
+attributes([{?EAPPeerId, EAPPeerId} | T], Acc) ->
+	Length = size(EAPPeerId) + 2,
+	attributes(T, <<Acc/binary, ?EAPPeerId, Length, EAPPeerId/binary>>);
+attributes([{?EAPServerId, EAPServerId} | T], Acc) ->
+	Length = size(EAPServerId) + 2,
+	attributes(T, <<Acc/binary, ?EAPServerId, Length, EAPServerId/binary>>);
+attributes([{?MobilityDomainId, MDID} | T], Acc) ->
+	attributes(T, <<Acc/binary, ?MobilityDomainId, 6, 0:16, MDID:16>>);
+attributes([{?PreauthTimeout, Seconds} | T], Acc) ->
+	attributes(T, <<Acc/binary, ?PreauthTimeout, 6, Seconds:32>>);
+attributes([{?NetworkIdName, Data} | T], Acc) ->
+	Length = size(Data) + 2,
+	attributes(T, <<Acc/binary, ?NetworkIdName, Length, Data/binary>>);
+attributes([{?EAPoLAnnouncement, Data} | T], Acc) ->
+	Length = size(Data) + 2,
+	attributes(T, <<Acc/binary, ?EAPoLAnnouncement, Length, Data/binary>>);
+attributes([{?WLANHESSID, String} | T], Acc) when length(String) == 17->
+	S = list_to_binary(String),
+	attributes(T, <<Acc/binary, ?WLANHESSID, 19, S/binary>>);
+attributes([{?WLANVenueInfo, {VenueGroup, VenueType}} | T], Acc) ->
+	attributes(T, <<Acc/binary, ?WLANVenueInfo, 6,
+			0:16, VenueGroup, VenueType>>);
+attributes([{?WLANVenueLanguage, Language} | T], Acc) ->
+	S = list_to_binary(Language),
+	Length = size(S) + 2,
+	attributes(T, <<Acc/binary, ?WLANVenueLanguage, Length, S/binary>>);
+attributes([{?WLANVenueName, String} | T], Acc) ->
+	S = list_to_binary(String),
+	Length = size(S) + 2,
+	attributes(T, <<Acc/binary, ?WLANVenueName, Length, S/binary>>);
+attributes([{?WLANReasonCode, Code} | T], Acc) ->
+	attributes(T, <<Acc/binary, ?WLANReasonCode, 6, Code:32>>);
+attributes([{?WLANPairwiseCipher, {OUI, SuiteType}} | T], Acc) ->
+	attributes(T, <<Acc/binary, ?WLANPairwiseCipher, 6,
+			OUI:24, SuiteType:8>>);
+attributes([{?WLANGroupCipher, {OUI, SuiteType}} | T], Acc) ->
+	attributes(T, <<Acc/binary, ?WLANGroupCipher, 6,
+			OUI:24, SuiteType:8>>);
+attributes([{?WLANAKMSuite, {OUI, SuiteType}} | T], Acc) ->
+	attributes(T, <<Acc/binary, ?WLANAKMSuite, 6,
+			OUI:24, SuiteType:8>>);
+attributes([{?WLANGroupMgmtCipher, {OUI, SuiteType}} | T], Acc) ->
+	attributes(T, <<Acc/binary, ?WLANGroupMgmtCipher, 6,
+			OUI:24, SuiteType:8>>);
+attributes([{?WLANRFBand, RfBand} | T], Acc) ->
+	attributes(T, <<Acc/binary, ?WLANRFBand, 6, 0:24, RfBand:8>>).
 
