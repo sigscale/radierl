@@ -101,14 +101,14 @@
 -define(ARAPChallengeResponse,            84).
 -define(AcctInterimInterval,              85).
 -define(AcctTunnelPacketsLost,            86).
--define(NASPortId,                        87).
+-define(NasPortId,                        87).
 -define(FramedPool,                       88).
 -define(CUI,                              89).
 -define(TunnelClientAuthID,               90).
 -define(TunnelServerAuthID,               91).
--define(NASFilterRule,                    92).
+-define(NasFilterRule,                    92).
 -define(OriginatingLineInfo,              94).
--define(NASIPv6Address,                   95).
+-define(NasIPv6Address,                   95).
 -define(FramedInterfaceId,                96).
 -define(FramedIPv6Prefix,                 97).
 -define(LoginIPv6Host,                    98).

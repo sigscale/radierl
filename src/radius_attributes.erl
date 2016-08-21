@@ -393,7 +393,7 @@ attribute(?AcctInterimInterval, Value, Acc) when size(Value) == 4 ->
 attribute(?AcctTunnelPacketsLost, Value, Acc) when size(Value) == 4 ->
 	Lost = binary:decode_unsigned(Value),
 	orddict:store(?AcctTunnelPacketsLost, Lost, Acc);
-attribute(?NASPortId, Text, Acc) when size(Text) >= 1 ->
+attribute(?NasPortId, Text, Acc) when size(Text) >= 1 ->
 	S = binary_to_list(Text),
 	orddict:store(?TunnelPrivateGroupID, S, Acc);
 attribute(?FramedPool, String, Acc) when size(String) >= 1 ->
@@ -408,11 +408,28 @@ attribute(?TunnelClientAuthID, <<Tag, String/binary>>, Acc) ->
 attribute(?TunnelServerAuthID, <<Tag, String/binary>>, Acc) ->
 	S = binary_to_list(String),
 	orddict:store(?TunnelServerAuthID, {Tag, S}, Acc);
-attribute(?NASFilterRule, Data, Acc) when size(Data) >= 1 ->
-	orddict:store(?NASFilterRule, Data, Acc);
+attribute(?NasFilterRule, Data, Acc) when size(Data) >= 1 ->
+	orddict:store(?NasFilterRule, Data, Acc);
 attribute(?OriginatingLineInfo, Value, Acc) when size(Value) == 2 ->
 	OLI = binary:decode_unsigned(Value),
 	orddict:store(?OriginatingLineInfo, OLI, Acc);
+attribute(?NasIPv6Address, <<A:16, B:16, C:16, D:16,
+		E:16, F:16, G:16, H:16>>, Acc) ->
+	orddict:store(?NasIPv6Address, {A, B, C, D, E, F, G, H}, Acc);
+attribute(?FramedInterfaceId, Value, Acc) when size(Value) == 8 ->
+	InterfaceID= binary_to_list(Value),
+	orddict:store(?FramedInterfaceId, InterfaceID, Acc);
+attribute(?FramedIPv6Prefix, <<0, PrefixLength, Prefix/binary>>, Acc) ->
+	orddict:store(?FramedInterfaceId, {PrefixLength, Prefix}, Acc);
+attribute(?LoginIPv6Host, <<A:16, B:16, C:16, D:16,
+		E:16, F:16, G:16, H:16>>, Acc) ->
+	orddict:store(?LoginIPv6Host, {A, B, C, D, E, F, G, H}, Acc);
+attribute(?FramedIPv6Route, Text, Acc) when size(Text) >= 1 ->
+	S = binary_to_list(Text),
+	orddict:store(?FramedIPv6Route, S, Acc);
+attribute(?FramedIPv6Pool, String, Acc) when size(String) >= 1 ->
+	S = binary_to_list(String),
+	orddict:store(?FramedIPv6Pool, S, Acc);
 attribute(_, _Value, Acc) ->
 	Acc.
 
@@ -652,10 +669,10 @@ attributes([{?AcctInterimInterval, Count} | T], Acc) ->
 	attributes(T, <<Acc/binary, ?AcctInterimInterval, 6, Count:32>>);
 attributes([{?AcctTunnelPacketsLost, Lost} | T], Acc) ->
 	attributes(T, <<Acc/binary, ?AcctTunnelPacketsLost, 6, Lost:32>>);
-attributes([{?NASPortId, Text} | T], Acc) ->
+attributes([{?NasPortId, Text} | T], Acc) ->
 	S = list_to_binary(Text),
 	Length = size(S) + 2,
-	attributes(T, <<Acc/binary, ?NASPortId, Length, S/binary>>);
+	attributes(T, <<Acc/binary, ?NasPortId, Length, S/binary>>);
 attributes([{?FramedPool, String} | T], Acc) ->
 	S = list_to_binary(String),
 	Length = size(S) + 2,
@@ -672,9 +689,30 @@ attributes([{?TunnelServerAuthID, {Tag, String}} | T], Acc) ->
 	S = list_to_binary(String),
 	Length = size(S) + 3,
 	attributes(T, <<Acc/binary, ?TunnelServerAuthID, Length, Tag, S/binary>>);
-attributes([{?NASFilterRule, Data} | T], Acc) ->
+attributes([{?NasFilterRule, Data} | T], Acc) ->
 	Length = size(Data) + 2,
-	attributes(T, <<Acc/binary, ?NASFilterRule, Length, Data/binary>>);
+	attributes(T, <<Acc/binary, ?NasFilterRule, Length, Data/binary>>);
 attributes([{?OriginatingLineInfo, OLI} | T], Acc) ->
-	attributes(T, <<Acc/binary, ?NASFilterRule, 4, OLI:16>>).
+	attributes(T, <<Acc/binary, ?NasFilterRule, 4, OLI:16>>);
+attributes([{?NasIPv6Address, {A, B, C, D, E, F, G, H}} | T], Acc) ->
+	attributes(T, <<Acc/binary, ?NasIPv6Address, 18, A:16, B:16, C:16,
+			D:16, E:16, F:16, G:16, H:16>>);
+attributes([{?FramedInterfaceId, InterfaceID} | T], Acc) ->
+	S = list_to_binary(InterfaceID),
+	attributes(T, <<Acc/binary, ?FramedInterfaceId, 10, S/binary>>);
+attributes([{?FramedIPv6Prefix, {PrefixLength, Prefix}} | T], Acc) ->
+	Length = size(Prefix) + 4,
+	attributes(T, <<Acc/binary, ?FramedIPv6Prefix, Length, 0,
+			PrefixLength, Prefix/binary>>);
+attributes([{?LoginIPv6Host, {A, B, C, D, E, F, G, H}} | T], Acc) ->
+	attributes(T, <<Acc/binary, ?LoginIPv6Host, 18, A:16, B:16, C:16,
+			D:16, E:16, F:16, G:16, H:16>>);
+attributes([{?FramedIPv6Route, Text} | T], Acc) ->
+	S = list_to_binary(Text),
+	Length = size(S) + 2,
+	attributes(T, <<Acc/binary, ?FramedIPv6Route, Length, S/binary>>);
+attributes([{?FramedIPv6Pool, String} | T], Acc) ->
+	S = list_to_binary(String),
+	Length = size(S) + 2,
+	attributes(T, <<Acc/binary, ?FramedIPv6Pool, Length, S/binary>>).
 
