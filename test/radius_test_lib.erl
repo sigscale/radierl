@@ -49,7 +49,7 @@
 %%
 init_per_suite(Config) ->
 	ok = application:start(radius),
-	random:seed(erlang:now()),
+	random:seed(os:timestamp()),
 	Config.
 
 %% @spec (Config) -> any()
