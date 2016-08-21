@@ -430,6 +430,9 @@ attribute(?FramedIPv6Route, Text, Acc) when size(Text) >= 1 ->
 attribute(?FramedIPv6Pool, String, Acc) when size(String) >= 1 ->
 	S = binary_to_list(String),
 	orddict:store(?FramedIPv6Pool, S, Acc);
+attribute(?ErrorCause, Value, Acc) when size(Value) == 4 ->
+	Cause = binary:decode_unsigned(Value),
+	orddict:store(?ErrorCause, Cause, Acc);
 attribute(_, _Value, Acc) ->
 	Acc.
 
@@ -714,5 +717,7 @@ attributes([{?FramedIPv6Route, Text} | T], Acc) ->
 attributes([{?FramedIPv6Pool, String} | T], Acc) ->
 	S = list_to_binary(String),
 	Length = size(S) + 2,
-	attributes(T, <<Acc/binary, ?FramedIPv6Pool, Length, S/binary>>).
+	attributes(T, <<Acc/binary, ?FramedIPv6Pool, Length, S/binary>>);
+attributes([{?ErrorCause, Cause} | T], Acc) ->
+	attributes(T, <<Acc/binary, ?ErrorCause, 6, Cause:32>>).
 
