@@ -495,6 +495,9 @@ attribute(?DigestHA1, String, Acc) when size(String) >= 1 ->
 attribute(?SIPAOR, String, Acc) when size(String) >= 1 ->
 	S = binary_to_list(String),
 	orddict:store(?SIPAOR, S, Acc);
+attribute(?DelegatedIPv6Prefix, <<0, PrefixLength, Prefix/binary>>, Acc)
+		when size(Prefix) >= 4, size(Prefix) =< 20 ->
+	orddict:store(?DelegatedIPv6Prefix, {PrefixLength, Prefix}, Acc);
 attribute(?AllowedCalledStationId, String, Acc) when size(String) >= 1 ->
 	S = binary_to_list(String),
 	orddict:store(?AllowedCalledStationId, S, Acc);
@@ -906,6 +909,10 @@ attributes([{?SIPAOR, String} | T], Acc) ->
 	S = list_to_binary(String),
 	Length = size(S) + 2,
 	attributes(T, <<Acc/binary, ?SIPAOR, Length, S/binary>>);
+attributes([{?DelegatedIPv6Prefix, {PrefixLength, Prefix}} | T], Acc) ->
+	Length = size(Prefix) + 4,
+	attributes(T, <<Acc/binary, ?DelegatedIPv6Prefix, Length, 0,
+			PrefixLength, Prefix/binary>>);
 attributes([{?AllowedCalledStationId, String} | T], Acc) ->
 	S = list_to_binary(String),
 	Length = size(S) + 2,
