@@ -435,6 +435,66 @@ attribute(?ErrorCause, Value, Acc) when size(Value) == 4 ->
 	orddict:store(?ErrorCause, Cause, Acc);
 attribute(?EAPKeyName, Data, Acc) when size(Data) >= 1 ->
 	orddict:store(?EAPKeyName, Data, Acc);
+attribute(?DigestResponse, String, Acc) when size(String) >= 1 ->
+	S = binary_to_list(String),
+	orddict:store(?DigestResponse, S, Acc);
+attribute(?DigestRealm, String, Acc) when size(String) >= 1 ->
+	S = binary_to_list(String),
+	orddict:store(?DigestRealm, S, Acc);
+attribute(?DigestNonce, String, Acc) when size(String) >= 1 ->
+	S = binary_to_list(String),
+	orddict:store(?DigestNonce, S, Acc);
+attribute(?DigestResponseAuth, String, Acc) when size(String) >= 1 ->
+	S = binary_to_list(String),
+	orddict:store(?DigestResponseAuth, S, Acc);
+attribute(?DigestNextnonce, String, Acc) when size(String) >= 1 ->
+	S = binary_to_list(String),
+	orddict:store(?DigestNextnonce, S, Acc);
+attribute(?DigestMethod, String, Acc) when size(String) >= 1 ->
+	S = binary_to_list(String),
+	orddict:store(?DigestMethod, S, Acc);
+attribute(?DigestURI, String, Acc) when size(String) >= 1 ->
+	S = binary_to_list(String),
+	orddict:store(?DigestURI, S, Acc);
+attribute(?DigestQop, String, Acc) when size(String) >= 1 ->
+	S = binary_to_list(String),
+	orddict:store(?DigestQop, S, Acc);
+attribute(?DigestAlgorithm, String, Acc) when size(String) >= 1 ->
+	S = binary_to_list(String),
+	orddict:store(?DigestAlgorithm, S, Acc);
+attribute(?DigestEntityBodyHash, String, Acc) when size(String) >= 1 ->
+	S = binary_to_list(String),
+	orddict:store(?DigestEntityBodyHash, S, Acc);
+attribute(?DigestCNonce, String, Acc) when size(String) >= 1 ->
+	S = binary_to_list(String),
+	orddict:store(?DigestCNonce, S, Acc);
+attribute(?DigestNonceCount, String, Acc) when size(String) >= 1 ->
+	S = binary_to_list(String),
+	orddict:store(?DigestNonceCount, S, Acc);
+attribute(?DigestUsername, String, Acc) when size(String) >= 1 ->
+	S = binary_to_list(String),
+	orddict:store(?DigestUsername, S, Acc);
+attribute(?DigestOpaque, String, Acc) when size(String) >= 1 ->
+	S = binary_to_list(String),
+	orddict:store(?DigestOpaque, S, Acc);
+attribute(?DigestAuthParam, String, Acc) when size(String) >= 1 ->
+	S = binary_to_list(String),
+	orddict:store(?DigestAuthParam, S, Acc);
+attribute(?DigestAKAAuts, String, Acc) when size(String) >= 1 ->
+	S = binary_to_list(String),
+	orddict:store(?DigestAKAAuts, S, Acc);
+attribute(?DigestDomain, String, Acc) when size(String) >= 1 ->
+	S = binary_to_list(String),
+	orddict:store(?DigestDomain, S, Acc);
+attribute(?DigestStale, String, Acc) when size(String) >= 1 ->
+	S = binary_to_list(String),
+	orddict:store(?DigestStale, S, Acc);
+attribute(?DigestHA1, String, Acc) when size(String) >= 1 ->
+	S = binary_to_list(String),
+	orddict:store(?DigestHA1, S, Acc);
+attribute(?SIPAOR, String, Acc) when size(String) >= 1 ->
+	S = binary_to_list(String),
+	orddict:store(?SIPAOR, S, Acc);
 attribute(?AllowedCalledStationId, String, Acc) when size(String) >= 1 ->
 	S = binary_to_list(String),
 	orddict:store(?AllowedCalledStationId, S, Acc);
@@ -766,6 +826,86 @@ attributes([{?ErrorCause, Cause} | T], Acc) ->
 attributes([{?EAPKeyName, Data} | T], Acc) ->
 	Length = size(Data) + 2,
 	attributes(T, <<Acc/binary, ?EAPKeyName, Length, Data/binary>>);
+attributes([{?DigestResponse, String} | T], Acc) ->
+	S = list_to_binary(String),
+	Length = size(S) + 2,
+	attributes(T, <<Acc/binary, ?DigestResponse, Length, S/binary>>);
+attributes([{?DigestRealm, String} | T], Acc) ->
+	S = list_to_binary(String),
+	Length = size(S) + 2,
+	attributes(T, <<Acc/binary, ?DigestRealm, Length, S/binary>>);
+attributes([{?DigestNonce, String} | T], Acc) ->
+	S = list_to_binary(String),
+	Length = size(S) + 2,
+	attributes(T, <<Acc/binary, ?DigestNonce, Length, S/binary>>);
+attributes([{?DigestResponseAuth, String} | T], Acc) ->
+	S = list_to_binary(String),
+	Length = size(S) + 2,
+	attributes(T, <<Acc/binary, ?DigestResponseAuth, Length, S/binary>>);
+attributes([{?DigestNextnonce, String} | T], Acc) ->
+	S = list_to_binary(String),
+	Length = size(S) + 2,
+	attributes(T, <<Acc/binary, ?DigestNextnonce, Length, S/binary>>);
+attributes([{?DigestMethod, String} | T], Acc) ->
+	S = list_to_binary(String),
+	Length = size(S) + 2,
+	attributes(T, <<Acc/binary, ?DigestMethod, Length, S/binary>>);
+attributes([{?DigestURI, String} | T], Acc) ->
+	S = list_to_binary(String),
+	Length = size(S) + 2,
+	attributes(T, <<Acc/binary, ?DigestURI, Length, S/binary>>);
+attributes([{?DigestQop, String} | T], Acc) ->
+	S = list_to_binary(String),
+	Length = size(S) + 2,
+	attributes(T, <<Acc/binary, ?DigestQop, Length, S/binary>>);
+attributes([{?DigestAlgorithm, String} | T], Acc) ->
+	S = list_to_binary(String),
+	Length = size(S) + 2,
+	attributes(T, <<Acc/binary, ?DigestAlgorithm, Length, S/binary>>);
+attributes([{?DigestEntityBodyHash, String} | T], Acc) ->
+	S = list_to_binary(String),
+	Length = size(S) + 2,
+	attributes(T, <<Acc/binary, ?DigestEntityBodyHash, Length, S/binary>>);
+attributes([{?DigestCNonce, String} | T], Acc) ->
+	S = list_to_binary(String),
+	Length = size(S) + 2,
+	attributes(T, <<Acc/binary, ?DigestCNonce, Length, S/binary>>);
+attributes([{?DigestNonceCount, String} | T], Acc) ->
+	S = list_to_binary(String),
+	Length = size(S) + 2,
+	attributes(T, <<Acc/binary, ?DigestNonceCount, Length, S/binary>>);
+attributes([{?DigestUsername, String} | T], Acc) ->
+	S = list_to_binary(String),
+	Length = size(S) + 2,
+	attributes(T, <<Acc/binary, ?DigestUsername, Length, S/binary>>);
+attributes([{?DigestOpaque, String} | T], Acc) ->
+	S = list_to_binary(String),
+	Length = size(S) + 2,
+	attributes(T, <<Acc/binary, ?DigestOpaque, Length, S/binary>>);
+attributes([{?DigestAuthParam, String} | T], Acc) ->
+	S = list_to_binary(String),
+	Length = size(S) + 2,
+	attributes(T, <<Acc/binary, ?DigestAuthParam, Length, S/binary>>);
+attributes([{?DigestAKAAuts, String} | T], Acc) ->
+	S = list_to_binary(String),
+	Length = size(S) + 2,
+	attributes(T, <<Acc/binary, ?DigestAKAAuts, Length, S/binary>>);
+attributes([{?DigestDomain, String} | T], Acc) ->
+	S = list_to_binary(String),
+	Length = size(S) + 2,
+	attributes(T, <<Acc/binary, ?DigestDomain, Length, S/binary>>);
+attributes([{?DigestStale, String} | T], Acc) ->
+	S = list_to_binary(String),
+	Length = size(S) + 2,
+	attributes(T, <<Acc/binary, ?DigestStale, Length, S/binary>>);
+attributes([{?DigestHA1, String} | T], Acc) ->
+	S = list_to_binary(String),
+	Length = size(S) + 2,
+	attributes(T, <<Acc/binary, ?DigestHA1, Length, S/binary>>);
+attributes([{?SIPAOR, String} | T], Acc) ->
+	S = list_to_binary(String),
+	Length = size(S) + 2,
+	attributes(T, <<Acc/binary, ?SIPAOR, Length, S/binary>>);
 attributes([{?AllowedCalledStationId, String} | T], Acc) ->
 	S = list_to_binary(String),
 	Length = size(S) + 2,
