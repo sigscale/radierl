@@ -503,6 +503,30 @@ attribute(?MIP6FeatureVector, Value, Acc) when size(Value) == 4 ->
 	orddict:store(?MIP6FeatureVector, Caps, Acc);
 attribute(?MIP6HomeLinkPrefix, <<PrefixLength, Prefix:16/binary>>, Acc) ->
 	orddict:store(?MIP6HomeLinkPrefix, {PrefixLength, Prefix}, Acc);
+attribute(?OperatorName, <<NameSpaceId, Text/binary>>, Acc) ->
+	OperatorName = binary_to_list(Text),
+	orddict:store(?OperatorName, {NameSpaceId, OperatorName}, Acc);
+attribute(?LocationInformation, <<Index:16, Code:8, Entity:8,
+		SightingTime:64, TimeToLive:64, Method/binary>>, Acc) when size(Method) >= 1 ->
+	S = binary_to_list(Method),
+	orddict:store(?LocationInformation, {Index, Code, Entity, SightingTime,
+			TimeToLive, S}, Acc);
+attribute(?LocationData, <<Index:16, Location/binary>>, Acc)
+		when size(Location) >= 1 ->
+	orddict:store(?LocationData, {Index, Location}, Acc);
+attribute(?BasicLocationPolicyRules, <<Flags:16, RetentionExpires:64/binary,
+		NoteWell/binary>>, Acc) ->
+	S = binary_to_list(NoteWell),
+	orddict:store(?BasicLocationPolicyRules, {Flags, RetentionExpires, S}, Acc);
+attribute(?ExtendedLocationPolicyRules, String, Acc) when size(String) >= 1 ->
+	RulesReference = binary_to_list(String),
+	orddict:store(?ExtendedLocationPolicyRules, RulesReference, Acc);
+attribute(?LocationCapable, Value, Acc) when size(Value) == 4 ->
+	Caps = binary:decode_unsigned(Value),
+	orddict:store(?LocationCapable, Caps, Acc);
+attribute(?RequestedLocationInfo, Value, Acc) when size(Value) == 4 ->
+	Caps = binary:decode_unsigned(Value),
+	orddict:store(?RequestedLocationInfo, Caps, Acc);
 attribute(?AllowedCalledStationId, String, Acc) when size(String) >= 1 ->
 	S = binary_to_list(String),
 	orddict:store(?AllowedCalledStationId, S, Acc);
@@ -923,6 +947,33 @@ attributes([{?MIP6FeatureVector, Caps} | T], Acc) ->
 attributes([{?MIP6HomeLinkPrefix, {PrefixLength, Prefix}} | T], Acc) ->
 	attributes(T, <<Acc/binary, ?MIP6HomeLinkPrefix, 19, 0,
 			PrefixLength, Prefix/binary>>);
+attributes([{?OperatorName, {NameSpaceId, OperatorName}} | T], Acc) ->
+	S = list_to_binary(OperatorName),
+	Length = size(S) + 3,
+	attributes(T, <<Acc/binary, ?OperatorName, Length, NameSpaceId, S/binary>>);
+attributes([{?LocationInformation, {Index, Code, Entity, SightingTime,
+		TimeToLive, Method}} | T], Acc) ->
+	M = list_to_binary(Method),
+	Length = size(M) + 22,
+	attributes(T, <<Acc/binary, ?LocationInformation, Length, Index:16, Code:8,
+			Entity:8, SightingTime:64, TimeToLive:64, M/binary>>);
+attributes([{?LocationData, {Index, Location}} | T], Acc) ->
+	Length = size(Location) + 4,
+	attributes(T, <<Acc/binary, ?LocationData, Length, Index:16, Location/binary>>);
+attributes([{?BasicLocationPolicyRules,
+		{Flags, RetentionExpires, NoteWell}} | T], Acc) ->
+	S = list_to_binary(NoteWell),
+	Length = size(S) + 12,
+	attributes(T, <<Acc/binary, ?BasicLocationPolicyRules, Length,
+			Flags:16, RetentionExpires:64/binary, S/binary>>);
+attributes([{?ExtendedLocationPolicyRules, RulesetReference} | T], Acc) ->
+	S = list_to_binary(RulesetReference),
+	Length = size(S) + 2,
+	attributes(T, <<Acc/binary, ?ExtendedLocationPolicyRules, Length, S/binary>>);
+attributes([{?LocationCapable, Caps} | T], Acc) ->
+	attributes(T, <<Acc/binary, ?LocationCapable, 6, Caps:32>>);
+attributes([{?RequestedLocationInfo, Caps} | T], Acc) ->
+	attributes(T, <<Acc/binary, ?RequestedLocationInfo, 6, Caps:32>>);
 attributes([{?AllowedCalledStationId, String} | T], Acc) ->
 	S = list_to_binary(String),
 	Length = size(S) + 2,
