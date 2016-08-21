@@ -498,6 +498,11 @@ attribute(?SIPAOR, String, Acc) when size(String) >= 1 ->
 attribute(?DelegatedIPv6Prefix, <<0, PrefixLength, Prefix/binary>>, Acc)
 		when size(Prefix) >= 4, size(Prefix) =< 20 ->
 	orddict:store(?DelegatedIPv6Prefix, {PrefixLength, Prefix}, Acc);
+attribute(?MIP6FeatureVector, Value, Acc) when size(Value) == 4 ->
+	Caps = binary:decode_unsigned(Value),
+	orddict:store(?MIP6FeatureVector, Caps, Acc);
+attribute(?MIP6HomeLinkPrefix, <<PrefixLength, Prefix:16/binary>>, Acc) ->
+	orddict:store(?MIP6HomeLinkPrefix, {PrefixLength, Prefix}, Acc);
 attribute(?AllowedCalledStationId, String, Acc) when size(String) >= 1 ->
 	S = binary_to_list(String),
 	orddict:store(?AllowedCalledStationId, S, Acc);
@@ -912,6 +917,11 @@ attributes([{?SIPAOR, String} | T], Acc) ->
 attributes([{?DelegatedIPv6Prefix, {PrefixLength, Prefix}} | T], Acc) ->
 	Length = size(Prefix) + 4,
 	attributes(T, <<Acc/binary, ?DelegatedIPv6Prefix, Length, 0,
+			PrefixLength, Prefix/binary>>);
+attributes([{?MIP6FeatureVector, Caps} | T], Acc) ->
+	attributes(T, <<Acc/binary, ?PreauthTimeout, 6, Caps:32>>);
+attributes([{?MIP6HomeLinkPrefix, {PrefixLength, Prefix}} | T], Acc) ->
+	attributes(T, <<Acc/binary, ?MIP6HomeLinkPrefix, 19, 0,
 			PrefixLength, Prefix/binary>>);
 attributes([{?AllowedCalledStationId, String} | T], Acc) ->
 	S = list_to_binary(String),
