@@ -789,8 +789,7 @@ attributes([{?EAPMessage, Data} | T], Acc) ->
 	Length = size(Data) + 2,
 	attributes(T, <<Acc/binary, ?EAPMessage, Length, Data/binary>>);
 attributes([{?MessageAuthenticator, String} | T], Acc) ->
-	S = list_to_binary(String),
-	attributes(T, <<Acc/binary, ?MessageAuthenticator, 18, S/binary>>);
+	attributes(T, <<Acc/binary, ?MessageAuthenticator, 18, String/binary>>);
 attributes([{?TunnelPrivateGroupID, {Tag, String}} | T], Acc) ->
 	S = list_to_binary(String),
 	Length = size(S) + 3,
