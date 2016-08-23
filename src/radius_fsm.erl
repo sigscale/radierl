@@ -115,7 +115,7 @@ init([Socket, Module, UserState, Address, Port, Identifier] = _Args) ->
 %% @@see //stdlib/gen_fsm:StateName/2
 %% @private
 %%
-idle(<<_Code, Identifier, Authenticator:168/binary, _/binary>> = _Event,
+idle(<<_Code, Identifier, Authenticator:16/binary, _/binary>> = _Event,
 		#statedata{identifier = Identifier, authenticator = Authenticator,
 				response = ignore} = StateData) ->
 		{next_state, idle, StateData, ?WAITRETRIES};
