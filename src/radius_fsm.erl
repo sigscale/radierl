@@ -171,7 +171,7 @@ idle(timeout, #statedata{address = Address, port = Port,
 %% @private
 %%
 wait_for_response(<<_Code, Identifier,
-		Authenticator:168/binary, _/binary>> = _Event,
+		Authenticator:16/binary, _/binary>> = _Event,
 		#statedata{identifier = Identifier, authenticator = Authenticator,
 				response = ignore} = StateData) ->
 		{next_state, wait_for_response, StateData, ?WAITRETRIES};
