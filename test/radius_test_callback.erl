@@ -97,7 +97,7 @@ request(_Address, _Port, Packet, ?MODULE = _State) ->
 				delayed ->
 					RadiusFsm = self(),
 					{ok, Response} = accept(Id, Authenticator, Secret),
-					timer:apply_after(200, radius, response, [RadiusFsm, Response]),
+					timer:apply_after(200, radius, response, [RadiusFsm, {response, Response}]),
 					{ok, wait}
 			catch
 				_:_ ->

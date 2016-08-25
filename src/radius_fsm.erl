@@ -184,6 +184,9 @@ wait_for_response({response, RadiusResponse}, #statedata{socket = Socket,
 		{error, Reason} ->
 			{stop, Reason, NewStateData}
 	end;
+wait_for_response({error, ignore}, StateData) ->
+	NewStateData = StateData#statedata{response = ignore},
+	{next_state, wait_for_response, NewStateData, ?WAITRETRIES};
 wait_for_response(timeout, #statedata{address = Address, port = Port,
 		identifier = Identifier} = StateData) ->
 	Id = {Address, Port, Identifier},

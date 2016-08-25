@@ -221,11 +221,14 @@ codec(#radius{code = Code, id = Identifier,
 	<<Code, Identifier, Length:16,
 			Authenticator/binary, Attributes/binary>>.
 
--spec response(RadiusFsm :: pid(), Response :: binary()) -> ok.
+-spec response(RadiusFsm :: pid(),
+		Response :: {response, binary()} | {error, ignore}) -> ok.
 %% @doc Send a delayed response to a {@link //radius/radius_fsm. radius_fsm}.
-response(RadiusFsm, Response)
+response(RadiusFsm, {response, Response})
 		when is_pid(RadiusFsm), is_binary(Response) ->
-	gen_fsm:send_event(RadiusFsm, {response, Response}).
+	gen_fsm:send_event(RadiusFsm, {response, Response});
+response(RadiusFsm, {error, Reason}) when is_pid(RadiusFsm) ->
+	gen_fsm:send_event(RadiusFsm, {error, Reason}).
 
 %%----------------------------------------------------------------------
 %%  The radius private API
