@@ -385,7 +385,7 @@ attribute(?TunnelAssignmentID, <<Tag, String/binary>>, Acc) ->
 	orddict:store(?TunnelAssignmentID, {Tag, S}, Acc);
 attribute(?TunnelPreference, <<Tag, Value:24>>, Acc) ->
 	orddict:store(?TunnelPreference, {Tag, Value}, Acc);
-attribute(?ARAPChallengeResponse, String, Acc) when size(String) == 18 ->
+attribute(?ARAPChallengeResponse, String, Acc) when size(String) == 8 ->
 	orddict:store(?ARAPChallengeResponse, String, Acc);
 attribute(?AcctInterimInterval, Value, Acc) when size(Value) == 4 ->
 	Count = binary:decode_unsigned(Value),
