@@ -375,7 +375,7 @@ attribute(?ConfigurationToken, Value, Acc) when size(Value) >= 1 ->
 	orddict:store(?ConfigurationToken, String, Acc);
 attribute(?EAPMessage, Data, Acc) when size(Data) >= 1 ->
 	orddict:store(?EAPMessage, Data, Acc);
-attribute(?MessageAuthenticator, String, Acc) when size(String) == 18 ->
+attribute(?MessageAuthenticator, String, Acc) when size(String) == 16 ->
 	orddict:store(?MessageAuthenticator, String, Acc);
 attribute(?TunnelPrivateGroupID, <<Tag, String/binary>>, Acc) ->
 	S = binary_to_list(String),
