@@ -4,6 +4,3 @@
 
 SUBDIRS = ebin doc include test
 
-install-exec-hook:
-	chown -R otpuser:otp $(appdir)
-
