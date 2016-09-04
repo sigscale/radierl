@@ -87,11 +87,11 @@ request(Packet, Secret) ->
 		NasIdentifierV = radius_attributes:find(?NasIdentifier,
 				RequestAttributes),
 		Name = case {UserNameV, NasIpAddressV, NasIdentifierV} of
-			{_, error, error} ->
+			{_, {error, not_found}, {error, not_found}} ->
 				throw(reject);
-			{error, {ok, NasIpAddress}, error} ->
+			{{error, not_found}, {ok, NasIpAddress}, {error, not_found}} ->
 				NasIpAddress;
-			{error, error, {ok, NasIdentifier}} ->
+			{{error, not_found}, {error, not_found}, {ok, NasIdentifier}} ->
 				NasIdentifier;
 			{{ok, UserName}, _, _} ->
 				UserName
@@ -100,12 +100,12 @@ request(Packet, Secret) ->
 		ChapPasswordV = radius_attributes:find(?ChapPassword, RequestAttributes),
 		StateV = radius_attributes:find(?State, RequestAttributes),
 		case {UserPasswordV, ChapPasswordV, StateV} of
-			{error, error, error} ->
+			{{error, not_found}, {error, not_found}, {error, not_found}} ->
 				throw(reject);
-			{error, error, {ok, _State}} ->
+			{{error, not_found}, {error, not_found}, {ok, _State}} ->
 				% @todo Handle State?
 				throw(not_implemented);
-			{{ok, UserPassword}, error, _State} ->
+			{{ok, UserPassword}, {error, not_found}, _State} ->
 				Password = radius_attributes:unhide(Secret,
 						Authenticator, UserPassword),
 				case radius_example:find_user(Name) of
@@ -116,12 +116,12 @@ request(Packet, Secret) ->
 					error ->
 						throw(reject)
 				end;
-			{error, {ok, {ChapId, ChapResponse}}, _State} ->
+			{{error, not_found}, {ok, {ChapId, ChapResponse}}, _State} ->
 				Challenge = case radius_attributes:find(?ChapChallenge,
 						RequestAttributes) of
 					{ok, ChapChallenge} ->
 						ChapChallenge;
-					error ->
+					{error, not_found} ->
 						Authenticator
 				end,
 				case radius_example:find_user(Name) of
@@ -133,7 +133,7 @@ request(Packet, Secret) ->
 							_ ->
 								reject(Packet, Secret)
 						end;
-					error ->
+					{error, not_found} ->
 						throw(reject)
 				end;
 			{{ok, _UserPassword}, {ok, _ChapPassword}, _State} ->
