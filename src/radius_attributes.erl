@@ -42,7 +42,7 @@
 -author('vances@motivity.ca').
 
 %% export the radius_attributes public API
--export([new/0, store/3, fetch/2, find/2]).
+-export([new/0, store/3, add/3, fetch/2, find/2, get_all/2]).
 -export([codec/1]).
 -export([hide/3, unhide/3]).
 
@@ -53,32 +53,47 @@
 %%  The radius_attributes public API
 %%----------------------------------------------------------------------
 
--type attributes() :: orddict:orddict().
+-type attributes() :: list({Attribute :: byte(), Value :: term()}).
 
 -spec new() -> Attributes :: attributes().
 %% @doc Create a new RADIUS protocol attributes list.
 %%
 new() ->
-	orddict:new().
+	[].
 
--spec store(Attribute :: pos_integer(), Value :: term(),
+-spec store(Attribute :: byte(), Value :: term(),
 	Attributes :: attributes()) -> NewAttributes :: attributes().
 %% @doc Add a new attribute to a RADIUS protocol attributes list.
+%% 	If `Attribute' exists it is overwritten with the new `Value'.
 %%
 store(Attribute, Value, Attributes) when is_integer(Attribute),
 		is_list(Attributes) ->
-	orddict:store(Attribute, Value, Attributes).
+	lists:keystore(Attribute, 1, Attributes, {Attribute, Value}).
 
--spec fetch(Attribute :: pos_integer(), Attributes :: attributes()) ->
+-spec add(Attribute :: byte(), Value :: term(),
+	Attributes :: attributes()) -> NewAttributes :: attributes().
+%% @doc Add an attribute to a RADIUS protocol attributes list.
+%% 	Multiple `Attribute's are allowed.
+%%
+add(Attribute, Value, Attributes) when is_integer(Attribute),
+		is_list(Attributes) ->
+	Attributes ++ [{Attribute, Value}].
+
+-spec fetch(Attribute :: byte(), Attributes :: attributes()) ->
 	Value :: term().
 %% @doc Returns the value for an attribute in a RADIUS protocol
 %% 	attributes list.  Assumes that the attribute is present.
 %%
 fetch(Attribute, Attributes) ->
-	orddict:fetch(Attribute, Attributes).
+	case lists:keyfind(Attribute, 1, Attributes) of
+		false ->
+			exit(not_found);
+		{Attribute, Value} ->
+			Value
+	end.
 
--spec find(Attribute :: pos_integer(), Attributes :: attributes()) ->
-	Result :: {ok, Value :: term()} | error.
+-spec find(Attribute :: byte(), Attributes :: attributes()) ->
+	Result :: {ok, Value :: term()} | {error, not_found}.
 %% 	Attribute = integer()
 %% 	Attributes = attributes()
 %% 	Result = {ok, Value} | error
@@ -86,7 +101,25 @@ fetch(Attribute, Attributes) ->
 %% @doc Searches for an attribute in a RADIUS protocol attributes list.
 %%
 find(Attribute, Attributes) ->
-	orddict:find(Attribute, Attributes).
+	case lists:keyfind(Attribute, 1, Attributes) of
+		false ->
+			{error, not_found};
+		{Attribute, Value} ->
+			{ok, Value}
+	end.
+
+-spec get_all(Attribute :: byte(), Attributes :: attributes()) ->
+	[Value :: term()].
+%% @doc Returns all values for an `Attribute` which may occur
+%% 	more than once in	the RADIUS protocol `Attributes' list.
+%%
+get_all(Attribute, Attributes) ->
+	F = fun({Name, Value}) when Name == Attribute ->
+				{true, Value};
+			(_) ->
+				false
+	end,
+	lists:filtermap(F, Attributes).
 
 -spec codec(In :: binary() | attributes()) -> attributes() | binary().
 %% @doc Encode or decode a binary RADIUS protocol attributes field.
@@ -94,7 +127,7 @@ find(Attribute, Attributes) ->
 codec(In) when is_binary(In) ->
 	attributes(In, 0, new());
 codec(In) when is_list(In) ->
-	attributes(orddict:to_list(In), <<>>).
+	attributes(In, <<>>).
 
 -spec hide(SharedSecret :: string(), Authenticator :: [byte()],
 	Password :: string()) -> UserPassword :: [byte()].
@@ -149,7 +182,7 @@ unhide(Secret, Salt, UserPassword, Acc) ->
 
 %% @hidden
 attributes(Bin, Offset, Attributes) when size(Bin) =< Offset ->
-	Attributes;
+	lists:reverse(Attributes);
 attributes(Bin, Offset, Acc) ->
 	Type = binary:at(Bin, Offset),
 	Length = binary:at(Bin, Offset + 1),
@@ -160,414 +193,414 @@ attributes(Bin, Offset, Acc) ->
 %% @hidden
 attribute(?UserName, Value, Acc) when size(Value) >= 1 ->
 	UserName = binary_to_list(Value),
-	orddict:store(?UserName, UserName, Acc);
+	[{?UserName, UserName} | Acc];
 attribute(?UserPassword, Value, Acc)
 		when size(Value) >= 16, size(Value) =< 128 ->
 	UserPassword = binary_to_list(Value),
-	orddict:store(?UserPassword, UserPassword, Acc);
+	[{?UserPassword, UserPassword} | Acc];
 attribute(?ChapPassword, Value, Acc) when size(Value) == 17 ->
 	ChapId= binary:first(Value),
 	ChapPassword = binary:bin_to_list(Value, 1, 16),
-	orddict:store(?ChapPassword, {ChapId, ChapPassword}, Acc);
+	[{?ChapPassword, {ChapId, ChapPassword}} | Acc];
 attribute(?NasIpAddress, Value, Acc) when size(Value) == 4 ->
 	NasIpAddress = {binary:first(Value), binary:at(Value, 1),
 			binary:at(Value, 2), binary:at(Value, 3)},
-	orddict:store(?NasIpAddress, NasIpAddress, Acc);
+	[{?NasIpAddress, NasIpAddress} | Acc];
 attribute(?NasPort, Value, Acc) when size(Value) == 4 ->
 	NasPort = binary:decode_unsigned(Value),
-	orddict:store(?NasPort, NasPort, Acc);
+	[{?NasPort, NasPort} | Acc];
 attribute(?ServiceType, Value, Acc) when size(Value) == 4 ->
 	ServiceType = binary:decode_unsigned(Value),
-	orddict:store(?ServiceType, ServiceType, Acc);
+	[{?ServiceType, ServiceType} | Acc];
 attribute(?FramedProtocol, Value, Acc) when size(Value) == 4 ->
 	FramedProtocol = binary:decode_unsigned(Value),
-	orddict:store(?FramedProtocol, FramedProtocol, Acc);
+	[{?FramedProtocol, FramedProtocol} | Acc];
 attribute(?FramedIpAddress, Value, Acc) when size(Value) == 4 ->
 	FramedIpAddress = {binary:first(Value), binary:at(Value, 1),
 			binary:at(Value, 2), binary:at(Value, 3)},
-	orddict:store(?FramedIpAddress, FramedIpAddress, Acc);
+	[{?FramedIpAddress, FramedIpAddress} | Acc];
 attribute(?FramedIpNetmask, Value, Acc) when size(Value) == 4 ->
 	FramedIpNetmask = {binary:first(Value), binary:at(Value, 1),
 			binary:at(Value, 2), binary:at(Value, 3)},
-	orddict:store(?FramedIpNetmask, FramedIpNetmask, Acc);
+	[{?FramedIpNetmask, FramedIpNetmask} | Acc];
 attribute(?FramedRouting, Value, Acc) when size(Value) == 4 ->
 	FramedRouting = binary:decode_unsigned(Value),
-	orddict:store(?FramedRouting, FramedRouting, Acc);
+	[{?FramedRouting, FramedRouting} | Acc];
 attribute(?FilterId, Value, Acc) when size(Value) >= 1 ->
 	FilterId = binary_to_list(Value),
-	orddict:store(?FilterId, FilterId, Acc);
+	[{?FilterId, FilterId} | Acc];
 attribute(?FramedMtu, Value, Acc) when size(Value) == 4 ->
 	FramedMtu = binary:decode_unsigned(Value),
-	orddict:store(?FramedMtu, FramedMtu, Acc);
+	[{?FramedMtu, FramedMtu} | Acc];
 attribute(?FramedCompression, Value, Acc) when size(Value) == 4 ->
 	FramedCompression = binary:decode_unsigned(Value),
-	orddict:store(?FramedCompression, FramedCompression, Acc);
+	[{?FramedCompression, FramedCompression} | Acc];
 attribute(?LoginIpHost, Value, Acc) when size(Value) == 4 ->
 	LoginIpHost = {binary:first(Value), binary:at(Value, 1),
 			binary:at(Value, 2), binary:at(Value, 3)},
-	orddict:store(?LoginIpHost, LoginIpHost, Acc);
+	[{?LoginIpHost, LoginIpHost} | Acc];
 attribute(?LoginService, Value, Acc) when size(Value) == 4 ->
 	LoginService = binary:decode_unsigned(Value),
-	orddict:store(?LoginService, LoginService, Acc);
+	[{?LoginService, LoginService} | Acc];
 attribute(?LoginTcpPort, Value, Acc) when size(Value) == 4 ->
 	LoginTcpPort = binary:decode_unsigned(Value),
-	orddict:store(?LoginTcpPort, LoginTcpPort, Acc);
+	[{?LoginTcpPort, LoginTcpPort} | Acc];
 attribute(?ReplyMessage, Value, Acc) when size(Value) >= 1 ->
 	ReplyMessage = binary_to_list(Value),
-	orddict:store(?ReplyMessage, ReplyMessage, Acc);
+	[{?ReplyMessage, ReplyMessage} | Acc];
 attribute(?CallbackNumber, Value, Acc) when size(Value) >= 1 ->
 	CallbackNumber = binary_to_list(Value),
-	orddict:store(?CallbackNumber, CallbackNumber, Acc);
+	[{?CallbackNumber, CallbackNumber} | Acc];
 attribute(?CallbackId, Value, Acc) when size(Value) >= 1 ->
 	CallbackId = binary_to_list(Value),
-	orddict:store(?CallbackId, CallbackId, Acc);
+	[{?CallbackId, CallbackId} | Acc];
 attribute(?FramedRoute, Value, Acc) when size(Value) >= 1 ->
 	FramedRoute = binary_to_list(Value),
-	orddict:store(?FramedRoute, FramedRoute, Acc);
+	[{?FramedRoute, FramedRoute} | Acc];
 attribute(?FramedIpxNetwork, Value, Acc) when size(Value) == 4 ->
 	FramedIpxNetwork = binary:decode_unsigned(Value),
-	orddict:store(?FramedIpxNetwork, FramedIpxNetwork, Acc);
+	[{?FramedIpxNetwork, FramedIpxNetwork} | Acc];
 attribute(?State, Value, Acc) when size(Value) >= 1 ->
 	State = binary_to_list(Value),
-	orddict:store(?State, State, Acc);
+	[{?State, State} | Acc];
 attribute(?Class, Value, Acc) when size(Value) >= 1 ->
 	Class = binary_to_list(Value),
-	orddict:store(?Class, Class, Acc);
+	[{?Class, Class} | Acc];
 attribute(?VendorSpecific, <<0, VendorId:24, Rest/binary>>, Acc)
 		when size(Rest) >= 1 ->
 	VendorSpecific = {VendorId, Rest},
-	orddict:store(?VendorSpecific, VendorSpecific, Acc);
+	[{?VendorSpecific, VendorSpecific} | Acc];
 attribute(?SessionTimeout, Value, Acc) when size(Value) == 4 ->
 	SessionTimeout = binary:decode_unsigned(Value),
-	orddict:store(?SessionTimeout, SessionTimeout, Acc);
+	[{?SessionTimeout, SessionTimeout} | Acc];
 attribute(?IdleTimeout, Value, Acc) when size(Value) == 4 ->
 	IdleTimeout = binary:decode_unsigned(Value),
-	orddict:store(?IdleTimeout, IdleTimeout, Acc);
+	[{?IdleTimeout, IdleTimeout} | Acc];
 attribute(?TerminationAction, Value, Acc) when size(Value) == 4 ->
 	TerminationAction = binary:decode_unsigned(Value),
-	orddict:store(?TerminationAction, TerminationAction, Acc);
+	[{?TerminationAction, TerminationAction} | Acc];
 attribute(?CalledStationId, Value, Acc) when size(Value) >= 1 ->
 	CalledStationId = binary_to_list(Value),
-	orddict:store(?CalledStationId, CalledStationId, Acc);
+	[{?CalledStationId, CalledStationId} | Acc];
 attribute(?CallingStationId, Value, Acc) when size(Value) >= 1 ->
 	CallingStationId = binary_to_list(Value),
-	orddict:store(?CallingStationId, CallingStationId, Acc);
+	[{?CallingStationId, CallingStationId} | Acc];
 attribute(?NasIdentifier, Value, Acc) when size(Value) >= 1 ->
 	NasIdentifier = binary_to_list(Value),
-	orddict:store(?NasIdentifier, NasIdentifier, Acc);
+	[{?NasIdentifier, NasIdentifier} | Acc];
 attribute(?ProxyState, Value, Acc) when size(Value) >= 1 ->
 	ProxyState = binary_to_list(Value),
-	orddict:store(?ProxyState, ProxyState, Acc);
+	[{?ProxyState, ProxyState} | Acc];
 attribute(?LoginLatService, Value, Acc) when size(Value) >= 1 ->
 	LoginLatService = binary_to_list(Value),
-	orddict:store(?LoginLatService, LoginLatService, Acc);
+	[{?LoginLatService, LoginLatService} | Acc];
 attribute(?LoginLatNode, Value, Acc) when size(Value) >= 1 ->
 	LoginLatNode = binary_to_list(Value),
-	orddict:store(?LoginLatNode, LoginLatNode, Acc);
+	[{?LoginLatNode, LoginLatNode} | Acc];
 attribute(?LoginLatGroup, Value, Acc) when size(Value) == 32 ->
 	LoginLatGroup = binary_to_list(Value),
-	orddict:store(?LoginLatGroup, LoginLatGroup, Acc);
+	[{?LoginLatGroup, LoginLatGroup} | Acc];
 attribute(?FramedAppleTalkLink, Value, Acc) when size(Value) == 4 ->
 	FramedAppleTalkLink = binary:decode_unsigned(Value),
-	orddict:store(?FramedAppleTalkLink, FramedAppleTalkLink, Acc);
+	[{?FramedAppleTalkLink, FramedAppleTalkLink} | Acc];
 attribute(?FramedAppleTalkNetwork, Value, Acc) when size(Value) == 4 ->
 	FramedAppleTalkNetwork = binary:decode_unsigned(Value),
-	orddict:store(?FramedAppleTalkNetwork, FramedAppleTalkNetwork, Acc);
+	[{?FramedAppleTalkNetwork, FramedAppleTalkNetwork} | Acc];
 attribute(?FramedAppleTalkZone, Value, Acc) when size(Value) >= 1 ->
 	FramedAppleTalkZone = binary_to_list(Value),
-	orddict:store(?FramedAppleTalkZone, FramedAppleTalkZone, Acc);
+	[{?FramedAppleTalkZone, FramedAppleTalkZone} | Acc];
 attribute(?AcctStatusType, Value, Acc) when size(Value) == 4 ->
 	AcctStatusType = binary:decode_unsigned(Value),
-	orddict:store(?AcctStatusType, AcctStatusType, Acc);
+	[{?AcctStatusType, AcctStatusType} | Acc];
 attribute(?AcctDelayTime, Value, Acc) when size(Value) == 4 ->
 	AcctDelayTime = binary:decode_unsigned(Value),
-	orddict:store(?AcctDelayTime, AcctDelayTime, Acc);
+	[{?AcctDelayTime,AcctDelayTime} | Acc];
 attribute(?AcctInputOctets, Value, Acc) when size(Value) == 4 ->
 	AcctInputOctets = binary:decode_unsigned(Value),
-	orddict:store(?AcctInputOctets, AcctInputOctets, Acc);
+	[{?AcctInputOctets, AcctInputOctets} | Acc];
 attribute(?AcctOutputOctets, Value, Acc) when size(Value) == 4 ->
 	AcctOutputOctets = binary:decode_unsigned(Value),
-	orddict:store(?AcctOutputOctets, AcctOutputOctets, Acc);
+	[{?AcctOutputOctets, AcctOutputOctets} | Acc];
 attribute(?AcctSessionId, Value, Acc) when size(Value) >= 1 ->
 	AcctSessionId = binary_to_list(Value),
-	orddict:store(?AcctSessionId, AcctSessionId, Acc);
+	[{?AcctSessionId, AcctSessionId} | Acc];
 attribute(?AcctAuthentic, Value, Acc) when size(Value) == 4 ->
 	AcctAuthentic = binary:decode_unsigned(Value),
-	orddict:store(?AcctAuthentic, AcctAuthentic, Acc);
+	[{?AcctAuthentic, AcctAuthentic} | Acc];
 attribute(?AcctSessionTime, Value, Acc) when size(Value) == 4 ->
 	AcctSessionTime = binary:decode_unsigned(Value),
-	orddict:store(?AcctSessionTime, AcctSessionTime, Acc);
+	[{?AcctSessionTime, AcctSessionTime} | Acc];
 attribute(?AcctInputPackets, Value, Acc) when size(Value) == 4 ->
 	AcctInputPackets = binary:decode_unsigned(Value),
-	orddict:store(?AcctInputPackets, AcctInputPackets, Acc);
+	[{?AcctInputPackets, AcctInputPackets} | Acc];
 attribute(?AcctOutputPackets, Value, Acc) when size(Value) == 4 ->
 	AcctOutputPackets = binary:decode_unsigned(Value),
-	orddict:store(?AcctOutputPackets, AcctOutputPackets, Acc);
+	[{?AcctOutputPackets, AcctOutputPackets} | Acc];
 attribute(?AcctTerminateCause, Value, Acc) when size(Value) == 4 ->
 	AcctTerminateCause = binary:decode_unsigned(Value),
-	orddict:store(?AcctTerminateCause, AcctTerminateCause, Acc);
+	[{?AcctTerminateCause, AcctTerminateCause} | Acc];
 attribute(?AcctMultiSessionId, Value, Acc) when size(Value) >= 1 ->
 	AcctMultiSessionId = binary_to_list(Value),
-	orddict:store(?AcctMultiSessionId, AcctMultiSessionId, Acc);
+	[{?AcctMultiSessionId, AcctMultiSessionId} | Acc];
 attribute(?AcctLinkCount, Value, Acc) when size(Value) == 4 ->
 	AcctLinkCount = binary:decode_unsigned(Value),
-	orddict:store(?AcctLinkCount, AcctLinkCount, Acc);
+	[{?AcctLinkCount, AcctLinkCount} | Acc];
 attribute(?AcctInputGigawords, Value, Acc) when size(Value) == 4 ->
 	GigaWordsCount = binary:decode_unsigned(Value),
-	orddict:store(?AcctInputGigawords, GigaWordsCount, Acc);
+	[{?AcctInputGigawords, GigaWordsCount} | Acc];
 attribute(?AcctOutputGigawords, Value, Acc) when size(Value) == 4 ->
 	GigaWordsCount = binary:decode_unsigned(Value),
-	orddict:store(?AcctOutputGigawords, GigaWordsCount, Acc);
+	[{?AcctOutputGigawords, GigaWordsCount} | Acc];
 attribute(?EventTimestamp, Value, Acc) when size(Value) == 4 ->
 	Seconds = binary:decode_unsigned(Value),
-	orddict:store(?EventTimestamp, Seconds, Acc);
+	[{?EventTimestamp, Seconds} | Acc];
 attribute(?ChapChallenge, Value, Acc) when size(Value) >= 5 ->
 	ChapChallenge = binary_to_list(Value),
-	orddict:store(?ChapChallenge, ChapChallenge, Acc);
+	[{?ChapChallenge, ChapChallenge} | Acc];
 attribute(?NasPortType, Value, Acc) when size(Value) == 4 ->
 	NasPortType = binary:decode_unsigned(Value),
-	orddict:store(?NasPortType, NasPortType, Acc);
+	[{?NasPortType, NasPortType} | Acc];
 attribute(?PortLimit, Value, Acc) when size(Value) == 4 ->
 	PortLimit = binary:decode_unsigned(Value),
-	orddict:store(?PortLimit, PortLimit, Acc);
+	[{?PortLimit, PortLimit} | Acc];
 attribute(?LoginLatPort, Value, Acc) when size(Value) >= 1 ->
 	LoginLatPort = binary_to_list(Value),
-	orddict:store(?LoginLatPort, LoginLatPort, Acc);
+	[{?LoginLatPort, LoginLatPort} | Acc];
 attribute(?TunnelType, <<Tag, Value:24>>, Acc) ->
-	orddict:store(?TunnelType, {Tag, Value}, Acc);
+	[{?TunnelType, {Tag, Value}} | Acc];
 attribute(?TunnelMediumType, <<Tag, Value:24>>, Acc) ->
-	orddict:store(?TunnelMediumType, {Tag, Value}, Acc);
+	[{?TunnelMediumType, {Tag, Value}} | Acc];
 attribute(?TunnelClientEndpoint, <<Tag, String/binary>>, Acc) ->
 	S = binary_to_list(String),
-	orddict:store(?TunnelClientEndpoint, {Tag, S}, Acc);
+	[{?TunnelClientEndpoint, {Tag, S}} | Acc];
 attribute(?TunnelServerEndpoint, <<Tag, String/binary>>, Acc) ->
 	S = binary_to_list(String),
-	orddict:store(?TunnelServerEndpoint, {Tag, S}, Acc);
+	[{?TunnelServerEndpoint, {Tag, S}} | Acc];
 attribute(?AcctTunnelConnection, Value, Acc) when size(Value) >= 1 ->
-	orddict:store(?AcctTunnelConnection, binary_to_list(Value), Acc);
+	[{?AcctTunnelConnection, binary_to_list(Value)} | Acc];
 attribute(?TunnelPassword, <<Tag, Salt:16, String/binary>>, Acc) ->
 	S = binary_to_list(String),
-	orddict:store(?TunnelPassword, {Tag, Salt, S}, Acc);
+	[{?TunnelPassword, {Tag, Salt, S}} | Acc];
 attribute(?ARAPPassword, <<Challenge:8/binary, Response:8/binary>>, Acc) ->
-	orddict:store(?ARAPPassword, {Challenge, Response}, Acc);
+	[{?ARAPPassword, {Challenge, Response}} | Acc];
 attribute(?ARAPFeatures, <<Change, Length, Created:32, Expires:32, Time:32>>, Acc) ->
-	orddict:store(?ARAPFeatures, {Change, Length, Created, Expires, Time}, Acc);
+	[{?ARAPFeatures, {Change, Length, Created, Expires, Time}} | Acc];
 attribute(?ARAPZoneAccess, Value, Acc) when size(Value) == 4 ->
 	ZoneAccess = binary:decode_unsigned(Value),
-	orddict:store(?ARAPZoneAccess, ZoneAccess, Acc);
+	[{?ARAPZoneAccess, ZoneAccess} | Acc];
 attribute(?ARAPSecurity, Value, Acc) when size(Value) == 4 ->
 	Security = binary:decode_unsigned(Value),
-	orddict:store(?ARAPSecurity, Security, Acc);
+	[{?ARAPSecurity, Security} | Acc];
 attribute(?ARAPSecurityData, Data, Acc) when size(Data) >= 1 ->
-	orddict:store(?ARAPSecurityData, Data, Acc);
+	[{?ARAPSecurityData, Data} | Acc];
 attribute(?PasswordRetry, Value, Acc) when size(Value) == 4 ->
 	Retries = binary:decode_unsigned(Value),
-	orddict:store(?PasswordRetry, Retries, Acc);
+	[{?PasswordRetry, Retries} | Acc];
 attribute(?Prompt, <<0:32>>, Acc) ->
-	orddict:store(?Prompt, false, Acc);
+	[{?Prompt, false} | Acc];
 attribute(?Prompt, <<1:32>>, Acc) ->
-	orddict:store(?Prompt, true, Acc);
+	[{?Prompt, true} | Acc];
 attribute(?ConnectInfo, Value, Acc) when size(Value) >= 1 ->
 	Text = binary_to_list(Value),
-	orddict:store(?ConnectInfo, Text, Acc);
+	[{?ConnectInfo, Text} | Acc];
 attribute(?ConfigurationToken, Value, Acc) when size(Value) >= 1 ->
 	String= binary_to_list(Value),
-	orddict:store(?ConfigurationToken, String, Acc);
+	[{?ConfigurationToken, String} | Acc];
 attribute(?EAPMessage, Data, Acc) when size(Data) >= 1 ->
-	orddict:store(?EAPMessage, Data, Acc);
+	[{?EAPMessage, Data} | Acc];
 attribute(?MessageAuthenticator, String, Acc) when size(String) == 16 ->
-	orddict:store(?MessageAuthenticator, String, Acc);
+	[{?MessageAuthenticator, String} | Acc];
 attribute(?TunnelPrivateGroupID, <<Tag, String/binary>>, Acc) ->
 	S = binary_to_list(String),
-	orddict:store(?TunnelPrivateGroupID, {Tag, S}, Acc);
+	[{?TunnelPrivateGroupID, {Tag, S}} | Acc];
 attribute(?TunnelAssignmentID, <<Tag, String/binary>>, Acc) ->
 	S = binary_to_list(String),
-	orddict:store(?TunnelAssignmentID, {Tag, S}, Acc);
+	[{?TunnelAssignmentID, {Tag, S}} | Acc];
 attribute(?TunnelPreference, <<Tag, Value:24>>, Acc) ->
-	orddict:store(?TunnelPreference, {Tag, Value}, Acc);
+	[{?TunnelPreference, {Tag, Value}} | Acc];
 attribute(?ARAPChallengeResponse, String, Acc) when size(String) == 8 ->
-	orddict:store(?ARAPChallengeResponse, String, Acc);
+	[{?ARAPChallengeResponse, String} | Acc];
 attribute(?AcctInterimInterval, Value, Acc) when size(Value) == 4 ->
 	Count = binary:decode_unsigned(Value),
-	orddict:store(?AcctInterimInterval, Count, Acc);
+	[{?AcctInterimInterval, Count} | Acc];
 attribute(?AcctTunnelPacketsLost, Value, Acc) when size(Value) == 4 ->
 	Lost = binary:decode_unsigned(Value),
-	orddict:store(?AcctTunnelPacketsLost, Lost, Acc);
+	[{?AcctTunnelPacketsLost, Lost} | Acc];
 attribute(?NasPortId, Text, Acc) when size(Text) >= 1 ->
 	S = binary_to_list(Text),
-	orddict:store(?NasPortId, S, Acc);
+	[{?NasPortId, S} | Acc];
 attribute(?FramedPool, String, Acc) when size(String) >= 1 ->
 	S = binary_to_list(String),
-	orddict:store(?FramedPool, S, Acc);
+	[{?FramedPool, S} | Acc];
 attribute(?CUI, String, Acc) when size(String) >= 1 ->
 	S = binary_to_list(String),
-	orddict:store(?CUI, S, Acc);
+	[{?CUI, S} | Acc];
 attribute(?TunnelClientAuthID, <<Tag, String/binary>>, Acc) ->
 	S = binary_to_list(String),
-	orddict:store(?TunnelClientAuthID, {Tag, S}, Acc);
+	[{?TunnelClientAuthID, {Tag, S}} | Acc];
 attribute(?TunnelServerAuthID, <<Tag, String/binary>>, Acc) ->
 	S = binary_to_list(String),
-	orddict:store(?TunnelServerAuthID, {Tag, S}, Acc);
+	[{?TunnelServerAuthID, {Tag, S}} | Acc];
 attribute(?NasFilterRule, Data, Acc) when size(Data) >= 1 ->
-	orddict:store(?NasFilterRule, Data, Acc);
+	[{?NasFilterRule, Data} | Acc];
 attribute(?OriginatingLineInfo, Value, Acc) when size(Value) == 2 ->
 	OLI = binary:decode_unsigned(Value),
-	orddict:store(?OriginatingLineInfo, OLI, Acc);
+	[{?OriginatingLineInfo, OLI} | Acc];
 attribute(?NasIPv6Address, <<A:16, B:16, C:16, D:16,
 		E:16, F:16, G:16, H:16>>, Acc) ->
-	orddict:store(?NasIPv6Address, {A, B, C, D, E, F, G, H}, Acc);
+	[{?NasIPv6Address, {A, B, C, D, E, F, G, H}} | Acc];
 attribute(?FramedInterfaceId, Value, Acc) when size(Value) == 8 ->
 	InterfaceID= binary_to_list(Value),
-	orddict:store(?FramedInterfaceId, InterfaceID, Acc);
+	[{?FramedInterfaceId, InterfaceID} | Acc];
 attribute(?FramedIPv6Prefix, <<0, PrefixLength, Prefix/binary>>, Acc) ->
-	orddict:store(?FramedIPv6Prefix, {PrefixLength, Prefix}, Acc);
+	[{?FramedIPv6Prefix, {PrefixLength, Prefix}} | Acc];
 attribute(?LoginIPv6Host, <<A:16, B:16, C:16, D:16,
 		E:16, F:16, G:16, H:16>>, Acc) ->
-	orddict:store(?LoginIPv6Host, {A, B, C, D, E, F, G, H}, Acc);
+	[{?LoginIPv6Host, {A, B, C, D, E, F, G, H}} | Acc];
 attribute(?FramedIPv6Route, Text, Acc) when size(Text) >= 1 ->
 	S = binary_to_list(Text),
-	orddict:store(?FramedIPv6Route, S, Acc);
+	[{?FramedIPv6Route, S} | Acc];
 attribute(?FramedIPv6Pool, String, Acc) when size(String) >= 1 ->
 	S = binary_to_list(String),
-	orddict:store(?FramedIPv6Pool, S, Acc);
+	[{?FramedIPv6Pool, S} | Acc];
 attribute(?ErrorCause, Value, Acc) when size(Value) == 4 ->
 	Cause = binary:decode_unsigned(Value),
-	orddict:store(?ErrorCause, Cause, Acc);
+	[{?ErrorCause, Cause} | Acc];
 attribute(?EAPKeyName, Data, Acc) when size(Data) >= 1 ->
-	orddict:store(?EAPKeyName, Data, Acc);
+	[{?EAPKeyName, Data} | Acc];
 attribute(?DigestResponse, String, Acc) when size(String) >= 1 ->
 	S = binary_to_list(String),
-	orddict:store(?DigestResponse, S, Acc);
+	[{?DigestResponse, S} | Acc];
 attribute(?DigestRealm, String, Acc) when size(String) >= 1 ->
 	S = binary_to_list(String),
-	orddict:store(?DigestRealm, S, Acc);
+	[{?DigestRealm, S} | Acc];
 attribute(?DigestNonce, String, Acc) when size(String) >= 1 ->
 	S = binary_to_list(String),
-	orddict:store(?DigestNonce, S, Acc);
+	[{?DigestNonce, S} | Acc];
 attribute(?DigestResponseAuth, String, Acc) when size(String) >= 1 ->
 	S = binary_to_list(String),
-	orddict:store(?DigestResponseAuth, S, Acc);
+	[{?DigestResponseAuth, S} | Acc];
 attribute(?DigestNextnonce, String, Acc) when size(String) >= 1 ->
 	S = binary_to_list(String),
-	orddict:store(?DigestNextnonce, S, Acc);
+	[{?DigestNextnonce, S} | Acc];
 attribute(?DigestMethod, String, Acc) when size(String) >= 1 ->
 	S = binary_to_list(String),
-	orddict:store(?DigestMethod, S, Acc);
+	[{?DigestMethod, S} | Acc];
 attribute(?DigestURI, String, Acc) when size(String) >= 1 ->
 	S = binary_to_list(String),
-	orddict:store(?DigestURI, S, Acc);
+	[{?DigestURI, S} | Acc];
 attribute(?DigestQop, String, Acc) when size(String) >= 1 ->
 	S = binary_to_list(String),
-	orddict:store(?DigestQop, S, Acc);
+	[{?DigestQop, S} | Acc];
 attribute(?DigestAlgorithm, String, Acc) when size(String) >= 1 ->
 	S = binary_to_list(String),
-	orddict:store(?DigestAlgorithm, S, Acc);
+	[{?DigestAlgorithm, S} | Acc];
 attribute(?DigestEntityBodyHash, String, Acc) when size(String) >= 1 ->
 	S = binary_to_list(String),
-	orddict:store(?DigestEntityBodyHash, S, Acc);
+	[{?DigestEntityBodyHash, S} | Acc];
 attribute(?DigestCNonce, String, Acc) when size(String) >= 1 ->
 	S = binary_to_list(String),
-	orddict:store(?DigestCNonce, S, Acc);
+	[{?DigestCNonce, S} | Acc];
 attribute(?DigestNonceCount, String, Acc) when size(String) >= 1 ->
 	S = binary_to_list(String),
-	orddict:store(?DigestNonceCount, S, Acc);
+	[{?DigestNonceCount, S} | Acc];
 attribute(?DigestUsername, String, Acc) when size(String) >= 1 ->
 	S = binary_to_list(String),
-	orddict:store(?DigestUsername, S, Acc);
+	[{?DigestUsername, S} | Acc];
 attribute(?DigestOpaque, String, Acc) when size(String) >= 1 ->
 	S = binary_to_list(String),
-	orddict:store(?DigestOpaque, S, Acc);
+	[{?DigestOpaque, S} | Acc];
 attribute(?DigestAuthParam, String, Acc) when size(String) >= 1 ->
 	S = binary_to_list(String),
-	orddict:store(?DigestAuthParam, S, Acc);
+	[{?DigestAuthParam, S} | Acc];
 attribute(?DigestAKAAuts, String, Acc) when size(String) >= 1 ->
 	S = binary_to_list(String),
-	orddict:store(?DigestAKAAuts, S, Acc);
+	[{?DigestAKAAuts, S} | Acc];
 attribute(?DigestDomain, String, Acc) when size(String) >= 1 ->
 	S = binary_to_list(String),
-	orddict:store(?DigestDomain, S, Acc);
+	[{?DigestDomain, S} | Acc];
 attribute(?DigestStale, String, Acc) when size(String) >= 1 ->
 	S = binary_to_list(String),
-	orddict:store(?DigestStale, S, Acc);
+	[{?DigestStale, S} | Acc];
 attribute(?DigestHA1, String, Acc) when size(String) >= 1 ->
 	S = binary_to_list(String),
-	orddict:store(?DigestHA1, S, Acc);
+	[{?DigestHA1, S} | Acc];
 attribute(?SIPAOR, String, Acc) when size(String) >= 1 ->
 	S = binary_to_list(String),
-	orddict:store(?SIPAOR, S, Acc);
+	[{?SIPAOR, S} | Acc];
 attribute(?DelegatedIPv6Prefix, <<0, PrefixLength, Prefix/binary>>, Acc)
 		when size(Prefix) >= 4, size(Prefix) =< 20 ->
-	orddict:store(?DelegatedIPv6Prefix, {PrefixLength, Prefix}, Acc);
+	[{?DelegatedIPv6Prefix, {PrefixLength, Prefix}} | Acc];
 attribute(?MIP6FeatureVector, Value, Acc) when size(Value) == 4 ->
 	Caps = binary:decode_unsigned(Value),
-	orddict:store(?MIP6FeatureVector, Caps, Acc);
+	[{?MIP6FeatureVector, Caps} | Acc];
 attribute(?MIP6HomeLinkPrefix, <<PrefixLength, Prefix:16/binary>>, Acc) ->
-	orddict:store(?MIP6HomeLinkPrefix, {PrefixLength, Prefix}, Acc);
+	[{?MIP6HomeLinkPrefix, {PrefixLength, Prefix}} | Acc];
 attribute(?OperatorName, <<NameSpaceId, Text/binary>>, Acc) ->
 	OperatorName = binary_to_list(Text),
-	orddict:store(?OperatorName, {NameSpaceId, OperatorName}, Acc);
+	[{?OperatorName, {NameSpaceId, OperatorName}} | Acc];
 attribute(?LocationInformation, <<Index:16, Code:8, Entity:8,
 		SightingTime:64, TimeToLive:64, Method/binary>>, Acc) when size(Method) >= 1 ->
 	S = binary_to_list(Method),
-	orddict:store(?LocationInformation, {Index, Code, Entity, SightingTime,
-			TimeToLive, S}, Acc);
+	[{?LocationInformation, {Index, Code, Entity, SightingTime,
+			TimeToLive, S}} | Acc];
 attribute(?LocationData, <<Index:16, Location/binary>>, Acc)
 		when size(Location) >= 1 ->
-	orddict:store(?LocationData, {Index, Location}, Acc);
+	[{?LocationData, {Index, Location}} | Acc];
 attribute(?BasicLocationPolicyRules, <<Flags:16, RetentionExpires:64/binary,
 		NoteWell/binary>>, Acc) ->
 	S = binary_to_list(NoteWell),
-	orddict:store(?BasicLocationPolicyRules, {Flags, RetentionExpires, S}, Acc);
+	[{?BasicLocationPolicyRules, {Flags, RetentionExpires, S}} | Acc];
 attribute(?ExtendedLocationPolicyRules, String, Acc) when size(String) >= 1 ->
 	RulesReference = binary_to_list(String),
-	orddict:store(?ExtendedLocationPolicyRules, RulesReference, Acc);
+	[{?ExtendedLocationPolicyRules, RulesReference} | Acc];
 attribute(?LocationCapable, Value, Acc) when size(Value) == 4 ->
 	Caps = binary:decode_unsigned(Value),
-	orddict:store(?LocationCapable, Caps, Acc);
+	[{?LocationCapable, Caps} | Acc];
 attribute(?RequestedLocationInfo, Value, Acc) when size(Value) == 4 ->
 	Caps = binary:decode_unsigned(Value),
-	orddict:store(?RequestedLocationInfo, Caps, Acc);
+	[{?RequestedLocationInfo, Caps} | Acc];
 attribute(?AllowedCalledStationId, String, Acc) when size(String) >= 1 ->
 	S = binary_to_list(String),
-	orddict:store(?AllowedCalledStationId, S, Acc);
+	[{?AllowedCalledStationId, S} | Acc];
 attribute(?EAPPeerId, Data, Acc) when size(Data) >= 1 ->
-	orddict:store(?EAPPeerId, Data, Acc);
+	[{?EAPPeerId, Data} | Acc];
 attribute(?EAPServerId, Data, Acc) when size(Data) >= 1 ->
-	orddict:store(?EAPServerId, Data, Acc);
+	[{?EAPServerId, Data} | Acc];
 attribute(?MobilityDomainId, <<_:16, MDID:16>>, Acc) ->
-	orddict:store(?MobilityDomainId, MDID, Acc);
+	[{?MobilityDomainId, MDID} | Acc];
 attribute(?PreauthTimeout, Value, Acc) when size(Value) == 4 ->
 	Seconds = binary:decode_unsigned(Value),
-	orddict:store(?PreauthTimeout, Seconds, Acc);
+	[{?PreauthTimeout, Seconds} | Acc];
 attribute(?NetworkIdName, Data, Acc) when size(Data) >= 1 ->
-	orddict:store(?NetworkIdName, Data, Acc);
+	[{?NetworkIdName, Data} | Acc];
 attribute(?EAPoLAnnouncement, Data, Acc) when size(Data) >= 1 ->
-	orddict:store(?EAPoLAnnouncement, Data, Acc);
+	[{?EAPoLAnnouncement, Data} | Acc];
 attribute(?WLANHESSID, String, Acc) when size(String) == 17 ->
 	S = binary_to_list(String),
-	orddict:store(?WLANHESSID, S, Acc);
+	[{?WLANHESSID, S} | Acc];
 attribute(?WLANVenueInfo, <<0:16, VenueGroup, VenueType>>, Acc) ->
-	orddict:store(?WLANVenueInfo, {VenueGroup, VenueType}, Acc);
+	[{?WLANVenueInfo, {VenueGroup, VenueType}} | Acc];
 attribute(?WLANVenueLanguage, String, Acc)
 		when size(String) == 4, size(String) == 5 ->
 	Language  = binary_to_list(String),
-	orddict:store(?WLANVenueLanguage, Language, Acc);
+	[{?WLANVenueLanguage, Language} | Acc];
 attribute(?WLANVenueName, String, Acc) when size(String) >= 1 ->
 	S = binary_to_list(String),
-	orddict:store(?WLANVenueName, S, Acc);
+	[{?WLANVenueName, S} | Acc];
 attribute(?WLANReasonCode, Value, Acc) when size(Value) == 4 ->
 	Code = binary:decode_unsigned(Value),
-	orddict:store(?WLANReasonCode, Code, Acc);
+	[{?WLANReasonCode, Code} | Acc];
 attribute(?WLANPairwiseCipher, <<OUI:24, SuiteType:8>>, Acc) ->
-	orddict:store(?WLANPairwiseCipher, {OUI, SuiteType}, Acc);
+	[{?WLANPairwiseCipher, {OUI, SuiteType}} | Acc];
 attribute(?WLANGroupCipher, <<OUI:24, SuiteType:8>>, Acc) ->
-	orddict:store(?WLANGroupCipher, {OUI, SuiteType}, Acc);
+	[{?WLANGroupCipher, {OUI, SuiteType}} | Acc];
 attribute(?WLANAKMSuite, <<OUI:24, SuiteType:8>>, Acc) ->
-	orddict:store(?WLANAKMSuite, {OUI, SuiteType}, Acc);
+	[{?WLANAKMSuite, {OUI, SuiteType}} | Acc];
 attribute(?WLANGroupMgmtCipher, <<OUI:24, SuiteType:8>>, Acc) ->
-	orddict:store(?WLANGroupMgmtCipher, {OUI, SuiteType}, Acc);
+	[{?WLANGroupMgmtCipher, {OUI, SuiteType}} | Acc];
 attribute(?WLANRFBand, <<_:24, RfBand:8>>, Acc) ->
-	orddict:store(?WLANRFBand, RfBand, Acc);
+	[{?WLANRFBand, RfBand} | Acc];
 attribute(_, _Value, Acc) ->
 	Acc.
 
