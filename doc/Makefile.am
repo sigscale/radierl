@@ -35,6 +35,6 @@ overview.edoc: overview.edoc-in
 		cp $(top_srcdir)/doc/messages.png $(top_builddir)/doc; fi
 
 CLEANFILES = overview.edoc edoc-info index.html \
-		modules-frame.html overview-summary.html packages-frame.html \
+		modules-frame.html overview-summary.html \
 		stylesheet.css erlang.png $(modhtml)
 
