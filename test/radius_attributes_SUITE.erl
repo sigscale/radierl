@@ -4,18 +4,18 @@
 %%% @end
 %%%
 %%% Copyright (c) 2011-2016, Motivity Telecom
-%%% 
+%%%
 %%% All rights reserved.
-%%% 
+%%%
 %%% Redistribution and use in source and binary forms, with or without
 %%% modification, are permitted provided that the following conditions
 %%% are met:
-%%% 
+%%%
 %%%    - Redistributions of source code must retain the above copyright
 %%%      notice, this list of conditions and the following disclaimer.
 %%%    - Redistributions in binary form must reproduce the above copyright
 %%%      notice, this list of conditions and the following disclaimer in
-%%%      the documentation and/or other materials provided with the 
+%%%      the documentation and/or other materials provided with the
 %%%      distribution.
 %%%    - Neither the name of Motivity Telecom nor the names of its
 %%%      contributors may be used to endorse or promote products derived
@@ -29,7 +29,7 @@
 %%% SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
 %%% LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
 %%% DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
-%%% THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT 
+%%% THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 %%% (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 %%% OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 %%%
@@ -62,7 +62,13 @@ suite() ->
 %% 	Config = [tuple()]
 %% @doc Initiation before the whole suite.
 init_per_suite(Config) ->
-	Config.
+	Attributes = <<?UserName, 7, <<"sally">>/binary,
+			?NasPort, 6, 0:32, ?EAPMessage, 18,
+			<<0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15>>/binary,
+			?EAPMessage, 18,
+			<<16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31>>/binary,
+			?NasPortId, 7, <<"wlan0">>/binary>>,
+	[{example_attributes, Attributes} | Config].
 
 %% @spec (Config) -> any()
 %% 	Config = [tuple()]
@@ -71,13 +77,13 @@ init_per_suite(Config) ->
 end_per_suite(_Config) ->
 	ok.
 
-%% @spec () -> Sequences 
+%% @spec () -> Sequences
 %% 	Sequences = [{SeqName, Testcases}]
 %% 	SeqName = atom()
 %% 	Testcases = [atom()]
 %% @doc Group test cases into a test sequence.
 %%
-sequences() -> 
+sequences() ->
 	[].
 
 %% @spec () -> TestCases
@@ -85,12 +91,91 @@ sequences() ->
 %% 	Case = atom()
 %% @doc Returns a list of all test cases in this test suite.
 %%
-all() -> 
-	[password, example1, example2, example3].
+all() ->
+	[store_new, store_overwrite, add,
+	fetch_existing, fetch_noexist, find_existing, find_noexist, get_all,
+	password, example1, example2, example3].
 
 %%---------------------------------------------------------------------
 %%  Test cases
 %%---------------------------------------------------------------------
+
+store_new() ->
+	[{userdata, [{doc, "Store a new attribute value"}]}].
+
+store_new(Config) ->
+	AttrsBin1 = ?config(example_attributes, Config),
+	Attrs1 = radius_attributes:codec(AttrsBin1),
+	Attrs2 = radius_attributes:store(?NasPortType, 19, Attrs1),
+	AttrsBin2 = radius_attributes:codec(Attrs2),
+	SizeBin1 = size(AttrsBin1),
+	<<AttrsBin1:SizeBin1/binary, ?NasPortType, 6, 19:32>> = AttrsBin2.
+
+store_overwrite() ->
+	[{userdata, [{doc, "Overwrite an existing attribute value"}]}].
+
+store_overwrite(Config) ->
+	AttrsBin1 = ?config(example_attributes, Config),
+	Attrs1 = radius_attributes:codec(AttrsBin1),
+	Attrs2 = radius_attributes:store(?NasPort, 17, Attrs1),
+	AttrsBin2 = radius_attributes:codec(Attrs2),
+	<<_:7/binary, ?NasPort, 6, 17:32, _:43/binary>> = AttrsBin2.
+
+add() ->
+	[{userdata, [{doc, "Add an attribute"}]}].
+
+add(Config) ->
+	AttrsBin1 = ?config(example_attributes, Config),
+	Attrs1 = radius_attributes:codec(AttrsBin1),
+	Attrs2 = radius_attributes:add(?PortLimit, 1, Attrs1),
+	AttrsBin2 = radius_attributes:codec(Attrs2),
+	SizeBin1 = size(AttrsBin1),
+	<<AttrsBin1:SizeBin1/binary, ?PortLimit, 6, 1:32>> = AttrsBin2.
+
+fetch_existing() ->
+	[{userdata, [{doc, "Get the value of an existing attribute"}]}].
+
+fetch_existing(Config) ->
+	AttrsBin = ?config(example_attributes, Config),
+	Attrs = radius_attributes:codec(AttrsBin),
+	"wlan0" = radius_attributes:fetch(?NasPortId, Attrs).
+
+fetch_noexist() ->
+	[{userdata, [{doc, "Attempt to get a nonexistent attribute"}]}].
+
+fetch_noexist(Config) ->
+	AttrsBin = ?config(example_attributes, Config),
+	Attrs = radius_attributes:codec(AttrsBin),
+	case catch radius_attributes:fetch(?State, Attrs) of
+		{'EXIT', not_found} ->
+			ok
+	end.
+
+find_existing() ->
+	[{userdata, [{doc, "Look for the value of an existing attribute"}]}].
+
+find_existing(Config) ->
+	AttrsBin = ?config(example_attributes, Config),
+	Attrs = radius_attributes:codec(AttrsBin),
+	{ok, "wlan0"} = radius_attributes:find(?NasPortId, Attrs).
+
+find_noexist() ->
+	[{userdata, [{doc, "Look for the value of a nonexistent attribute"}]}].
+
+find_noexist(Config) ->
+	AttrsBin = ?config(example_attributes, Config),
+	Attrs = radius_attributes:codec(AttrsBin),
+	{error, not_found} = radius_attributes:find(?State, Attrs).
+
+get_all() ->
+	[{userdata, [{doc, "Get all values of an attribute"}]}].
+
+get_all(Config) ->
+	AttrsBin = ?config(example_attributes, Config),
+	Attrs = radius_attributes:codec(AttrsBin),
+	EAPMessages = radius_attributes:get_all(?EAPMessage, Attrs),
+	[<<0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15>>,
+			<<16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31>>] = EAPMessages.
 
 password() ->
 	[{userdata, [{doc, "User-Password hiding"}]}].
@@ -219,7 +304,7 @@ example2(_Config) ->
 	2 = radius_attributes:fetch(?FramedRouting, ResponseAttributes),
 	1 = radius_attributes:fetch(?FramedCompression, ResponseAttributes),
 	1500 = radius_attributes:fetch(?FramedMtu, ResponseAttributes).
-	
+
 example3() ->
 	[{userdata, [{doc, "RFC2865 7.3 User with Challenge-Response card"}]}].
 
@@ -295,7 +380,7 @@ example3(_Config) ->
 			BinaryResponse2Attributes, SharedSecret]),
 	Response2Authenticator = binary_to_list(Hash2),
 	[] = radius_attributes:codec(BinaryResponse2Attributes).
-	
+
 %%---------------------------------------------------------------------
 %%  Internal functions
 %%---------------------------------------------------------------------
