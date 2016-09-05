@@ -1,7 +1,9 @@
-September 4, 2016
+September 5, 2016
 ----------------
 	- version changed to 1.3
 	- changed attributes API, support multiple attribute values
+	- changed authenticator API
+	- require crypto application
 
 August 15, 2016
 ---------------

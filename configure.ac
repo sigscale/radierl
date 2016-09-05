@@ -48,6 +48,7 @@ AC_SUBST(eincludedir)
 ##
 ## Libraries:  check for libraries
 ##
+AC_ERLANG_CHECK_LIB([crypto], [], [AC_MSG_ERROR([crypto was not found!])])
 
 
 ##

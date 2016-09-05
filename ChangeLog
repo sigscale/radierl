@@ -1,6 +1,7 @@
-2016-09-04  Vance Shipley  <vances@sigscale.org>
+2016-09-05  Vance Shipley  <vances@sigscale.org>
 
 	* radius_attributes.erl: no longer orders attributes, new api
+	* radius.erl: change authenticator api, use crypto app
 
 2016-08-15  Vance Shipley  <vances@sigscale.org>
 

@@ -121,7 +121,7 @@ terminate(_Reason, ?MODULE = _State) ->
 
 %% @hidden
 accept(Id, RequestAuthenticator, Secret) ->
-	ResponseAuthenticator = erlang:md5([<<?AccessAccept, Id, 20:16>>,
+	ResponseAuthenticator = crypto:hash(md5, [<<?AccessAccept, Id, 20:16>>,
 			RequestAuthenticator, Secret]), 
 	Response = #radius{code = ?AccessAccept, id = Id,
 			authenticator = ResponseAuthenticator, attributes = []},
@@ -129,7 +129,7 @@ accept(Id, RequestAuthenticator, Secret) ->
 
 %% @hidden
 reject(<<_Code, Id, _Len:16, Authenticator:16/binary, _/binary>>, Secret) ->
-	ResponseAuthenticator = erlang:md5([<<?AccessReject, Id, 96:16>>,
+	ResponseAuthenticator = crypto:hash(md5, [<<?AccessReject, Id, 96:16>>,
 			Authenticator, Secret]), 
 	Response = #radius{code = ?AccessReject, id = Id,
 			authenticator = ResponseAuthenticator, attributes = []},

@@ -253,7 +253,7 @@ send(Id, AttributeList, Config) ->
 	SharedSecret = ?config(secret, Config),
 	Attributes = radius_attributes:codec(AttributeList),
 	RequestLength = size(Attributes) + 20,
-	RequestAuthenticator = erlang:md5([<<?AccountingRequest, Id,
+	RequestAuthenticator = crypto:hash(md5, [<<?AccountingRequest, Id,
 			RequestLength:16, 0:128>>, Attributes, SharedSecret]),
 	Request = radius:codec(#radius{code = ?AccountingRequest, id = Id,
 			authenticator = RequestAuthenticator, attributes = Attributes}),
@@ -266,7 +266,7 @@ send(Id, AttributeList, Config) ->
 			authenticator = ResponseAuthenticator,
 			attributes = BinaryResponseAttributes} = radius:codec(Response),
 	ResponseLength = binary:decode_unsigned(binary:part(Response, 2, 2)),
-	Hash = erlang:md5([<<?AccountingResponse, Id, ResponseLength:16>>,
+	Hash = crypto:hash(md5, [<<?AccountingResponse, Id, ResponseLength:16>>,
 			RequestAuthenticator, BinaryResponseAttributes, SharedSecret]),
 	ResponseAuthenticator = binary_to_list(Hash),
 	[] = radius_attributes:codec(BinaryResponseAttributes).

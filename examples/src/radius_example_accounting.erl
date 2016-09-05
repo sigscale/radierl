@@ -112,7 +112,7 @@ request(<<_Code, Id, Length:16, _/binary>> = Packet, Secret) ->
 		{error, not_found} = radius_attributes:find(?ReplyMessage, Attributes),
 		{error, not_found} = radius_attributes:find(?State, Attributes),
 		{ok, _AcctSessionId} = radius_attributes:find(?AcctSessionId, Attributes),
-		Hash = erlang:md5([<<?AccountingRequest, Id, Length:16, 0:128>>,
+		Hash = crypto:hash(md5, [<<?AccountingRequest, Id, Length:16, 0:128>>,
 				BinaryAttributes, Secret]),
 		Authenticator = binary_to_list(Hash),
 		case disk_log:log(?LOGNAME, Attributes) of
@@ -147,7 +147,7 @@ response(Id, RequestAuthenticator, Secret, AttributeList)
 response(Id, RequestAuthenticator, Secret, Attributes)
 		when is_binary(Attributes) ->
 	Length = size(Attributes) + 20,
-	ResponseAuthenticator = erlang:md5([<<?AccountingResponse, Id, Length:16>>,
+	ResponseAuthenticator = crypto:hash(md5, [<<?AccountingResponse, Id, Length:16>>,
 			RequestAuthenticator, Attributes, Secret]),
 	Response = #radius{code = ?AccountingResponse, id = Id,
 			authenticator = ResponseAuthenticator, attributes = Attributes},

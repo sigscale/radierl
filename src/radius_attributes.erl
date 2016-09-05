@@ -169,7 +169,7 @@ hide(_, _, [], Acc) ->
 	lists:flatten(lists:reverse(Acc));
 hide(Secret, Salt, Password, Acc) ->
 	{Phead, Ptail} = lists:split(16, Password),
-	Hash = binary_to_list(erlang:md5([Secret, Salt])),
+	Hash = binary_to_list(crypto:hash(md5, [Secret, Salt])),
 	Fxor = fun(X, Y) -> X bxor Y end,
 	Result = lists:zipwith(Fxor, Phead, Hash),
 	hide(Secret, Result, Ptail, [Result | Acc]).
@@ -181,7 +181,7 @@ unhide(_, _, [], Acc) ->
 	lists:takewhile(Fnull, Padded);
 unhide(Secret, Salt, UserPassword, Acc) ->
 	{Phead, Ptail} = lists:split(16, UserPassword),
-	Hash = binary_to_list(erlang:md5([Secret, Salt])),
+	Hash = binary_to_list(crypto:hash(md5, [Secret, Salt])),
 	Fxor = fun(X, Y) -> X bxor Y end,
 	Result = lists:zipwith(Fxor, Phead, Hash),
 	unhide(Secret, Phead, Ptail, [Result | Acc]).

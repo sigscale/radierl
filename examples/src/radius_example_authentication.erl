@@ -126,7 +126,7 @@ request(Packet, Secret) ->
 				end,
 				case radius_example:find_user(Name) of
 					{ok, Password, UserAttributes} ->
-						case binary_to_list(erlang:md5([ChapId, Password,
+						case binary_to_list(crypto:hash(md5, [ChapId, Password,
 								Challenge])) of
 							ChapResponse ->
 								accept(Id, Authenticator, Secret, UserAttributes);
@@ -162,7 +162,7 @@ terminate(_Reason, _State) ->
 reject(<<_Code, Id, _Len:16, Authenticator:16/binary, _/binary>>, Secret) ->
 	Attributes = [],
 	Length = length(Attributes) + 20,
-	ResponseAuthenticator = erlang:md5([<<?AccessReject, Id, Length:16>>,
+	ResponseAuthenticator = crypto:hash(md5, [<<?AccessReject, Id, Length:16>>,
 			Authenticator, Secret]), 
 	Response = #radius{code = ?AccessReject, id = Id,
 			authenticator = ResponseAuthenticator, attributes = []},
@@ -179,7 +179,7 @@ accept(Id, RequestAuthenticator, Secret, AttributeList)
 accept(Id, RequestAuthenticator, Secret, ResponseAttributes) 
 		when is_binary(ResponseAttributes) -> 
 	Length = size(ResponseAttributes) + 20,
-	ResponseAuthenticator = erlang:md5([<<?AccessAccept, Id, Length:16>>,
+	ResponseAuthenticator = crypto:hash(md5, [<<?AccessAccept, Id, Length:16>>,
 			RequestAuthenticator, ResponseAttributes, Secret]), 
 	Response = #radius{code = ?AccessAccept, id = Id,
 			authenticator = ResponseAuthenticator,
