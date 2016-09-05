@@ -145,8 +145,7 @@ client_unknown() ->
 
 client_unknown(Config) ->
 	Id = 0,
-	SharedSecret = ?config(secret, Config),
-	RequestAuthenticator = radius:authenticator(SharedSecret, Id),
+	RequestAuthenticator = radius:authenticator(),
 	Attributes0 = radius_attributes:new(),
 	Attributes = radius_attributes:codec(Attributes0),
 	Request = radius:codec(#radius{code = ?AccessRequest, id = Id,

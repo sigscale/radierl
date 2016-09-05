@@ -114,10 +114,10 @@
 
 %% export the radius public API
 -export([start/2, start/3, start_link/2, start_link/3, stop/1]).
--export([codec/1, response/2]).
+-export([codec/1, authenticator/0, response/2]).
 
 %% export the radius private API
--export([port/1, authenticator/2]).
+-export([port/1]).
 
 %% define the functions a radius callback module must export
 -callback init(Address :: inet:ip_address(), Port :: integer()) ->
@@ -221,6 +221,12 @@ codec(#radius{code = Code, id = Identifier,
 	<<Code, Identifier, Length:16,
 			Authenticator/binary, Attributes/binary>>.
 
+-spec authenticator() -> Authenticator :: binary().
+%% @doc Return a 16 octet random number to use as a request Authenticator.
+%% @private
+authenticator() ->
+	crypto:rand_bytes(16).
+
 -spec response(RadiusFsm :: pid(),
 		Response :: {response, binary()} | {error, ignore}) -> ok.
 %% @doc Send a delayed response to a {@link //radius/radius_fsm. radius_fsm}.
@@ -241,14 +247,6 @@ port(Pid) ->
 	Children = supervisor:which_children(Pid),
    {_Id, Server, _Type, _Modules} = lists:keyfind(radius_server, 1, Children),
 	gen_server:call(Server, port).
-
--spec authenticator(SharedSecret :: string(), Id :: integer()) ->
-	Authenticator :: [byte()].
-%% @doc Return a 16 octet random number to use as a request Authenticator.
-%% @private
-authenticator(SharedSecret, Id) ->
-	{X, Y, Z} = erlang:now(),
-	binary_to_list(erlang:md5([SharedSecret, Id, <<X:32, Y:32, Z:32>>])).
 
 %%----------------------------------------------------------------------
 %%  internal functions

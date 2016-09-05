@@ -129,10 +129,13 @@ codec(In) when is_binary(In) ->
 codec(In) when is_list(In) ->
 	attributes(In, <<>>).
 
--spec hide(SharedSecret :: string(), Authenticator :: [byte()],
+-spec hide(SharedSecret :: string(), Authenticator :: binary() | [byte()],
 	Password :: string()) -> UserPassword :: [byte()].
 %% @doc Hide the password in the User-Password attribute.
 %%
+hide(SharedSecret, Authenticator, Password)
+		when is_binary(Authenticator) ->
+	hide(SharedSecret, binary_to_list(Authenticator), Password);
 hide(SharedSecret, Authenticator, Password)
 		when length(Password) rem 16 > 0 ->
 	PadLen = 16 - length(Password) rem 16,
@@ -144,10 +147,13 @@ hide(SharedSecret, Authenticator, Password)
 		length(Password) rem 16 == 0 ->
 	hide(SharedSecret, Authenticator, Password, []).
 
--spec unhide(SharedSecret :: string(), Authenticator :: [byte()],
+-spec unhide(SharedSecret :: string(), Authenticator :: binary() | [byte()],
 	UserPassword :: [byte()]) -> Password :: string().
 %% @doc Return the password hidden in the User-Password attribute.
 %%
+unhide(SharedSecret, Authenticator, UserPassword)
+		when is_binary(Authenticator) ->
+	unhide(SharedSecret, binary_to_list(Authenticator), UserPassword);
 unhide(SharedSecret, Authenticator, UserPassword)
 		when length(SharedSecret) > 0, length(Authenticator) == 16,
 		length(UserPassword) div 16 >= 1, length(UserPassword) div 16 =< 8,

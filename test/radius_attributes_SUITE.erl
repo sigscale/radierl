@@ -181,7 +181,7 @@ password() ->
 	[{userdata, [{doc, "User-Password hiding"}]}].
 
 password(_Config) ->
-	random:seed(now()),
+	random:seed(os:timestamp()),
 	Authenticator = [random:uniform(255) || _ <- lists:seq(1, 16)],
 	Secret = [random:uniform(95) + 31 || _ <- lists:seq(1, 16)],
 	ShortSecret = [random:uniform(95) + 31 || _ <- lists:seq(1, 3)],
