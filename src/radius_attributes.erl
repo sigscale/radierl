@@ -45,6 +45,7 @@
 -export([new/0, store/3, add/3, fetch/2, find/2, get_all/2]).
 -export([codec/1]).
 -export([hide/3, unhide/3]).
+-export_type([attributes/0]).
 
 %% @headerfile "radius.hrl"
 -include("radius.hrl").
