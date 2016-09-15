@@ -1,7 +1,7 @@
 %%% $Id%
 %%%
 
-%% define macros for RADIUS Codes
+%% RADIUS Codes
 -define(AccessRequest,       1).
 -define(AccessAccept,        2).
 -define(AccessReject,        3).
@@ -17,7 +17,7 @@
       authenticator :: binary() | [byte()],
       attributes :: binary() | [byte()]}).
 
-%% define macros for RADIUS Attribute Types
+%% RADIUS Attribute Types
 -define(UserName,                          1).
 -define(UserPassword,                      2).
 -define(ChapPassword,                      3).
@@ -205,10 +205,47 @@
 -define(WLANGroupMgmtCipher,             189).
 -define(WLANRFBand,                      190).
 
-%% define macros for AcctStatusType attribute values
+%% AcctStatusType attribute values
 -define(AccountingStart,                   1).
 -define(AccountingStop,                    2).
 -define(AccountingInterimUpdate,           3).
 -define(AccountingON,                      7).
 -define(AccountingOFF,                     8).
+
+%% Microsft Vendor-Specific (sub)attributes
+-define(MsChapChallenge,                  11).
+-define(MsChapResponse,                    1).
+-define(MsChapDomain,                     10).
+-define(MsChapError,                       2).
+-define(MsChapCpw1,                        3).
+-define(MsChapCpw2,                        4).
+-define(MsChapLmEncPw,                     5).
+-define(MsChapNtEncPw,                     6).
+-define(MsChap2Response,                  25).
+-define(MsChap2Success,                   26).
+-define(MsChap2Cpw,                       27).
+-define(MsChapMppeKeys,                   12).
+-define(MsMppeSendKey,                    16).
+-define(MsMppeRecvKey,                    17).
+-define(MsMppeEncryptionPolicy,            7).
+-define(MsMppeEncryptionTypes,             8).
+-define(MsBapUsage,                       13).
+-define(MsLinkUtilizationThreshold,       14).
+-define(MsLinkDropTimeLimit,              15).
+-define(MsOldArapPassword,                19).
+-define(MsNewArapPassword,                20).
+-define(MsArapPasswordChangeReason,       21).
+-define(MsArapChallenge,                  33).
+-define(MsRasVendor,                       9).
+-define(MsRasVersion,                     18).
+-define(MsFilter,                         22).
+-define(MsAcctAuthType,                   23).
+-define(MsAcctEapType,                    24).
+-define(MsPrimaryDnsServer,               28).
+-define(MsSecondaryDnsServer,             29).
+-define(MsPrimaryNbnsServer,              30).
+-define(MsSecondaryNbnsServer,            31).
+
+%% Vendor-Specific Private Enterprise Codes
+-define(Microsoft,                       311).
 

@@ -273,9 +273,205 @@ attribute(?State, Value, Acc) when size(Value) >= 1 ->
 attribute(?Class, Value, Acc) when size(Value) >= 1 ->
 	Class = binary_to_list(Value),
 	[{?Class, Class} | Acc];
-attribute(?VendorSpecific, <<0, VendorId:24, Rest/binary>>, Acc)
+attribute(?VendorSpecific, <<0, ?Microsoft:24, ?MsChapChallenge,
+		VendorLength, MsChapChallenge/binary>>, Acc)
+		when VendorLength > 2 ->
+	[{?VendorSpecific, {?Microsoft,
+			{?MsChapChallenge, MsChapChallenge}}} | Acc];
+attribute(?VendorSpecific, <<0, ?Microsoft:24, ?MsChapResponse, 52, Ident,
+		Flags, LmResponse:24/binary, NtResponse:24/binary>>, Acc) ->
+	[{?VendorSpecific, {?Microsoft,
+			{?MsChapResponse, {Ident, Flags, LmResponse, NtResponse}}}} | Acc];
+attribute(?VendorSpecific, <<0, ?Microsoft:24, ?MsChapDomain, VendorLength,
+		Ident, String/binary>>, Acc) when VendorLength > 3 ->
+	Domain = binary_to_list(String),
+	[{?VendorSpecific, {?Microsoft,
+			{?MsChapDomain, {Ident, Domain}}}} | Acc];
+attribute(?VendorSpecific, <<0, ?Microsoft:24, ?MsChapError, VendorLength,
+		Ident, String/binary>>, Acc) when VendorLength > 3 ->
+	Error = binary_to_list(String),
+	[{?VendorSpecific, {?Microsoft,
+			{?MsChapError, {Ident, Error}}}} | Acc];
+attribute(?VendorSpecific, <<0, ?Microsoft:24, ?MsChapCpw1, 72, Code, Ident,
+		LmOldPassword:16/binary, LmNewPassword:16/binary,
+		NtOldPassword:16/binary, NtNewPassword:16/binary,
+		NewLmPasswordLength:16, Flags:16>>, Acc) when Code == 5 ->
+	[{?VendorSpecific, {?Microsoft,
+			{?MsChapCpw1, {Code, Ident, LmOldPassword, LmNewPassword,
+			NtOldPassword, NtNewPassword, NewLmPasswordLength, Flags}}}} | Acc];
+attribute(?VendorSpecific, <<0, ?Microsoft:24, ?MsChapCpw2, 86, Code, Ident,
+		OldNtHash:16/binary, OldLmHash:16/binary, LmResponse:24/binary,
+		NtResponse:24/binary, Flags:16>>, Acc) when Code == 6 ->
+	[{?VendorSpecific, {?Microsoft,
+			{?MsChapCpw2, {Code, Ident, OldNtHash, OldLmHash, LmResponse,
+			NtResponse, Flags}}}} | Acc];
+attribute(?VendorSpecific, <<0, ?Microsoft:24, ?MsChapLmEncPw,
+		VendorLength, Code, Ident, SequenceNumber:16, String/binary>>, Acc)
+		when VendorLength > 6, Code == 6 ->
+	[{?VendorSpecific, {?Microsoft,
+			{?MsChapLmEncPw, {Code, Ident, SequenceNumber, String}}}} | Acc];
+attribute(?VendorSpecific, <<0, ?Microsoft:24, ?MsChapNtEncPw,
+		VendorLength, Code, Ident, SequenceNumber:16, String/binary>>, Acc)
+		when VendorLength > 6, Code == 6 ->
+	[{?VendorSpecific, {?Microsoft,
+			{?MsChapNtEncPw, {Code, Ident, SequenceNumber, String}}}} | Acc];
+attribute(?VendorSpecific, <<0, ?Microsoft:24, ?MsChap2Response, 52,
+		Ident, Flags, PeerChallenge:128, Reserved:16/binary,
+		Response:24/binary>>, Acc) when Flags == 0, Reserved == 0 ->
+	[{?VendorSpecific, {?Microsoft,
+			{?MsChap2Response, {Ident, Flags, PeerChallenge,
+			Reserved, Response}}}} | Acc];
+attribute(?VendorSpecific, <<0, ?Microsoft:24, ?MsChap2Success, 45, Ident,
+		Authenticator:42/binary>>, Acc) ->
+	[{?MsChap2Success, {Ident, Authenticator}} | Acc];
+attribute(?VendorSpecific, <<0, ?Microsoft:24, ?MsChap2Cpw, 70, Code, Ident,
+		EncryptedHash:16/binary, NtResponse:24/binary, Flags:16>>, Acc)
+		when Code == 7, Flags == 0 ->
+	[{?VendorSpecific, {?Microsoft,
+			{?MsChap2Cpw, {Code, Ident, EncryptedHash,
+			NtResponse, Flags}}}} | Acc];
+attribute(?VendorSpecific, <<0, ?Microsoft:24, ?MsChapMppeKeys, 34,
+		Keys:32/binary>>, Acc) ->
+	[{?VendorSpecific, {?Microsoft,
+			{?MsChapMppeKeys, Keys}}} | Acc];
+attribute(?VendorSpecific, <<0, ?Microsoft:24, ?MsMppeSendKey, VendorLength,
+		Salt:16, Key/binary>>, Acc) when VendorLength > 4, (Salt bsr 15) == 1 ->
+	[{?MsMppeSendKey, Key} | Acc];
+attribute(?VendorSpecific, <<0, ?Microsoft:24, ?MsMppeRecvKey, VendorLength,
+		Salt:16, Key/binary>>, Acc) when VendorLength > 4, (Salt bsr 15) == 1 ->
+	[{?VendorSpecific, {?Microsoft,
+			{?MsMppeRecvKey, Key}}} | Acc];
+attribute(?VendorSpecific, <<0, ?Microsoft:24, ?MsMppeEncryptionPolicy, 6,
+		1:32>>, Acc) ->
+	[{?MsMppeEncryptionPolicy, allowed} | Acc];
+attribute(?VendorSpecific, <<0, ?Microsoft:24, ?MsMppeEncryptionPolicy, 6,
+		2:32>>, Acc) ->
+	[{?VendorSpecific, {?Microsoft,
+			{?MsMppeEncryptionPolicy, required}}} | Acc];
+attribute(?VendorSpecific, <<0, ?Microsoft:24, ?MsMppeEncryptionTypes, 6,
+		_:29, 0:1, 1:1, 0:1>>, Acc) ->
+	[{?VendorSpecific, {?Microsoft,
+			{?MsMppeEncryptionTypes, [rc4_40bit]}}} | Acc];
+attribute(?VendorSpecific, <<0, ?Microsoft:24, ?MsMppeEncryptionTypes, 6,
+		_:29, 1:1, 0:1, 0:1>>, Acc) ->
+	[{?VendorSpecific, {?Microsoft,
+			{?MsMppeEncryptionTypes, [rc4_128bit]}}} | Acc];
+attribute(?VendorSpecific, <<0, ?Microsoft:24, ?MsMppeEncryptionTypes, 6,
+		_:29, 1:1, 1:1, 0:1>>, Acc) ->
+	[{?VendorSpecific, {?Microsoft,
+			{?MsMppeEncryptionTypes, [rc4_40bit, rc4_128bit]}}} | Acc];
+attribute(?VendorSpecific, <<0, ?Microsoft:24, ?MsBapUsage, 6, 0:32>>, Acc) ->
+	[{?VendorSpecific, {?Microsoft,
+			{?MsBapUsage, not_allowed}}} | Acc];
+attribute(?VendorSpecific, <<0, ?Microsoft:24, ?MsBapUsage, 6, 1:32>>, Acc) ->
+	[{?VendorSpecific, {?Microsoft,
+			{?MsBapUsage, allowed}}} | Acc];
+attribute(?VendorSpecific, <<0, ?Microsoft:24, ?MsBapUsage, 6, 2:32>>, Acc) ->
+	[{?VendorSpecific, {?Microsoft,
+			{?MsBapUsage, required}}} | Acc];
+attribute(?VendorSpecific, <<0, ?Microsoft:24, ?MsLinkUtilizationThreshold, 6,
+		Threshold:32>>, Acc) when Threshold > 0, Threshold =< 100 ->
+	[{?VendorSpecific, {?Microsoft,
+			{?MsLinkUtilizationThreshold, Threshold}}} | Acc];
+attribute(?VendorSpecific, <<0, ?Microsoft:24, ?MsLinkDropTimeLimit, 6,
+		Seconds:32>>, Acc) ->
+	[{?VendorSpecific, {?Microsoft,
+			{?MsLinkDropTimeLimit, Seconds}}} | Acc];
+attribute(?VendorSpecific, <<0, ?Microsoft:24, ?MsOldArapPassword,
+		VendorLength, Password/binary>>, Acc) when VendorLength > 3 ->
+	[{?VendorSpecific, {?Microsoft,
+			{?MsOldArapPassword, Password}}} | Acc];
+attribute(?VendorSpecific, <<0, ?Microsoft:24, ?MsNewArapPassword,
+		VendorLength, Password/binary>>, Acc) when VendorLength > 3 ->
+	[{?VendorSpecific, {?Microsoft,
+			{?MsNewArapPassword, Password}}} | Acc];
+attribute(?VendorSpecific, <<0, ?Microsoft:24, ?MsArapPasswordChangeReason,
+		6, 1:32>>, Acc) ->
+	[{?VendorSpecific, {?Microsoft,
+			{?MsArapPasswordChangeReason, just_change}}} | Acc];
+attribute(?VendorSpecific, <<0, ?Microsoft:24, ?MsArapPasswordChangeReason,
+		6, 2:32>>, Acc) ->
+	[{?VendorSpecific, {?Microsoft,
+			{?MsArapPasswordChangeReason, expired}}} | Acc];
+attribute(?VendorSpecific, <<0, ?Microsoft:24, ?MsArapPasswordChangeReason,
+		6, 3:32>>, Acc) ->
+	[{?VendorSpecific, {?Microsoft,
+			{?MsArapPasswordChangeReason, admin_requires}}} | Acc];
+attribute(?VendorSpecific, <<0, ?Microsoft:24, ?MsArapPasswordChangeReason,
+		6, 4:32>>, Acc) ->
+	[{?VendorSpecific, {?Microsoft,
+			{?MsArapPasswordChangeReason, too_short}}} | Acc];
+attribute(?VendorSpecific, <<0, ?Microsoft:24, ?MsArapChallenge, 10,
+		Challenge:8/binary>>, Acc) ->
+	[{?VendorSpecific, {?Microsoft,
+			{?MsArapChallenge, Challenge}}} | Acc];
+attribute(?VendorSpecific, <<0, ?Microsoft:24, ?MsRasVendor, 6,
+		0:8, VendorID:24>>, Acc) ->
+	[{?VendorSpecific, {?Microsoft,
+			{?MsRasVendor, VendorID}}} | Acc];
+attribute(?VendorSpecific, <<0, ?Microsoft:24, ?MsRasVersion, VendorLength,
+		Version/binary>>, Acc) when VendorLength > 3 ->
+	[{?VendorSpecific, {?Microsoft,
+			{?MsRasVersion, Version}}} | Acc];
+attribute(?VendorSpecific, <<0, ?Microsoft:24, ?MsFilter, VendorLength,
+		Filter/binary>>, Acc) when VendorLength > 3 ->
+	[{?VendorSpecific, {?Microsoft,
+			{?MsFilter, Filter}}} | Acc];
+attribute(?VendorSpecific, <<0, ?Microsoft:24, ?MsAcctAuthType,
+		6, 1:32>>, Acc) ->
+	[{?VendorSpecific, {?Microsoft,
+			{?MsAcctAuthType, pap}}} | Acc];
+attribute(?VendorSpecific, <<0, ?Microsoft:24, ?MsAcctAuthType,
+		6, 2:32>>, Acc) ->
+	[{?VendorSpecific, {?Microsoft,
+			{?MsAcctAuthType, chap}}} | Acc];
+attribute(?VendorSpecific, <<0, ?Microsoft:24, ?MsAcctAuthType,
+		6, 3:32>>, Acc) ->
+	[{?VendorSpecific, {?Microsoft,
+			{?MsAcctAuthType, mschap1}}} | Acc];
+attribute(?VendorSpecific, <<0, ?Microsoft:24, ?MsAcctAuthType,
+		6, 4:32>>, Acc) ->
+	[{?VendorSpecific, {?Microsoft,
+			{?MsAcctAuthType, mschap2}}} | Acc];
+attribute(?VendorSpecific, <<0, ?Microsoft:24, ?MsAcctAuthType,
+		6, 5:32>>, Acc) ->
+	[{?VendorSpecific, {?Microsoft,
+			{?MsAcctAuthType, eap}}} | Acc];
+attribute(?VendorSpecific, <<0, ?Microsoft:24, ?MsAcctEapType,
+		6, 4:32>>, Acc) ->
+	[{?VendorSpecific, {?Microsoft,
+			{?MsAcctEapType, md5}}} | Acc];
+attribute(?VendorSpecific, <<0, ?Microsoft:24, ?MsAcctEapType,
+		6, 5:32>>, Acc) ->
+	[{?VendorSpecific, {?Microsoft,
+			{?MsAcctEapType, otp}}} | Acc];
+attribute(?VendorSpecific, <<0, ?Microsoft:24, ?MsAcctEapType,
+		6, 6:32>>, Acc) ->
+	[{?VendorSpecific, {?Microsoft,
+			{?MsAcctEapType, gtc}}} | Acc];
+attribute(?VendorSpecific, <<0, ?Microsoft:24, ?MsAcctEapType,
+		6, 13:32>>, Acc) ->
+	[{?VendorSpecific, {?Microsoft,
+			{?MsAcctEapType, tls}}} | Acc];
+attribute(?VendorSpecific, <<0, ?Microsoft:24, ?MsPrimaryDnsServer,
+		6, A, B, C, D>>, Acc) ->
+	[{?VendorSpecific, {?Microsoft,
+			{?MsPrimaryDnsServer, {A, B, C, D}}}} | Acc];
+attribute(?VendorSpecific, <<0, ?Microsoft:24, ?MsSecondaryDnsServer,
+		6, A, B, C, D>>, Acc) ->
+	[{?VendorSpecific, {?Microsoft,
+			{?MsSecondaryDnsServer, {A, B, C, D}}}} | Acc];
+attribute(?VendorSpecific, <<0, ?Microsoft:24, ?MsPrimaryNbnsServer,
+		6, A, B, C, D>>, Acc) ->
+	[{?VendorSpecific, {?Microsoft,
+			{?MsPrimaryNbnsServer, {A, B, C, D}}}} | Acc];
+attribute(?VendorSpecific, <<0, ?Microsoft:24, ?MsSecondaryNbnsServer,
+		6, A, B, C, D>>, Acc) ->
+	[{?VendorSpecific, {?Microsoft,
+			{?MsSecondaryNbnsServer, {A, B, C, D}}}} | Acc];
+attribute(?VendorSpecific, <<0, VendorID:24, Rest/binary>>, Acc)
 		when size(Rest) >= 1 ->
-	VendorSpecific = {VendorId, Rest},
+	VendorSpecific = {VendorID, Rest},
 	[{?VendorSpecific, VendorSpecific} | Acc];
 attribute(?SessionTimeout, Value, Acc) when size(Value) == 4 ->
 	SessionTimeout = binary:decode_unsigned(Value),
@@ -686,7 +882,266 @@ attributes([{?Class, Class} | T], Acc) ->
 	CL = list_to_binary(Class),
 	Length = size(CL) + 2,
 	attributes(T, <<Acc/binary, ?Class, Length, CL/binary>>);
-attributes([{?VendorSpecific, {VendorId, Bin}} | T], Acc)
+attributes([{?VendorSpecific, {?Microsoft,
+		{?MsChapChallenge, MsChapChallenge}}} | T], Acc)
+		when is_binary(MsChapChallenge) ->
+	VendorLength = size(MsChapChallenge) + 2,
+	Length = VendorLength + 6,
+	attributes(T, <<Acc/binary, ?VendorSpecific, Length, 0, ?Microsoft:24,
+			?MsChapChallenge, VendorLength, MsChapChallenge/binary>>);
+attributes([{?VendorSpecific, {?Microsoft,
+		{?MsChapResponse, {Ident, Flags, LmResponse, NtResponse}}}} | T],
+		Acc) when is_integer(Ident), is_integer(Flags),
+		(LmResponse) == 24, size(NtResponse) == 24 ->
+	attributes(T, <<Acc/binary, ?VendorSpecific, 58, 0, ?Microsoft:24,
+			?MsChapResponse, 52, Ident, Flags,
+			LmResponse/binary, NtResponse/binary>>);
+attributes([{?VendorSpecific, {?Microsoft,
+		{?MsChapDomain, {Ident, Domain}}}} | T], Acc)
+		when is_integer(Ident), is_list(Domain) ->
+	String = list_to_binary(Domain),
+	VendorLength = size(String) + 3,
+	Length = VendorLength + 6,
+	attributes(T, <<Acc/binary, ?VendorSpecific, Length, 0, ?Microsoft:24,
+			?MsChapDomain, VendorLength, Ident, String/binary>>);
+attributes([{?VendorSpecific, {?Microsoft,
+		{?MsChapError, {Ident, Error}}}} | T], Acc)
+		when is_integer(Ident), is_list(Error) ->
+	String = list_to_binary(Error),
+	VendorLength = size(String) + 3,
+	Length = VendorLength + 6,
+	attributes(T, <<Acc/binary, ?VendorSpecific, Length, 0, ?Microsoft:24,
+			?MsChapError, VendorLength, Ident, String/binary>>);
+attributes([{?VendorSpecific, {?Microsoft,
+		{?MsChapCpw1, {Code, Ident, LmOldPassword, LmNewPassword,
+		NtOldPassword, NtNewPassword, NewLmPasswordLength, Flags}}}} | T], Acc)
+		when Code == 5, is_integer(Ident),
+		size(LmOldPassword) == 16, size(LmNewPassword) == 16,
+		size(NtOldPassword) == 16, size(NtNewPassword) == 16, 
+		is_integer(NewLmPasswordLength), is_integer(Flags) ->
+	attributes(T, <<Acc/binary, ?VendorSpecific, 78, 0, ?Microsoft:24,
+			?MsChapCpw1, 72, Code, Ident, LmOldPassword/binary,
+			LmNewPassword/binary, NtOldPassword/binary,
+			NtNewPassword/binary, NewLmPasswordLength:16, Flags:16>>);
+attributes([{?VendorSpecific, {?Microsoft,
+		{?MsChapCpw2, {Code, Ident, OldNtHash, OldLmHash,
+		LmResponse, NtResponse, Flags}}}} | T], Acc) when Code == 6,
+		is_integer(Ident), size(OldNtHash) == 16, size(OldLmHash) == 16,
+		size(LmResponse) == 24, size(NtResponse) == 24, is_integer(Flags) ->
+	attributes(T, <<Acc/binary, ?VendorSpecific, 92, 0, ?Microsoft:24,
+			?MsChapCpw2, 86, Code, Ident, OldNtHash/binary, OldLmHash/binary,
+			LmResponse/binary, NtResponse/binary, Flags:16>>);
+attributes([{?VendorSpecific, {?Microsoft,
+		{?MsChapLmEncPw, {Code, Ident, SequenceNumber, String}}}} | T],
+		Acc) when Code == 6, is_integer(Ident), is_integer(SequenceNumber),
+		is_binary(String) ->
+	VendorLength = size(String) + 6,
+	Length = VendorLength + 6,
+	attributes(T, <<Acc/binary, ?VendorSpecific, Length, 0, ?Microsoft:24,
+			?MsChapLmEncPw, VendorLength, Code, Ident, SequenceNumber:16,
+			String/binary>>);
+attributes([{?VendorSpecific, {?Microsoft,
+		{?MsChapNtEncPw, {Code, Ident, SequenceNumber, String}}}} | T],
+		Acc) when Code == 6, is_integer(Ident), is_integer(SequenceNumber),
+		is_binary(String) ->
+	VendorLength = size(String) + 6,
+	Length = VendorLength + 6,
+	attributes(T, <<Acc/binary, ?VendorSpecific, Length, 0, ?Microsoft:24,
+			?MsChapNtEncPw, VendorLength, Code, Ident, SequenceNumber:16,
+			String/binary>>);
+attributes([{?VendorSpecific, {?Microsoft,
+		{?MsChap2Response, {Ident, Flags, PeerChallenge,
+		Reserved, Response}}}} | T], Acc) when is_integer(Ident),
+		Flags == 0, is_integer(PeerChallenge), Reserved == <<0:64>>,
+		size(Response) == 24 ->
+	attributes(T, <<Acc/binary, ?VendorSpecific, 58, 0, ?Microsoft:24,
+			?MsChap2Response, 52, Ident, Flags, PeerChallenge:128,
+			Reserved/binary, Response/binary>>);
+attributes([{?VendorSpecific, {?Microsoft,
+		{?MsChap2Success, {Ident, Authenticator}}}} | T], Acc)
+		when is_integer(Ident), size(Authenticator) == 42 ->
+	attributes(T, <<Acc/binary, ?VendorSpecific, 51, 0, ?Microsoft:24,
+			?MsChap2Success, 45, Ident, Authenticator/binary>>);
+attributes([{?VendorSpecific, {?Microsoft,
+		{?MsChap2Cpw, {Code, Ident, EncryptedHash, NtResponse,
+		Flags}}}} | T], Acc) when Code == 7, is_integer(Ident),
+		size(EncryptedHash) == 16, size(NtResponse) == 24, Flags == 0 ->
+	attributes(T, <<Acc/binary, ?VendorSpecific, 76, 0, ?Microsoft:24,
+			?MsChap2Cpw, 70, Code, Ident, EncryptedHash/binary,
+			NtResponse/binary, Flags:16>>);
+attributes([{?VendorSpecific, {?Microsoft,
+		{?MsChapMppeKeys, Keys}}} | T], Acc) when is_binary(Keys) ->
+	attributes(T, <<Acc/binary, ?VendorSpecific, 40, 0, ?Microsoft:24,
+			?MsChapMppeKeys, 34, Keys/binary>>);
+attributes([{?VendorSpecific, {?Microsoft,
+		{?MsMppeSendKey, {Salt, Key}}}} | T], Acc)
+		when (Salt bsr 15) == 1, is_binary(Key) ->
+	VendorLength = size(Key) + 4,
+	Length = VendorLength + 6,
+	attributes(T, <<Acc/binary, ?VendorSpecific, Length, 0, ?Microsoft:24,
+			?MsMppeSendKey, VendorLength, Salt:16, Key/binary>>);
+attributes([{?VendorSpecific, {?Microsoft,
+		{?MsMppeRecvKey, {Salt, Key}}}} | T], Acc)
+		when (Salt bsr 15) == 1, is_binary(Key) ->
+	VendorLength = size(Key) + 4,
+	Length = VendorLength + 6,
+	attributes(T, <<Acc/binary, ?VendorSpecific, Length, 0, ?Microsoft:24,
+			?MsMppeRecvKey, VendorLength, Salt:16, Key/binary>>);
+attributes([{?VendorSpecific, {?Microsoft,
+		{?MsMppeEncryptionPolicy, allowed}}} | T], Acc) ->
+	attributes(T, <<Acc/binary, ?VendorSpecific, 12, 0, ?Microsoft:24,
+			?MsMppeEncryptionPolicy, 6, 1:32>>);
+attributes([{?VendorSpecific, {?Microsoft,
+		{?MsMppeEncryptionPolicy, required}}} | T], Acc) ->
+	attributes(T, <<Acc/binary, ?VendorSpecific, 12, 0, ?Microsoft:24,
+			?MsMppeEncryptionPolicy, 6, 2:32>>);
+attributes([{?VendorSpecific, {?Microsoft,
+		{?MsMppeEncryptionTypes, Types}}} | T], Acc) ->
+	L = case lists:member(rc4_40bit, Types) of
+		true ->
+			1;
+		false ->
+			0
+	end,
+	S = case lists:member(rc4_128bit, Types) of
+		true ->
+			1;
+		false ->
+			0
+	end,
+	attributes(T, <<Acc/binary, ?VendorSpecific, 12, 0, ?Microsoft:24,
+			?MsMppeEncryptionTypes, 6, 0:29, S:1, L:1, 0:1>>);
+attributes([{?VendorSpecific, {?Microsoft,
+		{?MsBapUsage, not_allowed}}} | T], Acc) ->
+	attributes(T, <<Acc/binary, ?VendorSpecific, 12, 0, ?Microsoft:24,
+			?MsBapUsage, 6, 0:32>>);
+attributes([{?VendorSpecific, {?Microsoft,
+		{?MsBapUsage, allowed}}} | T], Acc) ->
+	attributes(T, <<Acc/binary, ?VendorSpecific, 12, 0, ?Microsoft:24,
+			?MsBapUsage, 6, 1:32>>);
+attributes([{?VendorSpecific, {?Microsoft,
+		{?MsBapUsage, required}}} | T], Acc) ->
+	attributes(T, <<Acc/binary, ?VendorSpecific, 12, 0, ?Microsoft:24,
+			?MsBapUsage, 6, 2:32>>);
+attributes([{?VendorSpecific, {?Microsoft,
+		{?MsLinkUtilizationThreshold, Threshold}}} | T], Acc)
+		when Threshold > 0, Threshold =< 100 ->
+	attributes(T, <<Acc/binary, ?VendorSpecific, 12, 0, ?Microsoft:24,
+			?MsLinkUtilizationThreshold, 6, Threshold:32>>);
+attributes([{?VendorSpecific, {?Microsoft,
+		{?MsLinkDropTimeLimit, Seconds}}} | T], Acc)
+		when is_integer(Seconds) ->
+	attributes(T, <<Acc/binary, ?VendorSpecific, 12, 0, ?Microsoft:24,
+			?MsLinkDropTimeLimit, 6, Seconds:32>>);
+attributes([{?VendorSpecific, {?Microsoft,
+		{?MsOldArapPassword, Password}}} | T], Acc)
+		when is_binary(Password) ->
+	VendorLength = size(Password) + 2,
+	Length = VendorLength + 6,
+	attributes(T, <<Acc/binary, ?VendorSpecific, Length, 0, ?Microsoft:24,
+			?MsOldArapPassword, VendorLength, Password/binary>>);
+attributes([{?VendorSpecific, {?Microsoft,
+		{?MsNewArapPassword, Password}}} | T], Acc)
+		when is_binary(Password) ->
+	VendorLength = size(Password) + 2,
+	Length = VendorLength + 6,
+	attributes(T, <<Acc/binary, ?VendorSpecific, Length, 0, ?Microsoft:24,
+			?MsNewArapPassword, VendorLength, Password/binary>>);
+attributes([{?VendorSpecific, {?Microsoft,
+		{?MsArapPasswordChangeReason, just_change}}} | T], Acc) ->
+	attributes(T, <<Acc/binary, ?VendorSpecific, 12, 0, ?Microsoft:24,
+			?MsArapPasswordChangeReason, 6, 1:32>>);
+attributes([{?VendorSpecific, {?Microsoft,
+		{?MsArapPasswordChangeReason, expired}}} | T], Acc) ->
+	attributes(T, <<Acc/binary, ?VendorSpecific, 12, 0, ?Microsoft:24,
+			?MsArapPasswordChangeReason, 6, 2:32>>);
+attributes([{?VendorSpecific, {?Microsoft,
+		{?MsArapPasswordChangeReason, admin_requires}}} | T], Acc) ->
+	attributes(T, <<Acc/binary, ?VendorSpecific, 12, 0, ?Microsoft:24,
+			?MsArapPasswordChangeReason, 6, 3:32>>);
+attributes([{?VendorSpecific, {?Microsoft,
+		{?MsArapPasswordChangeReason, too_short}}} | T], Acc) ->
+	attributes(T, <<Acc/binary, ?VendorSpecific, 12, 0, ?Microsoft:24,
+			?MsArapPasswordChangeReason, 6, 4:32>>);
+attributes([{?VendorSpecific, {?Microsoft,
+		{?MsArapChallenge, Challenge}}} | T], Acc)
+		when size(Challenge) == 8 ->
+	attributes(T, <<Acc/binary, ?VendorSpecific, 16, 0, ?Microsoft:24,
+			?MsNewArapPassword, 10, Challenge/binary>>);
+attributes([{?VendorSpecific, {?Microsoft,
+		{?MsRasVendor, VendorID}}} | T], Acc) when is_integer(VendorID)->
+	attributes(T, <<Acc/binary, ?VendorSpecific, 12, 0, ?Microsoft:24,
+			?MsRasVendor, 6, 0:8, VendorID:24>>);
+attributes([{?VendorSpecific, {?Microsoft,
+		{?MsRasVersion, Version}}} | T], Acc) when is_binary(Version)->
+	VendorLength = size(Version) + 2,
+	Length = VendorLength + 6,
+	attributes(T, <<Acc/binary, ?VendorSpecific, Length, 0, ?Microsoft:24,
+			?MsRasVersion, VendorLength, Version/binary>>);
+attributes([{?VendorSpecific, {?Microsoft,
+		{?MsFilter, Filter}}} | T], Acc) when is_binary(Filter)->
+	VendorLength = size(Filter) + 2,
+	Length = VendorLength + 6,
+	attributes(T, <<Acc/binary, ?VendorSpecific, Length, 0, ?Microsoft:24,
+			?MsFilter, VendorLength, Filter/binary>>);
+attributes([{?VendorSpecific, {?Microsoft,
+		{?MsAcctAuthType, pap}}} | T], Acc) ->
+	attributes(T, <<Acc/binary, ?VendorSpecific, 12, 0, ?Microsoft:24,
+			?MsAcctAuthType, 6, 1:32>>);
+attributes([{?VendorSpecific, {?Microsoft,
+		{?MsAcctAuthType, chap}}} | T], Acc) ->
+	attributes(T, <<Acc/binary, ?VendorSpecific, 12, 0, ?Microsoft:24,
+			?MsAcctAuthType, 6, 2:32>>);
+attributes([{?VendorSpecific, {?Microsoft,
+		{?MsAcctAuthType, mschap1}}} | T], Acc) ->
+	attributes(T, <<Acc/binary, ?VendorSpecific, 12, 0, ?Microsoft:24,
+			?MsAcctAuthType, 6, 3:32>>);
+attributes([{?VendorSpecific, {?Microsoft,
+		{?MsAcctAuthType, mschap2}}} | T], Acc) ->
+	attributes(T, <<Acc/binary, ?VendorSpecific, 12, 0, ?Microsoft:24,
+			?MsAcctAuthType, 6, 4:32>>);
+attributes([{?VendorSpecific, {?Microsoft,
+		{?MsAcctAuthType, eap}}} | T], Acc) ->
+	attributes(T, <<Acc/binary, ?VendorSpecific, 12, 0, ?Microsoft:24,
+			?MsAcctAuthType, 6, 5:32>>);
+attributes([{?VendorSpecific, {?Microsoft,
+		{?MsAcctEapType, md5}}} | T], Acc) ->
+	attributes(T, <<Acc/binary, ?VendorSpecific, 12, 0, ?Microsoft:24,
+			?MsAcctEapType, 6, 4:32>>);
+attributes([{?VendorSpecific, {?Microsoft,
+		{?MsAcctEapType, otp}}} | T], Acc) ->
+	attributes(T, <<Acc/binary, ?VendorSpecific, 12, 0, ?Microsoft:24,
+			?MsAcctEapType, 6, 5:32>>);
+attributes([{?VendorSpecific, {?Microsoft,
+		{?MsAcctEapType, gtc}}} | T], Acc) ->
+	attributes(T, <<Acc/binary, ?VendorSpecific, 12, 0, ?Microsoft:24,
+			?MsAcctEapType, 6, 6:32>>);
+attributes([{?VendorSpecific, {?Microsoft,
+		{?MsAcctEapType, tls}}} | T], Acc) ->
+	attributes(T, <<Acc/binary, ?VendorSpecific, 12, 0, ?Microsoft:24,
+			?MsAcctEapType, 6, 13:32>>);
+attributes([{?VendorSpecific, {?Microsoft,
+		{?MsPrimaryDnsServer, {A, B, C, D}}}} | T], Acc)
+		when is_integer(A), is_integer(B), is_integer(C), is_integer(D) ->
+	attributes(T, <<Acc/binary, ?VendorSpecific, 12, 0, ?Microsoft:24,
+			?MsPrimaryDnsServer, 6, A, B, C, D>>);
+attributes([{?VendorSpecific, {?Microsoft,
+		{?MsSecondaryDnsServer, {A, B, C, D}}}} | T], Acc)
+		when is_integer(A), is_integer(B), is_integer(C), is_integer(D) ->
+	attributes(T, <<Acc/binary, ?VendorSpecific, 12, 0, ?Microsoft:24,
+			?MsSecondaryDnsServer, 6, A, B, C, D>>);
+attributes([{?VendorSpecific, {?Microsoft,
+		{?MsPrimaryNbnsServer, {A, B, C, D}}}}| T], Acc)
+		when is_integer(A), is_integer(B), is_integer(C), is_integer(D) ->
+	attributes(T, <<Acc/binary, ?VendorSpecific, 12, 0, ?Microsoft:24,
+			?MsPrimaryNbnsServer, 6, A, B, C, D>>);
+attributes([{?VendorSpecific, {?Microsoft,
+		{?MsSecondaryNbnsServer, {A, B, C, D}}}} | T], Acc)
+		when is_integer(A), is_integer(B), is_integer(C), is_integer(D) ->
+	attributes(T, <<Acc/binary, ?VendorSpecific, 12, 0, ?Microsoft:24,
+			?MsSecondaryNbnsServer, 6, A, B, C, D>>);
+attributes([{?VendorSpecific, {?Microsoft,
+		{?VendorSpecific, {VendorId, Bin}}}} | T], Acc)
 		when is_integer(VendorId), is_binary(Bin) ->
 	Length = size(Bin) + 6,
 	attributes(T, <<Acc/binary, ?VendorSpecific, Length,
