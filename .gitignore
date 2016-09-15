@@ -1,0 +1,34 @@
+# http://www.gnu.org/software/automake
+INSTALL
+Makefile.in
+ebin/Makefile.in
+include/Makefile.in
+doc/Makefile.in
+test/Makefile.in
+examples/INSTALL
+examples/Makefile.in
+examples/doc/Makefile.in
+examples/ebin/Makefile.in
+examples/test/Makefile.in
+
+# http://www.gnu.org/software/autoconf
+aclocal.m4
+config.h.in
+configure
+autom4te.cache/
+install-sh
+missing
+examples/aclocal.m4
+examples/autom4te.cache/
+examples/config.h.in
+examples/configure
+examples/install-sh
+examples/missing
+
+# http://www.gnu.org/software/libtool
+compile
+config.guess
+config.h.in~
+config.sub
+depcomp
+ltmain.sh
