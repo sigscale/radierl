@@ -323,7 +323,8 @@ attribute(?VendorSpecific, <<0, ?Microsoft:24, ?MsChap2Response, 52,
 			Reserved, Response}}}} | Acc];
 attribute(?VendorSpecific, <<0, ?Microsoft:24, ?MsChap2Success, 45, Ident,
 		Authenticator:42/binary>>, Acc) ->
-	[{?MsChap2Success, {Ident, Authenticator}} | Acc];
+	[{?VendorSpecific, {?Microsoft,
+			{?MsChap2Success, {Ident, Authenticator}}}} | Acc];
 attribute(?VendorSpecific, <<0, ?Microsoft:24, ?MsChap2Cpw, 70, Code, Ident,
 		EncryptedHash:16/binary, NtResponse:24/binary, Flags:16>>, Acc)
 		when Code == 7, Flags == 0 ->
@@ -336,14 +337,16 @@ attribute(?VendorSpecific, <<0, ?Microsoft:24, ?MsChapMppeKeys, 34,
 			{?MsChapMppeKeys, Keys}}} | Acc];
 attribute(?VendorSpecific, <<0, ?Microsoft:24, ?MsMppeSendKey, VendorLength,
 		Salt:16, Key/binary>>, Acc) when VendorLength > 4, (Salt bsr 15) == 1 ->
-	[{?MsMppeSendKey, Key} | Acc];
+	[{?VendorSpecific, {?Microsoft,
+			{?MsMppeSendKey, {Salt, Key}}}} | Acc];
 attribute(?VendorSpecific, <<0, ?Microsoft:24, ?MsMppeRecvKey, VendorLength,
 		Salt:16, Key/binary>>, Acc) when VendorLength > 4, (Salt bsr 15) == 1 ->
 	[{?VendorSpecific, {?Microsoft,
-			{?MsMppeRecvKey, Key}}} | Acc];
+			{?MsMppeRecvKey, {Salt, Key}}}} | Acc];
 attribute(?VendorSpecific, <<0, ?Microsoft:24, ?MsMppeEncryptionPolicy, 6,
 		1:32>>, Acc) ->
-	[{?MsMppeEncryptionPolicy, allowed} | Acc];
+	[{?VendorSpecific, {?Microsoft,
+			{?MsMppeEncryptionPolicy, allowed}}} | Acc];
 attribute(?VendorSpecific, <<0, ?Microsoft:24, ?MsMppeEncryptionPolicy, 6,
 		2:32>>, Acc) ->
 	[{?VendorSpecific, {?Microsoft,
