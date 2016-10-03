@@ -1143,8 +1143,7 @@ attributes([{?VendorSpecific, {?Microsoft,
 		when is_integer(A), is_integer(B), is_integer(C), is_integer(D) ->
 	attributes(T, <<Acc/binary, ?VendorSpecific, 12, 0, ?Microsoft:24,
 			?MsSecondaryNbnsServer, 6, A, B, C, D>>);
-attributes([{?VendorSpecific, {?Microsoft,
-		{?VendorSpecific, {VendorId, Bin}}}} | T], Acc)
+attributes([{?VendorSpecific, {VendorId, Bin}} | T], Acc)
 		when is_integer(VendorId), is_binary(Bin) ->
 	Length = size(Bin) + 6,
 	attributes(T, <<Acc/binary, ?VendorSpecific, Length,
