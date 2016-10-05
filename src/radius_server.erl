@@ -190,8 +190,9 @@ handle_info(timeout, #state{sup = Sup, fsm_sup = undefined} = State) ->
 	Siblings = supervisor:which_children(Sup),
 	{_Id, FsmSup, _Type, _Modules} = lists:keyfind(radius_fsm_sup, 1, Siblings),
 	{noreply, State#state{fsm_sup = FsmSup}};
-handle_info({udp, Socket, _Address, _Port, <<0, _/binary>>},
-		#state{socket = Socket} = State) ->
+handle_info({udp, Socket, _Address, _Port, <<Code, _/binary>>},
+		#state{socket = Socket} = State)
+		when Code < ?AccessRequest ->
 	case inet:setopts(Socket, [{active, once}]) of
 		ok ->
 			{noreply, State};
@@ -209,7 +210,16 @@ handle_info({udp, Socket, _Address, _Port, <<Code, _/binary>>},
 	end;
 handle_info({udp, Socket, _Address, _Port, <<Code, _/binary>>},
 		#state{socket = Socket} = State)
-		when Code > ?AccessChallenge ->
+		when Code > ?AccessChallenge, Code < ?DisconnectRequest ->
+	case inet:setopts(Socket, [{active, once}]) of
+		ok ->
+			{noreply, State};
+		{error, Reason} ->
+			{stop, Reason, State}
+	end;
+handle_info({udp, Socket, _Address, _Port, <<Code, _/binary>>},
+		#state{socket = Socket} = State)
+		when Code > ?CoANak ->
 	case inet:setopts(Socket, [{active, once}]) of
 		ok ->
 			{noreply, State};

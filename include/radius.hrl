@@ -10,6 +10,12 @@
 -define(AccessChallenge,    11).
 -define(StatusServer,       12).
 -define(StatusClient,       13).
+-define(DisconnectRequest,  40).
+-define(DisconnectAck,      41).
+-define(DisconnectNak,      42).
+-define(CoARequest,         43).
+-define(CoAAck,             44).
+-define(CoANak,             45).
 
 -record(radius,
       {code :: byte(),
@@ -211,6 +217,23 @@
 -define(AccountingInterimUpdate,           3).
 -define(AccountingON,                      7).
 -define(AccountingOFF,                     8).
+
+%% ErrorCause attribute values
+-define(ResidualSessionContextRemoved,   201).
+-define(InvalidEapPacket,                202).
+-define(UnsupportedAttribute,            401).
+-define(MissingAttribute,                402).
+-define(NasIdentificationMismatch,       403).
+-define(InvalidRequest,                  404).
+-define(UnsupportedService,              405).
+-define(UnsupportedExtension,            406).
+-define(AdministrativelyProhibited,      501).
+-define(RequestNotRoutable,              502).
+-define(SessionContextNotFound,          503).
+-define(SessionContextNotRemovable,      504).
+-define(OtherProxyProcessingError,       505).
+-define(ResourcesUnavailable,            506)
+-define(RequestInitiated,                507).
 
 %% Microsft Vendor-Specific (sub)attributes
 -define(MsChapChallenge,                  11).
