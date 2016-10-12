@@ -235,6 +235,10 @@
 -define(ResourcesUnavailable,            506)
 -define(RequestInitiated,                507).
 
+%% Vendor-Specific Private Enterprise Codes
+-define(Microsoft,                       311).
+-define(Mikrotik,                      14988).
+
 %% Microsft Vendor-Specific (sub)attributes
 -define(MsChapChallenge,                  11).
 -define(MsChapResponse,                    1).
@@ -269,6 +273,34 @@
 -define(MsPrimaryNbnsServer,              30).
 -define(MsSecondaryNbnsServer,            31).
 
-%% Vendor-Specific Private Enterprise Codes
--define(Microsoft,                       311).
+%% Mikrotik Vendor-Specific (sub)attributes
+-define(MikrotikRecvLimit,                 1).
+-define(MikrotikXmitLimit,                 2).
+-define(MikrotikGroup,                     3).
+-define(MikrotikWirelessForward,           4).
+-define(MikrotikWirelessSkipDot1x,         5).
+-define(MikrotikWirelessEncAlgo,           6).
+-define(MikrotikWirelessEncKey,            7).
+-define(MikrotikRateLimit,                 8).
+-define(MikrotikRealm,                     9).
+-define(MikrotikHostIp,                   10).
+-define(MikrotikMarkId,                   11).
+-define(MikrotikAdvertiseUrl,             12).
+-define(MikrotikAdvertiseInterval,        13).
+-define(MikrotikRecvLimitGigawords,       14).
+-define(MikrotikXmitLimitGigawords,       15).
+-define(MikrotikWirelessPsk,              16).
+-define(MikrotikTotalLimit,               17).
+-define(MikrotikTotalLimitGigawords,      18).
+-define(MikrotikAddressList,              19).
+-define(MikrotikWirelessMpKey,            20).
+-define(MikrotikWirelessComment,          21).
+-define(MikrotikDelegatedIpv6Pool,        22).
+-define(MikrotikDhcpOptionSet,            23).
+-define(MikrotikDhcpOptionParamStr1,      24).
+-define(MikrotikDhcpOptionParamStr2,      25).
+-define(MikrotikWirelessVlanId,           26).
+-define(MikrotikWirelessVlanIdType,       27).
+-define(MikrotikWirelessMinSignal,        28).
+-define(MikrotikWirelessMaxSignal,        29).
 

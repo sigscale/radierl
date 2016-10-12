@@ -472,6 +472,139 @@ attribute(?VendorSpecific, <<0, ?Microsoft:24, ?MsSecondaryNbnsServer,
 		6, A, B, C, D>>, Acc) ->
 	[{?VendorSpecific, {?Microsoft,
 			{?MsSecondaryNbnsServer, {A, B, C, D}}}} | Acc];
+attribute(?VendorSpecific, <<0, ?Mikrotik:24, ?MikrotikRecvLimit,
+		6, RecvLimit:32>>, Acc) ->
+	[{?VendorSpecific, {?Mikrotik, {?MikrotikRecvLimit, RecvLimit}}} | Acc];
+attribute(?VendorSpecific, <<0, ?Mikrotik:24, ?MikrotikXmitLimit,
+		6, XmitLimit:32>>, Acc) ->
+	[{?VendorSpecific, {?Mikrotik, {?MikrotikXmitLimit, XmitLimit}}} | Acc];
+attribute(?VendorSpecific, <<0, ?Mikrotik:24, ?MikrotikGroup,
+		VendorLength, String/binary>>, Acc) when VendorLength > 2 ->
+	Group = binary_to_list(String),
+	[{?VendorSpecific, {?Mikrotik, {?MikrotikGroup, Group}}} | Acc];
+attribute(?VendorSpecific, <<0, ?Mikrotik:24, ?MikrotikWirelessForward,
+		6, Forward:32>>, Acc) ->
+	[{?VendorSpecific, {?Mikrotik, {?MikrotikWirelessForward, Forward}}} | Acc];
+attribute(?VendorSpecific, <<0, ?Mikrotik:24, ?MikrotikWirelessSkipDot1x,
+		6, SkipDot1x:32>>, Acc) ->
+	[{?VendorSpecific, {?Mikrotik,
+			{?MikrotikWirelessSkipDot1x, SkipDot1x}}} | Acc];
+attribute(?VendorSpecific, <<0, ?Mikrotik:24, ?MikrotikWirelessEncAlgo,
+		6, 0:32>>, Acc) ->
+	[{?VendorSpecific, {?Mikrotik,
+			{?MikrotikWirelessEncAlgo, 'no-encryption'}}} | Acc];
+attribute(?VendorSpecific, <<0, ?Mikrotik:24, ?MikrotikWirelessEncAlgo,
+		6, 1:32>>, Acc) ->
+	[{?VendorSpecific, {?Mikrotik,
+			{?MikrotikWirelessEncAlgo, '40-bit-wep'}}} | Acc];
+attribute(?VendorSpecific, <<0, ?Mikrotik:24, ?MikrotikWirelessEncAlgo,
+		6, 2:32>>, Acc) ->
+	[{?VendorSpecific, {?Mikrotik,
+			{?MikrotikWirelessEncAlgo, '104-bit-wep'}}} | Acc];
+attribute(?VendorSpecific, <<0, ?Mikrotik:24, ?MikrotikWirelessEncAlgo,
+		6, 3:32>>, Acc) ->
+	[{?VendorSpecific, {?Mikrotik,
+			{?MikrotikWirelessEncAlgo, 'aes-ccm'}}} | Acc];
+attribute(?VendorSpecific, <<0, ?Mikrotik:24, ?MikrotikWirelessEncAlgo,
+		6, 4:32>>, Acc) ->
+	[{?VendorSpecific, {?Mikrotik,
+			{?MikrotikWirelessEncAlgo, tkip}}} | Acc];
+attribute(?VendorSpecific, <<0, ?Mikrotik:24, ?MikrotikWirelessEncKey,
+		VendorLength, String/binary>>, Acc) when VendorLength > 2 ->
+	Key = binary_to_list(String),
+	[{?VendorSpecific, {?Mikrotik, {?MikrotikWirelessEncKey, Key}}} | Acc];
+attribute(?VendorSpecific, <<0, ?Mikrotik:24, ?MikrotikRateLimit,
+		VendorLength, String/binary>>, Acc) when VendorLength > 2 ->
+	Rate = binary_to_list(String),
+	[{?VendorSpecific, {?Mikrotik, {?MikrotikRateLimit, Rate}}} | Acc];
+attribute(?VendorSpecific, <<0, ?Mikrotik:24, ?MikrotikRealm,
+		VendorLength, String/binary>>, Acc) when VendorLength > 2 ->
+	Realm = binary_to_list(String),
+	[{?VendorSpecific, {?Mikrotik, {?MikrotikRealm, Realm}}} | Acc];
+attribute(?VendorSpecific, <<0, ?Mikrotik:24, ?MikrotikRealm,
+		VendorLength, String/binary>>, Acc) when VendorLength > 2 ->
+	Realm = binary_to_list(String),
+	[{?VendorSpecific, {?Mikrotik, {?MikrotikRealm, Realm}}} | Acc];
+attribute(?VendorSpecific, <<0, ?Mikrotik:24, ?MikrotikHostIp,
+		6, A, B, C, D>>, Acc) ->
+	[{?VendorSpecific, {?Mikrotik, {?MikrotikHostIp, {A, B, C, D}}}} | Acc];
+attribute(?VendorSpecific, <<0, ?Mikrotik:24, ?MikrotikMarkId,
+		VendorLength, String/binary>>, Acc) when VendorLength > 2 ->
+	ID = binary_to_list(String),
+	[{?VendorSpecific, {?Mikrotik, {?MikrotikMarkId, ID}}} | Acc];
+attribute(?VendorSpecific, <<0, ?Mikrotik:24, ?MikrotikAdvertiseUrl,
+		VendorLength, String/binary>>, Acc) when VendorLength > 2 ->
+	URL = binary_to_list(String),
+	[{?VendorSpecific, {?Mikrotik, {?MikrotikAdvertiseUrl, URL}}} | Acc];
+attribute(?VendorSpecific, <<0, ?Mikrotik:24, ?MikrotikAdvertiseInterval,
+		6, Interval:32>>, Acc) ->
+	[{?VendorSpecific, {?Mikrotik,
+			{?MikrotikAdvertiseInterval, Interval}}} | Acc];
+attribute(?VendorSpecific, <<0, ?Mikrotik:24, ?MikrotikRecvLimitGigawords,
+		6, Gigawords:32>>, Acc) ->
+	[{?VendorSpecific, {?Mikrotik,
+			{?MikrotikRecvLimitGigawords, Gigawords}}} | Acc];
+attribute(?VendorSpecific, <<0, ?Mikrotik:24, ?MikrotikXmitLimitGigawords,
+		6, Gigawords:32>>, Acc) ->
+	[{?VendorSpecific, {?Mikrotik,
+			{?MikrotikXmitLimitGigawords, Gigawords}}} | Acc];
+attribute(?VendorSpecific, <<0, ?Mikrotik:24, ?MikrotikWirelessPsk,
+		VendorLength, String/binary>>, Acc) when VendorLength > 2 ->
+	PSK = binary_to_list(String),
+	[{?VendorSpecific, {?Mikrotik, {?MikrotikWirelessPsk, PSK}}} | Acc];
+attribute(?VendorSpecific, <<0, ?Mikrotik:24, ?MikrotikTotalLimit,
+		6, Limit:32>>, Acc) ->
+	[{?VendorSpecific, {?Mikrotik, {?MikrotikTotalLimit, Limit}}} | Acc];
+attribute(?VendorSpecific, <<0, ?Mikrotik:24, ?MikrotikTotalLimitGigawords,
+		6, Gigawords:32>>, Acc) ->
+	[{?VendorSpecific, {?Mikrotik,
+			{?MikrotikTotalLimitGigawords, Gigawords}}} | Acc];
+attribute(?VendorSpecific, <<0, ?Mikrotik:24, ?MikrotikAddressList,
+		VendorLength, String/binary>>, Acc) when VendorLength > 2 ->
+	List = binary_to_list(String),
+	[{?VendorSpecific, {?Mikrotik, {?MikrotikAddressList, List}}} | Acc];
+attribute(?VendorSpecific, <<0, ?Mikrotik:24, ?MikrotikWirelessMpKey,
+		VendorLength, String/binary>>, Acc) when VendorLength > 2 ->
+	Key = binary_to_list(String),
+	[{?VendorSpecific, {?Mikrotik, {?MikrotikWirelessMpKey, Key}}} | Acc];
+attribute(?VendorSpecific, <<0, ?Mikrotik:24, ?MikrotikWirelessComment,
+		6, String/binary>>, Acc) ->
+	Comment = binary_to_list(String),
+	[{?VendorSpecific, {?Mikrotik, {?MikrotikWirelessComment, Comment}}} | Acc];
+attribute(?VendorSpecific, <<0, ?Mikrotik:24, ?MikrotikDelegatedIpv6Pool,
+		VendorLength, String/binary>>, Acc) when VendorLength > 2 ->
+	Pool = binary_to_list(String),
+	[{?VendorSpecific, {?Mikrotik, {?MikrotikDelegatedIpv6Pool, Pool}}} | Acc];
+attribute(?VendorSpecific, <<0, ?Mikrotik:24, ?MikrotikDhcpOptionSet,
+		VendorLength, String/binary>>, Acc) when VendorLength > 2 ->
+	Set = binary_to_list(String),
+	[{?VendorSpecific, {?Mikrotik, {?MikrotikDhcpOptionSet, Set}}} | Acc];
+attribute(?VendorSpecific, <<0, ?Mikrotik:24, ?MikrotikDhcpOptionParamStr1,
+		VendorLength, String/binary>>, Acc) when VendorLength > 2 ->
+	Str1 = binary_to_list(String),
+	[{?VendorSpecific, {?Mikrotik,
+			{?MikrotikDhcpOptionParamStr1, Str1}}} | Acc];
+attribute(?VendorSpecific, <<0, ?Mikrotik:24, ?MikrotikDhcpOptionParamStr2,
+		VendorLength, String/binary>>, Acc) when VendorLength > 2 ->
+	Str2 = binary_to_list(String),
+	[{?VendorSpecific, {?Mikrotik,
+			{?MikrotikDhcpOptionParamStr2, Str2}}} | Acc];
+attribute(?VendorSpecific, <<0, ?Mikrotik:24, ?MikrotikWirelessVlanId,
+		6, ID:32>>, Acc) ->
+	[{?VendorSpecific, {?Mikrotik, {?MikrotikWirelessVlanId, ID}}} | Acc];
+attribute(?VendorSpecific, <<0, ?Mikrotik:24, ?MikrotikWirelessVlanIdType,
+		6, Type:32>>, Acc) ->
+	[{?VendorSpecific, {?Mikrotik, {?MikrotikWirelessVlanIdType, Type}}} | Acc];
+attribute(?VendorSpecific, <<0, ?Mikrotik:24, ?MikrotikWirelessMinSignal,
+		6, String/binary>>, Acc) ->
+	Signal = binary_to_list(String),
+	[{?VendorSpecific, {?Mikrotik,
+			{?MikrotikWirelessMinSignal, Signal}}} | Acc];
+attribute(?VendorSpecific, <<0, ?Mikrotik:24, ?MikrotikWirelessMaxSignal,
+		VendorLength, String/binary>>, Acc) when VendorLength > 2 ->
+	Signal = binary_to_list(String),
+	[{?VendorSpecific, {?Mikrotik,
+			{?MikrotikWirelessMaxSignal, Signal}}} | Acc];
 attribute(?VendorSpecific, <<0, VendorID:24, Rest/binary>>, Acc)
 		when size(Rest) >= 1 ->
 	VendorSpecific = {VendorID, Rest},
@@ -1143,6 +1276,177 @@ attributes([{?VendorSpecific, {?Microsoft,
 		when is_integer(A), is_integer(B), is_integer(C), is_integer(D) ->
 	attributes(T, <<Acc/binary, ?VendorSpecific, 12, 0, ?Microsoft:24,
 			?MsSecondaryNbnsServer, 6, A, B, C, D>>);
+attributes([{?VendorSpecific, {?Mikrotik,
+		{?MikrotikRecvLimit, Limit}}} | T], Acc) when Limit >= 0 ->
+	attributes(T, <<Acc/binary, ?VendorSpecific, 12, 0, ?Mikrotik:24,
+			?MikrotikRecvLimit, 6, Limit:32>>);
+attributes([{?VendorSpecific, {?Mikrotik,
+		{?MikrotikXmitLimit, Limit}}} | T], Acc) when Limit >= 0 ->
+	attributes(T, <<Acc/binary, ?VendorSpecific, 12, 0, ?Mikrotik:24,
+			?MikrotikXmitLimit, 6, Limit:32>>);
+attributes([{?VendorSpecific, {?Mikrotik,
+		{?MikrotikGroup, Group}}} | T], Acc) when is_list(Group) ->
+	Bin = list_to_binary(Group),
+	Length = size(Bin) + 6,
+	attributes(T, <<Acc/binary, ?VendorSpecific, 12, 0, ?Mikrotik:24,
+			?MikrotikGroup, Length, Bin/binary>>);
+attributes([{?VendorSpecific, {?Mikrotik,
+		{?MikrotikWirelessForward, Forward}}} | T], Acc)
+		when is_integer(Forward) ->
+	attributes(T, <<Acc/binary, ?VendorSpecific, 12, 0, ?Mikrotik:24,
+			?MikrotikWirelessForward, 6, Forward:32>>);
+attributes([{?VendorSpecific, {?Mikrotik,
+		{?MikrotikWirelessSkipDot1x, Skip}}} | T], Acc)
+		when is_integer(Skip) ->
+	attributes(T, <<Acc/binary, ?VendorSpecific, 12, 0, ?Mikrotik:24,
+			?MikrotikWirelessSkipDot1x, 6, Skip:32>>);
+attributes([{?VendorSpecific, {?Mikrotik,
+		{?MikrotikWirelessEncAlgo, 'no-encryption'}}} | T], Acc) ->
+	attributes(T, <<Acc/binary, ?VendorSpecific, 12, 0, ?Mikrotik:24,
+			?MikrotikWirelessEncAlgo, 6, 0:32>>);
+attributes([{?VendorSpecific, {?Mikrotik,
+		{?MikrotikWirelessEncAlgo, '40-bit-wep'}}} | T], Acc) ->
+	attributes(T, <<Acc/binary, ?VendorSpecific, 12, 0, ?Mikrotik:24,
+			?MikrotikWirelessEncAlgo, 6, 1:32>>);
+attributes([{?VendorSpecific, {?Mikrotik,
+		{?MikrotikWirelessEncAlgo, '104-bit-wep'}}} | T], Acc) ->
+	attributes(T, <<Acc/binary, ?VendorSpecific, 12, 0, ?Mikrotik:24,
+			?MikrotikWirelessEncAlgo, 6, 2:32>>);
+attributes([{?VendorSpecific, {?Mikrotik,
+		{?MikrotikWirelessEncAlgo, 'aes-ccm'}}} | T], Acc) ->
+	attributes(T, <<Acc/binary, ?VendorSpecific, 12, 0, ?Mikrotik:24,
+			?MikrotikWirelessEncAlgo, 6, 3:32>>);
+attributes([{?VendorSpecific, {?Mikrotik,
+		{?MikrotikWirelessEncAlgo, tkip}}} | T], Acc) ->
+	attributes(T, <<Acc/binary, ?VendorSpecific, 12, 0, ?Mikrotik:24,
+			?MikrotikWirelessEncAlgo, 6, 4:32>>);
+attributes([{?VendorSpecific, {?Mikrotik,
+		{?MikrotikWirelessEncKey, Key}}} | T], Acc) when is_list(Key) ->
+	Bin = list_to_binary(Key),
+	Length = size(Bin) + 6,
+	attributes(T, <<Acc/binary, ?VendorSpecific, 12, 0, ?Mikrotik:24,
+			?MikrotikWirelessEncAlgo, Length, Bin/binary>>);
+attributes([{?VendorSpecific, {?Mikrotik,
+		{?MikrotikRateLimit, Limit}}} | T], Acc) when is_list(Limit) ->
+	Bin = list_to_binary(Limit),
+	Length = size(Bin) + 6,
+	attributes(T, <<Acc/binary, ?VendorSpecific, 12, 0, ?Mikrotik:24,
+			?MikrotikRateLimit, Length, Bin/binary>>);
+attributes([{?VendorSpecific, {?Mikrotik,
+		{?MikrotikRealm, Realm}}} | T], Acc) when is_list(Realm) ->
+	Bin = list_to_binary(Realm),
+	Length = size(Bin) + 6,
+	attributes(T, <<Acc/binary, ?VendorSpecific, 12, 0, ?Mikrotik:24,
+			?MikrotikRealm, Length, Bin/binary>>);
+attributes([{?VendorSpecific, {?Mikrotik,
+		{?MikrotikHostIp, {A, B, C, D}}}} | T], Acc)
+		when is_integer(A), is_integer(B), is_integer(C), is_integer(D) ->
+	attributes(T, <<Acc/binary, ?VendorSpecific, 12, 0, ?Mikrotik:24,
+			?MikrotikHostIp, 6, A, B, C, D>>);
+attributes([{?VendorSpecific, {?Mikrotik,
+		{?MikrotikMarkId, ID}}} | T], Acc) when is_list(ID) ->
+	Bin = list_to_binary(ID),
+	Length = size(Bin) + 6,
+	attributes(T, <<Acc/binary, ?VendorSpecific, 12, 0, ?Mikrotik:24,
+			?MikrotikMarkId, Length, Bin/binary>>);
+attributes([{?VendorSpecific, {?Mikrotik,
+		{?MikrotikAdvertiseUrl, URL}}} | T], Acc) when is_list(URL) ->
+	Bin = list_to_binary(URL),
+	Length = size(Bin) + 6,
+	attributes(T, <<Acc/binary, ?VendorSpecific, 12, 0, ?Mikrotik:24,
+			?MikrotikAdvertiseUrl, Length, Bin/binary>>);
+attributes([{?VendorSpecific, {?Mikrotik,
+		{?MikrotikAdvertiseInterval, Interval}}} | T], Acc)
+		when is_integer(Interval) ->
+	attributes(T, <<Acc/binary, ?VendorSpecific, 12, 0, ?Mikrotik:24,
+			?MikrotikAdvertiseInterval, 6, Interval:32>>);
+attributes([{?VendorSpecific, {?Mikrotik,
+		{?MikrotikRecvLimitGigawords, Gigawords}}} | T], Acc)
+		when is_integer(Gigawords) ->
+	attributes(T, <<Acc/binary, ?VendorSpecific, 12, 0, ?Mikrotik:24,
+			?MikrotikRecvLimitGigawords, 6, Gigawords:32>>);
+attributes([{?VendorSpecific, {?Mikrotik,
+		{?MikrotikXmitLimitGigawords, Gigawords}}} | T], Acc)
+		when is_integer(Gigawords) ->
+	attributes(T, <<Acc/binary, ?VendorSpecific, 12, 0, ?Mikrotik:24,
+			?MikrotikXmitLimitGigawords, 6, Gigawords:32>>);
+attributes([{?VendorSpecific, {?Mikrotik,
+		{?MikrotikWirelessPsk, PSK}}} | T], Acc) when is_list(PSK) ->
+	Bin = list_to_binary(PSK),
+	Length = size(Bin) + 6,
+	attributes(T, <<Acc/binary, ?VendorSpecific, 12, 0, ?Mikrotik:24,
+			?MikrotikWirelessPsk, Length, Bin/binary>>);
+attributes([{?VendorSpecific, {?Mikrotik,
+		{?MikrotikTotalLimit, Limit}}} | T], Acc) when is_integer(Limit) ->
+	attributes(T, <<Acc/binary, ?VendorSpecific, 12, 0, ?Mikrotik:24,
+			?MikrotikTotalLimit, 6, Limit:32>>);
+attributes([{?VendorSpecific, {?Mikrotik,
+		{?MikrotikTotalLimitGigawords, Gigawords}}} | T], Acc)
+		when is_integer(Gigawords) ->
+	attributes(T, <<Acc/binary, ?VendorSpecific, 12, 0, ?Mikrotik:24,
+			?MikrotikTotalLimitGigawords, 6, Gigawords:32>>);
+attributes([{?VendorSpecific, {?Mikrotik,
+		{?MikrotikAddressList, List}}} | T], Acc) when is_list(List) ->
+	Bin = list_to_binary(List),
+	Length = size(Bin) + 6,
+	attributes(T, <<Acc/binary, ?VendorSpecific, 12, 0, ?Mikrotik:24,
+			?MikrotikAddressList, Length, Bin/binary>>);
+attributes([{?VendorSpecific, {?Mikrotik,
+		{?MikrotikWirelessMpKey, Key}}} | T], Acc) when is_list(Key) ->
+	Bin = list_to_binary(Key),
+	Length = size(Bin) + 6,
+	attributes(T, <<Acc/binary, ?VendorSpecific, 12, 0, ?Mikrotik:24,
+			?MikrotikWirelessMpKey, Length, Bin/binary>>);
+attributes([{?VendorSpecific, {?Mikrotik,
+		{?MikrotikWirelessComment, Comment}}} | T], Acc) when is_list(Comment) ->
+	Bin = list_to_binary(Comment),
+	Length = size(Bin) + 6,
+	attributes(T, <<Acc/binary, ?VendorSpecific, 12, 0, ?Mikrotik:24,
+			?MikrotikWirelessComment, Length, Bin/binary>>);
+attributes([{?VendorSpecific, {?Mikrotik,
+		{?MikrotikDelegatedIpv6Pool, Pool}}} | T], Acc) when is_list(Pool) ->
+	Bin = list_to_binary(Pool),
+	Length = size(Bin) + 6,
+	attributes(T, <<Acc/binary, ?VendorSpecific, 12, 0, ?Mikrotik:24,
+			?MikrotikDelegatedIpv6Pool, Length, Bin/binary>>);
+attributes([{?VendorSpecific, {?Mikrotik,
+		{?MikrotikDhcpOptionSet, Set}}} | T], Acc) when is_list(Set) ->
+	Bin = list_to_binary(Set),
+	Length = size(Bin) + 6,
+	attributes(T, <<Acc/binary, ?VendorSpecific, 12, 0, ?Mikrotik:24,
+			?MikrotikDhcpOptionSet, Length, Bin/binary>>);
+attributes([{?VendorSpecific, {?Mikrotik,
+		{?MikrotikDhcpOptionParamStr1, Str1}}} | T], Acc) when is_list(Str1) ->
+	Bin = list_to_binary(Str1),
+	Length = size(Bin) + 6,
+	attributes(T, <<Acc/binary, ?VendorSpecific, 12, 0, ?Mikrotik:24,
+			?MikrotikDhcpOptionParamStr1, Length, Bin/binary>>);
+attributes([{?VendorSpecific, {?Mikrotik,
+		{?MikrotikDhcpOptionParamStr2, Str2}}} | T], Acc) when is_list(Str2) ->
+	Bin = list_to_binary(Str2),
+	Length = size(Bin) + 6,
+	attributes(T, <<Acc/binary, ?VendorSpecific, 12, 0, ?Mikrotik:24,
+			?MikrotikDhcpOptionParamStr2, Length, Bin/binary>>);
+attributes([{?VendorSpecific, {?Mikrotik,
+		{?MikrotikWirelessVlanId, ID}}} | T], Acc) when is_integer(ID) ->
+	attributes(T, <<Acc/binary, ?VendorSpecific, 12, 0, ?Mikrotik:24,
+			?MikrotikWirelessVlanId, 6, ID:32>>);
+attributes([{?VendorSpecific, {?Mikrotik,
+		{?MikrotikWirelessVlanIdType, Type}}} | T], Acc) when is_integer(Type) ->
+	attributes(T, <<Acc/binary, ?VendorSpecific, 12, 0, ?Mikrotik:24,
+			?MikrotikWirelessVlanIdType, 6, Type:32>>);
+attributes([{?VendorSpecific, {?Mikrotik,
+		{?MikrotikWirelessMinSignal, Signal}}} | T], Acc) when is_list(Signal) ->
+	Bin = list_to_binary(Signal),
+	Length = size(Bin) + 6,
+	attributes(T, <<Acc/binary, ?VendorSpecific, 12, 0, ?Mikrotik:24,
+			?MikrotikWirelessMinSignal, Length, Bin/binary>>);
+attributes([{?VendorSpecific, {?Mikrotik,
+		{?MikrotikWirelessMaxSignal, Signal}}} | T], Acc) when is_list(Signal) ->
+	Bin = list_to_binary(Signal),
+	Length = size(Bin) + 6,
+	attributes(T, <<Acc/binary, ?VendorSpecific, 12, 0, ?Mikrotik:24,
+			?MikrotikWirelessMaxSignal, Length, Bin/binary>>);
 attributes([{?VendorSpecific, {VendorId, Bin}} | T], Acc)
 		when is_integer(VendorId), is_binary(Bin) ->
 	Length = size(Bin) + 6,
