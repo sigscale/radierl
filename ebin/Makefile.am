@@ -15,7 +15,7 @@ beam_DATA = radius.beam \
 		radius_server_sup.beam \
 		radius_sup.beam
 
-%.beam:$(top_srcdir)/src/%.erl
+%.beam:$(top_srcdir)/src/%.erl	$(top_srcdir)/include/radius.hrl
 	$(ERLC) $(ERLCFLAGS) -I $(top_srcdir)/include -I $(top_srcdir)/src $<
 
 %.app:   %.app-in
