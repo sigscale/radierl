@@ -521,10 +521,6 @@ attribute(?VendorSpecific, <<0, ?Mikrotik:24, ?MikrotikRealm,
 		VendorLength, String/binary>>, Acc) when VendorLength > 2 ->
 	Realm = binary_to_list(String),
 	[{?VendorSpecific, {?Mikrotik, {?MikrotikRealm, Realm}}} | Acc];
-attribute(?VendorSpecific, <<0, ?Mikrotik:24, ?MikrotikRealm,
-		VendorLength, String/binary>>, Acc) when VendorLength > 2 ->
-	Realm = binary_to_list(String),
-	[{?VendorSpecific, {?Mikrotik, {?MikrotikRealm, Realm}}} | Acc];
 attribute(?VendorSpecific, <<0, ?Mikrotik:24, ?MikrotikHostIp,
 		6, A, B, C, D>>, Acc) ->
 	[{?VendorSpecific, {?Mikrotik, {?MikrotikHostIp, {A, B, C, D}}}} | Acc];
@@ -1287,9 +1283,10 @@ attributes([{?VendorSpecific, {?Mikrotik,
 attributes([{?VendorSpecific, {?Mikrotik,
 		{?MikrotikGroup, Group}}} | T], Acc) when is_list(Group) ->
 	Bin = list_to_binary(Group),
-	Length = size(Bin) + 6,
-	attributes(T, <<Acc/binary, ?VendorSpecific, 12, 0, ?Mikrotik:24,
-			?MikrotikGroup, Length, Bin/binary>>);
+	VendorLength = size(Bin) + 2,
+	Length = VendorLength + 6,
+	attributes(T, <<Acc/binary, ?VendorSpecific, Length, 0, ?Mikrotik:24,
+			?MikrotikGroup, VendorLength, Bin/binary>>);
 attributes([{?VendorSpecific, {?Mikrotik,
 		{?MikrotikWirelessForward, Forward}}} | T], Acc)
 		when is_integer(Forward) ->
@@ -1323,21 +1320,24 @@ attributes([{?VendorSpecific, {?Mikrotik,
 attributes([{?VendorSpecific, {?Mikrotik,
 		{?MikrotikWirelessEncKey, Key}}} | T], Acc) when is_list(Key) ->
 	Bin = list_to_binary(Key),
-	Length = size(Bin) + 6,
-	attributes(T, <<Acc/binary, ?VendorSpecific, 12, 0, ?Mikrotik:24,
-			?MikrotikWirelessEncAlgo, Length, Bin/binary>>);
+	VendorLength = size(Bin) + 2,
+	Length = VendorLength + 6,
+	attributes(T, <<Acc/binary, ?VendorSpecific, Length, 0, ?Mikrotik:24,
+			?MikrotikWirelessEncAlgo, VendorLength, Bin/binary>>);
 attributes([{?VendorSpecific, {?Mikrotik,
 		{?MikrotikRateLimit, Limit}}} | T], Acc) when is_list(Limit) ->
 	Bin = list_to_binary(Limit),
-	Length = size(Bin) + 6,
-	attributes(T, <<Acc/binary, ?VendorSpecific, 12, 0, ?Mikrotik:24,
-			?MikrotikRateLimit, Length, Bin/binary>>);
+	VendorLength = size(Bin) + 2,
+	Length = VendorLength + 6,
+	attributes(T, <<Acc/binary, ?VendorSpecific, Length, 0, ?Mikrotik:24,
+			?MikrotikRateLimit, VendorLength, Bin/binary>>);
 attributes([{?VendorSpecific, {?Mikrotik,
 		{?MikrotikRealm, Realm}}} | T], Acc) when is_list(Realm) ->
 	Bin = list_to_binary(Realm),
-	Length = size(Bin) + 6,
-	attributes(T, <<Acc/binary, ?VendorSpecific, 12, 0, ?Mikrotik:24,
-			?MikrotikRealm, Length, Bin/binary>>);
+	VendorLength = size(Bin) + 2,
+	Length = VendorLength + 6,
+	attributes(T, <<Acc/binary, ?VendorSpecific, Length, 0, ?Mikrotik:24,
+			?MikrotikRealm, VendorLength, Bin/binary>>);
 attributes([{?VendorSpecific, {?Mikrotik,
 		{?MikrotikHostIp, {A, B, C, D}}}} | T], Acc)
 		when is_integer(A), is_integer(B), is_integer(C), is_integer(D) ->
@@ -1346,15 +1346,17 @@ attributes([{?VendorSpecific, {?Mikrotik,
 attributes([{?VendorSpecific, {?Mikrotik,
 		{?MikrotikMarkId, ID}}} | T], Acc) when is_list(ID) ->
 	Bin = list_to_binary(ID),
-	Length = size(Bin) + 6,
-	attributes(T, <<Acc/binary, ?VendorSpecific, 12, 0, ?Mikrotik:24,
-			?MikrotikMarkId, Length, Bin/binary>>);
+	VendorLength = size(Bin) + 2,
+	Length = VendorLength + 6,
+	attributes(T, <<Acc/binary, ?VendorSpecific, Length, 0, ?Mikrotik:24,
+			?MikrotikMarkId, VendorLength, Bin/binary>>);
 attributes([{?VendorSpecific, {?Mikrotik,
 		{?MikrotikAdvertiseUrl, URL}}} | T], Acc) when is_list(URL) ->
 	Bin = list_to_binary(URL),
-	Length = size(Bin) + 6,
-	attributes(T, <<Acc/binary, ?VendorSpecific, 12, 0, ?Mikrotik:24,
-			?MikrotikAdvertiseUrl, Length, Bin/binary>>);
+	VendorLength = size(Bin) + 2,
+	Length = VendorLength + 6,
+	attributes(T, <<Acc/binary, ?VendorSpecific, Length, 0, ?Mikrotik:24,
+			?MikrotikAdvertiseUrl, VendorLength, Bin/binary>>);
 attributes([{?VendorSpecific, {?Mikrotik,
 		{?MikrotikAdvertiseInterval, Interval}}} | T], Acc)
 		when is_integer(Interval) ->
@@ -1373,9 +1375,10 @@ attributes([{?VendorSpecific, {?Mikrotik,
 attributes([{?VendorSpecific, {?Mikrotik,
 		{?MikrotikWirelessPsk, PSK}}} | T], Acc) when is_list(PSK) ->
 	Bin = list_to_binary(PSK),
-	Length = size(Bin) + 6,
-	attributes(T, <<Acc/binary, ?VendorSpecific, 12, 0, ?Mikrotik:24,
-			?MikrotikWirelessPsk, Length, Bin/binary>>);
+	VendorLength = size(Bin) + 2,
+	Length = VendorLength + 6,
+	attributes(T, <<Acc/binary, ?VendorSpecific, Length, 0, ?Mikrotik:24,
+			?MikrotikWirelessPsk, VendorLength, Bin/binary>>);
 attributes([{?VendorSpecific, {?Mikrotik,
 		{?MikrotikTotalLimit, Limit}}} | T], Acc) when is_integer(Limit) ->
 	attributes(T, <<Acc/binary, ?VendorSpecific, 12, 0, ?Mikrotik:24,
@@ -1388,45 +1391,52 @@ attributes([{?VendorSpecific, {?Mikrotik,
 attributes([{?VendorSpecific, {?Mikrotik,
 		{?MikrotikAddressList, List}}} | T], Acc) when is_list(List) ->
 	Bin = list_to_binary(List),
-	Length = size(Bin) + 6,
-	attributes(T, <<Acc/binary, ?VendorSpecific, 12, 0, ?Mikrotik:24,
-			?MikrotikAddressList, Length, Bin/binary>>);
+	VendorLength = size(Bin) + 2,
+	Length = VendorLength + 6,
+	attributes(T, <<Acc/binary, ?VendorSpecific, Length, 0, ?Mikrotik:24,
+			?MikrotikAddressList, VendorLength, Bin/binary>>);
 attributes([{?VendorSpecific, {?Mikrotik,
 		{?MikrotikWirelessMpKey, Key}}} | T], Acc) when is_list(Key) ->
 	Bin = list_to_binary(Key),
-	Length = size(Bin) + 6,
-	attributes(T, <<Acc/binary, ?VendorSpecific, 12, 0, ?Mikrotik:24,
-			?MikrotikWirelessMpKey, Length, Bin/binary>>);
+	VendorLength = size(Bin) + 2,
+	Length = VendorLength + 6,
+	attributes(T, <<Acc/binary, ?VendorSpecific, Length, 0, ?Mikrotik:24,
+			?MikrotikWirelessMpKey, VendorLength, Bin/binary>>);
 attributes([{?VendorSpecific, {?Mikrotik,
 		{?MikrotikWirelessComment, Comment}}} | T], Acc) when is_list(Comment) ->
 	Bin = list_to_binary(Comment),
-	Length = size(Bin) + 6,
-	attributes(T, <<Acc/binary, ?VendorSpecific, 12, 0, ?Mikrotik:24,
-			?MikrotikWirelessComment, Length, Bin/binary>>);
+	VendorLength = size(Bin) + 2,
+	Length = VendorLength + 6,
+	attributes(T, <<Acc/binary, ?VendorSpecific, Length, 0, ?Mikrotik:24,
+			?MikrotikWirelessComment, VendorLength, Bin/binary>>);
 attributes([{?VendorSpecific, {?Mikrotik,
 		{?MikrotikDelegatedIpv6Pool, Pool}}} | T], Acc) when is_list(Pool) ->
 	Bin = list_to_binary(Pool),
-	Length = size(Bin) + 6,
-	attributes(T, <<Acc/binary, ?VendorSpecific, 12, 0, ?Mikrotik:24,
-			?MikrotikDelegatedIpv6Pool, Length, Bin/binary>>);
+	VendorLength = size(Bin) + 2,
+	Length = VendorLength + 6,
+	attributes(T, <<Acc/binary, ?VendorSpecific, Length, 0, ?Mikrotik:24,
+			?MikrotikDelegatedIpv6Pool, VendorLength, Bin/binary>>);
 attributes([{?VendorSpecific, {?Mikrotik,
 		{?MikrotikDhcpOptionSet, Set}}} | T], Acc) when is_list(Set) ->
 	Bin = list_to_binary(Set),
-	Length = size(Bin) + 6,
-	attributes(T, <<Acc/binary, ?VendorSpecific, 12, 0, ?Mikrotik:24,
-			?MikrotikDhcpOptionSet, Length, Bin/binary>>);
+	VendorLength = size(Bin) + 2,
+	Length = VendorLength + 6,
+	attributes(T, <<Acc/binary, ?VendorSpecific, Length, 0, ?Mikrotik:24,
+			?MikrotikDhcpOptionSet, VendorLength, Bin/binary>>);
 attributes([{?VendorSpecific, {?Mikrotik,
 		{?MikrotikDhcpOptionParamStr1, Str1}}} | T], Acc) when is_list(Str1) ->
 	Bin = list_to_binary(Str1),
-	Length = size(Bin) + 6,
-	attributes(T, <<Acc/binary, ?VendorSpecific, 12, 0, ?Mikrotik:24,
-			?MikrotikDhcpOptionParamStr1, Length, Bin/binary>>);
+	VendorLength = size(Bin) + 2,
+	Length = VendorLength + 6,
+	attributes(T, <<Acc/binary, ?VendorSpecific, Length, 0, ?Mikrotik:24,
+			?MikrotikDhcpOptionParamStr1, VendorLength, Bin/binary>>);
 attributes([{?VendorSpecific, {?Mikrotik,
 		{?MikrotikDhcpOptionParamStr2, Str2}}} | T], Acc) when is_list(Str2) ->
 	Bin = list_to_binary(Str2),
-	Length = size(Bin) + 6,
-	attributes(T, <<Acc/binary, ?VendorSpecific, 12, 0, ?Mikrotik:24,
-			?MikrotikDhcpOptionParamStr2, Length, Bin/binary>>);
+	VendorLength = size(Bin) + 2,
+	Length = VendorLength + 6,
+	attributes(T, <<Acc/binary, ?VendorSpecific, Length, 0, ?Mikrotik:24,
+			?MikrotikDhcpOptionParamStr2, VendorLength, Bin/binary>>);
 attributes([{?VendorSpecific, {?Mikrotik,
 		{?MikrotikWirelessVlanId, ID}}} | T], Acc) when is_integer(ID) ->
 	attributes(T, <<Acc/binary, ?VendorSpecific, 12, 0, ?Mikrotik:24,
@@ -1438,15 +1448,17 @@ attributes([{?VendorSpecific, {?Mikrotik,
 attributes([{?VendorSpecific, {?Mikrotik,
 		{?MikrotikWirelessMinSignal, Signal}}} | T], Acc) when is_list(Signal) ->
 	Bin = list_to_binary(Signal),
-	Length = size(Bin) + 6,
-	attributes(T, <<Acc/binary, ?VendorSpecific, 12, 0, ?Mikrotik:24,
-			?MikrotikWirelessMinSignal, Length, Bin/binary>>);
+	VendorLength = size(Bin) + 2,
+	Length = VendorLength + 6,
+	attributes(T, <<Acc/binary, ?VendorSpecific, Length, 0, ?Mikrotik:24,
+			?MikrotikWirelessMinSignal, VendorLength, Bin/binary>>);
 attributes([{?VendorSpecific, {?Mikrotik,
 		{?MikrotikWirelessMaxSignal, Signal}}} | T], Acc) when is_list(Signal) ->
 	Bin = list_to_binary(Signal),
-	Length = size(Bin) + 6,
-	attributes(T, <<Acc/binary, ?VendorSpecific, 12, 0, ?Mikrotik:24,
-			?MikrotikWirelessMaxSignal, Length, Bin/binary>>);
+	VendorLength = size(Bin) + 2,
+	Length = VendorLength + 6,
+	attributes(T, <<Acc/binary, ?VendorSpecific, Length, 0, ?Mikrotik:24,
+			?MikrotikWirelessMaxSignal, VendorLength, Bin/binary>>);
 attributes([{?VendorSpecific, {VendorId, Bin}} | T], Acc)
 		when is_integer(VendorId), is_binary(Bin) ->
 	Length = size(Bin) + 6,
