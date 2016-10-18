@@ -44,7 +44,8 @@
 %% export the radius_attributes public API
 -export([new/0, store/3, add/3, fetch/2, find/2, get_all/2]).
 -export([codec/1]).
--export([hide/3, unhide/3]).
+-export([hide/3, unhide/3, error_cause/1]).
+
 -export_type([attributes/0]).
 
 %% @headerfile "radius.hrl"
@@ -176,6 +177,40 @@ unhide(SharedSecret, Authenticator, UserPassword)
 		length(UserPassword) div 16 >= 1, length(UserPassword) div 16 =< 8,
 		length(UserPassword) rem 16 == 0 ->
 	unhide(SharedSecret, Authenticator, UserPassword, []).
+
+-spec error_cause(ErrorCause :: byte()) -> string().
+%% @doc Given the value of an `Error-Cause' attribute returns a
+%% 	description in English.
+error_cause(201) ->
+	"Residual Session Context Removed";
+error_cause(202) ->
+	"Invalid EAP Packet (Ignored)";
+error_cause(401) ->
+	"Unsupported Attribute";
+error_cause(402) ->
+	"Missing Attribute";
+error_cause(403) ->
+	"NAS Identification Mismatch";
+error_cause(404) ->
+	"Invalid Request";
+error_cause(405) ->
+	"Unsupported Service";
+error_cause(406) ->
+	"Unsupported Extension";
+error_cause(501) ->
+	"Administratively Prohibited";
+error_cause(502) ->
+	"Request Not Routable (Proxy)";
+error_cause(503) ->
+	"Session Context Not Found";
+error_cause(504) ->
+	"Session Context Not Removable";
+error_cause(505) ->
+	"Other Proxy Processing Error";
+error_cause(506) ->
+	"Resources Unavailable";
+error_cause(507) ->
+	"Request Initiated".
 
 %%----------------------------------------------------------------------
 %%  internal functions
