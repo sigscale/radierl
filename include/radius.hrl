@@ -232,7 +232,7 @@
 -define(SessionContextNotFound,          503).
 -define(SessionContextNotRemovable,      504).
 -define(OtherProxyProcessingError,       505).
--define(ResourcesUnavailable,            506)
+-define(ResourcesUnavailable,            506).
 -define(RequestInitiated,                507).
 
 %% Vendor-Specific Private Enterprise Codes
