@@ -21,7 +21,8 @@
       {code :: byte(),
       id :: byte(),
       authenticator :: binary() | [byte()],
-      attributes :: binary() | [byte()]}).
+      attributes :: binary()
+				| radius_attributes:attributes()}).
 
 %% RADIUS Attribute Types
 -define(UserName,                          1).
