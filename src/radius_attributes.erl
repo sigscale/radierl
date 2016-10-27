@@ -112,7 +112,7 @@ find(Attribute, Attributes) ->
 
 -spec get_all(Attribute :: byte(), Attributes :: attributes()) ->
 	[Value :: term()].
-%% @doc Returns all values for an `Attribute` which may occur
+%% @doc Returns all values for an `Attribute' which may occur
 %% 	more than once in	the RADIUS protocol `Attributes' list.
 %%
 get_all(Attribute, Attributes) ->
