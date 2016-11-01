@@ -172,8 +172,8 @@ idle(timeout, #statedata{address = Address, port = Port,
 %%
 wait_for_response(<<_Code, Identifier,
 		Authenticator:16/binary, _/binary>> = _Event,
-		#statedata{identifier = Identifier, authenticator = Authenticator,
-				response = ignore} = StateData) ->
+		#statedata{identifier = Identifier,
+				authenticator = Authenticator} = StateData) ->
 		{next_state, wait_for_response, StateData, ?WAITRETRIES};
 wait_for_response({response, RadiusResponse}, #statedata{socket = Socket,
 		address = Address, port = Port} = StateData) ->
