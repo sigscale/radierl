@@ -1649,7 +1649,7 @@ attributes([{?ConfigurationToken, String} | T], Acc) ->
 	S = list_to_binary(String),
 	Length = size(S) + 2,
 	attributes(T, <<Acc/binary, ?ConfigurationToken, Length, S/binary>>);
-attributes([{?EAPMessage, Data} | T], Acc) ->
+attributes([{?EAPMessage, Data} | T], Acc) when size(Data) =< 16#ff ->
 	Length = size(Data) + 2,
 	attributes(T, <<Acc/binary, ?EAPMessage, Length, Data/binary>>);
 attributes([{?MessageAuthenticator, String} | T], Acc) ->
