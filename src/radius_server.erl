@@ -136,7 +136,7 @@ init([Sup, Module, Port, Address] = _Args) ->
 			{ok, State, 0}
 	catch
 		_:Error->
-			{error, Error}
+			{stop, Error}
 	end.
 
 -spec handle_call(Request :: term(), From :: {Pid :: pid(), Tag :: any()},
