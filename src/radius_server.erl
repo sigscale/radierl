@@ -69,7 +69,7 @@
 		port :: non_neg_integer(),
 		module :: atom(),
 		user_state :: term(),
-		fsm_sup :: pid(),
+		fsm_sup :: undefined | pid(),
 		handlers = gb_trees:empty() :: gb_trees:tree(Key ::
 				{Address :: inet:ip_address(), Port :: pos_integer(),
 				Identifier :: non_neg_integer()}, Value :: (Fsm :: pid()))}).

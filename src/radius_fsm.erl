@@ -102,7 +102,7 @@ init([Socket, Module, UserState, Address, Port, Identifier] = _Args) ->
 	process_flag(trap_exit, true),
 	StateData = #statedata{socket = Socket, module = Module,
 			user_state = UserState, address = Address,
-			port = Port, identifier = Identifier},
+			port = Port, identifier = Identifier, authenticator = <<>>},
 	{ok, idle, StateData, ?WAITSTART}.
 
 -spec idle(Event :: timeout | term(), StateData :: #statedata{}) ->
