@@ -1,4 +1,4 @@
-%%% $Id%
+%%% radius.hrl
 %%%
 
 %% RADIUS Codes
