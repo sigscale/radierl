@@ -137,7 +137,7 @@
 
 -spec start(Module :: atom(), Port :: non_neg_integer()) ->
 	{ok, Pid :: pid()}
-		| {error, Error :: already_present
+		| {error, Reason :: already_present
 		| {already_started, Pid :: pid()} | term()}.
 %% @doc Start a RADIUS protocol server using the callback module
 %% 	`Module' listening on `Port'.
@@ -149,7 +149,7 @@ start(Module, Port) when is_atom(Module), is_integer(Port) ->
 -spec start(Module :: atom(), Port :: non_neg_integer(),
 		Address :: inet:ip_address()) ->
 	{ok, Pid :: pid()}
-		| {error, Error :: already_present
+		| {error, Reason :: already_present
 		| {already_started, Pid :: pid()} | term()}.
 %% @doc Start a RADIUS protocol server using the callback module
 %% 	`Module' listening on `Port' with address `Address'.
@@ -167,29 +167,37 @@ start(Module, Port, Address) when is_atom(Module),
 
 -spec start_link(Module :: atom(), Port :: non_neg_integer()) ->
 	{ok, Pid :: pid()}
-		| {error, Error :: already_present
+		| {error, Reason :: already_present
 		| {already_started, Pid :: pid()} | term()}.
 %% @doc Start a RADIUS protocol server as part of a supervision tree
 %% 	 using the callback module `Module' listening on `Port'.
 %%
 start_link(Module, Port) ->
-	{ok, Sup} = start(Module, Port),
-	link(Sup),
-	{ok, Sup}.
+	case start(Module, Port) of
+		{ok, Sup} ->
+			link(Sup),
+			{ok, Sup};
+		{error, Reason} ->
+			{error, Reason}
+	end.
 
 -spec start_link(Module :: atom(), Port :: non_neg_integer(),
 		Address :: inet:ip_address()) ->
 	{ok, Pid :: pid()}
-		| {error, Error :: already_present
+		| {error, Reason :: already_present
 		| {already_started, Pid :: pid()} | term()}.
 %% @doc Start a RADIUS protocol server as part of a supervision tree
 %% 	using the callback module `Module' listening on `Port' with
 %% 	address `Address'.
 %%
 start_link(Module, Port, Address) ->
-	{ok, Sup} = start(Module, Port, Address),
-	link(Sup),
-	{ok, Sup}.
+	case start(Module, Port, Address) of
+		{ok, Sup} ->
+			link(Sup),
+			{ok, Sup};
+		{error, Reason} ->
+			{error, Reason}
+	end.
 
 -spec stop(Pid :: pid()) -> ok.
 %% @doc Stop a running RADIUS protocol server.
