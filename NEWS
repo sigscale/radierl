@@ -1,6 +1,6 @@
 January 24, 2017
 ----------------
-	- version changed to 1.4
+	- version changed to 1.4.0
 	- changed API to support socket options
 	- add application environment variable for socket options
 

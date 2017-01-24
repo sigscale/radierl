@@ -1,7 +1,6 @@
 2017-01-24  Vance Shipley  <vances@sigscale.org>
 
 	* radius.erl: change api for start[_link]/3 to support socket options
-	* radius_server.erl: change to support socket options
 
 2016-09-05  Vance Shipley  <vances@sigscale.org>
 
