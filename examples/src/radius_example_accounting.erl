@@ -56,13 +56,13 @@
 %%  The radius callbacks
 %%----------------------------------------------------------------------
 
--spec init(Port :: pos_integer(), Opts :: list()) ->
+-spec init(Address :: inet:ip_address(), Port :: pos_integer()) ->
 	Result :: {ok, State :: term()} | {error, Reason :: term()}.
 %% @doc This callback function is called when a
 %% 	{@link //radius/radius_server. radius_server} behaviour process
 %% 	initializes.
 %%
-init(_Port, _Opts) ->
+init(_Address, _Port) ->
 	{ok, Directory} = application:get_env(radius_example, accounting_dir),
 	Log = ?LOGNAME,
 	FileName = Directory ++ "/" ++ atom_to_list(Log),

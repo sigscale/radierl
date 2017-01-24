@@ -40,9 +40,10 @@
 %%% 	==Callback Functions==
 %%% 	<h3 class="function">Module:init/2</h3>
 %%% 	<div class="spec">
-%%% 	<b><tt>Module:init(Port, Opts) -> {ok, State} {error, Reason}</tt></b>
+%%% 	<b><tt>Module:init(Address, Port) -> {ok, State} {error, Reason}</tt></b>
 %%% 	<ul class="definitions">
 %%% 		<li><tt>Module = atom()</tt></li>
+%%% 		<li><tt>Address = {@link //kernel/inet:ip_address(). ip_address()}</tt></li>
 %%% 		<li><tt>Port = {@link //kernel/inet:port_number(). port_number()}</tt></li>
 %%% 		<li><tt>Opts = list()</tt></li>
 %%% 		<li><tt>State = any()</tt></li>
@@ -54,10 +55,11 @@
 %%% 	{@link //radius/radius:start_link/3. radius:start_link/3,4},
 %%% 	this function is called by the new process to initialize.
 %%% 
-%%% 	<tt>Port</tt> is the {@link //kernel/inet:port_number(). port_number()}
+%%% 	<tt>Address</tt> is the {@link //kernel/inet:ip_address(). ip_address()}
 %%% 	which the {@link //kernel/inet:socket(). socket()} is listening on.
 %%% 
-%%% 	<tt>Opts</tt> is the list of options used when the socket was opened.
+%%% 	<tt>Port</tt> is the {@link //kernel/inet:port_number(). port_number()}
+%%% 	which the {@link //kernel/inet:socket(). socket()} is listening on.
 %%% 
 %%% 	This function should return <tt>{ok, State}</tt> if the callback handler
 %%% 	will be able service RADIUS requests on this

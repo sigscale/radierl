@@ -65,7 +65,7 @@
 -record(state,
 		{sup :: pid(),
 		socket :: inet:socket(),
-		opts :: list(),
+		address :: inet:ip_address(),
 		port :: non_neg_integer(),
 		module :: atom(),
 		user_state :: term(),
@@ -93,20 +93,22 @@
 %%
 init([Sup, Module, Port, Opts] = _Args) ->
 	try
-		{PortUsed, Socket} = case gen_udp:open(Port,
+		{Address, PortOpened, Socket} = case gen_udp:open(Port,
 				Opts ++ [{active, once}, binary]) of
-			{ok, S} when Port =:= 0 ->
-				{ok, PU} = inet:port(S),
-				{PU, S};
 			{ok, S} ->
-				{Port, S};
+				case inet:sockname(S) of
+					{ok, {A, P}} ->
+						{A, P, S};
+					{error, Reason1} ->
+						throw(Reason1)
+				end;
 			{error, Reason1} ->
 				throw(Reason1)
 		end,
-		case Module:init(PortUsed, Opts) of
+		case Module:init(Address, PortOpened) of
 			{ok, UserState} ->
-				#state{sup = Sup, socket = Socket, opts = Opts,
-						port = PortUsed, module = Module,
+				#state{sup = Sup, socket = Socket, address = Address,
+						port = PortOpened, module = Module,
 						user_state = UserState};
 			{error, Reason2} ->
 				throw(Reason2)
