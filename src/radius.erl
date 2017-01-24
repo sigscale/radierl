@@ -135,10 +135,13 @@
 %%  The radius public API
 %%----------------------------------------------------------------------
 
--spec start(Module :: atom(), Port :: non_neg_integer()) ->
-	{ok, Pid :: pid()}
-		| {error, Reason :: already_present
-		| {already_started, Pid :: pid()} | term()}.
+-spec start(Module, Port) ->
+		{ok, Pid} | {error, Reason}
+	when
+		Module :: atom(),
+		Port :: non_neg_integer(),
+		Pid :: pid(),
+		Reason :: already_present | {already_started, Pid} | term().
 %% @doc Start a RADIUS protocol server using the callback module
 %% 	`Module' listening on `Port'.
 %%
@@ -146,11 +149,14 @@ start(Module, Port) when is_atom(Module), is_integer(Port) ->
 	{ok, Address} = application:get_env(radius, address),
 	start(Module, Port, Address).
 
--spec start(Module :: atom(), Port :: non_neg_integer(),
-		Address :: inet:ip_address()) ->
-	{ok, Pid :: pid()}
-		| {error, Reason :: already_present
-		| {already_started, Pid :: pid()} | term()}.
+-spec start(Module, Port, Address) ->
+		{ok, Pid} | {error, Reason}
+	when
+		Module :: atom(),
+		Port :: non_neg_integer(),
+		Address :: inet:ip_address(),
+		Pid :: pid(),
+		Reason :: already_present | {already_started, Pid} | term().
 %% @doc Start a RADIUS protocol server using the callback module
 %% 	`Module' listening on `Port' with address `Address'.
 %%
@@ -165,10 +171,13 @@ start(Module, Port, Address) when is_atom(Module),
 		is_integer(Port), is_tuple(Address) ->
 	supervisor:start_child(radius, [[Module, Port, Address]]).
 
--spec start_link(Module :: atom(), Port :: non_neg_integer()) ->
-	{ok, Pid :: pid()}
-		| {error, Reason :: already_present
-		| {already_started, Pid :: pid()} | term()}.
+-spec start_link(Module, Port) ->
+		{ok, Pid} | {error, Reason}
+	when
+		Module :: atom(),
+		Port :: non_neg_integer(),
+		Pid :: pid(),
+		Reason :: already_present | {already_started, Pid} | term().
 %% @doc Start a RADIUS protocol server as part of a supervision tree
 %% 	 using the callback module `Module' listening on `Port'.
 %%
@@ -181,11 +190,14 @@ start_link(Module, Port) ->
 			{error, Reason}
 	end.
 
--spec start_link(Module :: atom(), Port :: non_neg_integer(),
-		Address :: inet:ip_address()) ->
-	{ok, Pid :: pid()}
-		| {error, Reason :: already_present
-		| {already_started, Pid :: pid()} | term()}.
+-spec start_link(Module, Port, Address) ->
+		{ok, Pid} | {error, Reason}
+	when
+		Module :: atom(),
+		Port :: non_neg_integer(),
+		Address :: inet:ip_address(),
+		Pid :: pid(),
+		Reason :: already_present | {already_started, Pid} | term().
 %% @doc Start a RADIUS protocol server as part of a supervision tree
 %% 	using the callback module `Module' listening on `Port' with
 %% 	address `Address'.
@@ -199,14 +211,19 @@ start_link(Module, Port, Address) ->
 			{error, Reason}
 	end.
 
--spec stop(Pid :: pid()) -> ok.
+-spec stop(Pid) ->
+		ok
+	when
+		Pid :: pid().
 %% @doc Stop a running RADIUS protocol server.
 %%
 stop(Pid) ->
 	supervisor:terminate_child(whereis(radius), Pid).
 
--spec codec(In :: binary() | #radius{}) -> Out :: #radius{} | binary().
-%% 	Out = radius() | binary()
+-spec codec(In) -> Out
+	when
+		In :: binary() | #radius{},
+		Out :: #radius{} | binary().
 %% @doc Encode or decode a binary RADIUS protocol packet.
 %%
 codec(<<Code, Identifier, Length:16, Authenticator:16/binary,
@@ -229,14 +246,18 @@ codec(#radius{code = Code, id = Identifier,
 	<<Code, Identifier, Length:16,
 			Authenticator/binary, Attributes/binary>>.
 
--spec authenticator() -> Authenticator :: binary().
+-spec authenticator() -> Authenticator
+	when
+		Authenticator :: binary().
 %% @doc Return a 16 octet random number to use as a request Authenticator.
 %% @private
 authenticator() ->
 	crypto:rand_bytes(16).
 
--spec response(RadiusFsm :: pid(),
-		Response :: {response, binary()} | {error, ignore}) -> ok.
+-spec response(RadiusFsm, Response) -> ok
+	when
+		RadiusFsm :: pid(),
+		Response :: {response, binary()} | {error, ignore}.
 %% @doc Send a delayed response to a {@link //radius/radius_fsm. radius_fsm}.
 response(RadiusFsm, {response, Response})
 		when is_pid(RadiusFsm), is_binary(Response) ->
@@ -248,7 +269,10 @@ response(RadiusFsm, {error, Reason}) when is_pid(RadiusFsm) ->
 %%  The radius private API
 %%----------------------------------------------------------------------
 
--spec port(Pid :: pid()) -> Port :: pos_integer().
+-spec port(Pid) -> Port
+	when
+	Pid :: pid(),
+	Port :: pos_integer().
 %% @doc Return the `Port' which the RADIUS server is listening on.
 %% @private
 port(Pid) ->
