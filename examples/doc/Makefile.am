@@ -26,8 +26,19 @@ overview.edoc: overview.edoc-in
 			-e 's!erlang.org!motivity.ca!' \
 			-e 's!erlang.png!motivitylogo.png!' < $$i > t.html; \
 					mv t.html $$i; done
+	if [ ! -e $(top_builddir)/doc/motivitylogo.png ]; then \
+		cp $(top_srcdir)/doc/motivitylogo.png $(top_builddir)/doc; fi
+	if [ ! -e $(top_builddir)/doc/supervision.png ]; then \
+		cp $(top_srcdir)/doc/supervision.png $(top_builddir)/doc; fi
+	if [ ! -e $(top_builddir)/doc/callbacks-init ]; then \
+		cp $(top_srcdir)/doc/callbacks-init.png $(top_builddir)/doc; fi
+	if [ ! -e $(top_builddir)/doc/callbacks-request.png ]; then \
+		cp $(top_srcdir)/doc/callbacks-request.png $(top_builddir)/doc; fi
+	if [ ! -e $(top_builddir)/doc/callbacks-terminate.png ]; then \
+		cp $(top_srcdir)/doc/callbacks-terminate.png $(top_builddir)/doc; fi
 
 CLEANFILES = overview.edoc edoc-info index.html \
 		modules-frame.html overview-summary.html \
 		stylesheet.css erlang.png $(modhtml)
+
 
