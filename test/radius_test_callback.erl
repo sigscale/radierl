@@ -1,9 +1,9 @@
 %%%---------------------------------------------------------------------
-%%% @copyright 2011-2016 Motivity Telecom
+%%% @copyright 2011-2017 Motivity Telecom
 %%% @author Vance Shipley <vances@motivity.ca> [http://www.motivity.ca]
 %%% @end
 %%%
-%%% Copyright (c) 2011-2016, Motivity Telecom
+%%% Copyright (c) 2011-2017, Motivity Telecom
 %%% 
 %%% All rights reserved.
 %%% 
@@ -47,9 +47,9 @@
 %%  The radius callbacks
 %%----------------------------------------------------------------------
 
-%% @spec (Address, Port) -> Result
-%% 	Address = ip_address()
+%% @spec (Port, Opts) -> Result
 %% 	Port = integer()
+%% 	Opts = list()
 %% 	Result = {ok, State} | {error, Reason}
 %% 	State = term()
 %% 	Reason = term()
@@ -57,7 +57,7 @@
 %% 	{@link //radius/radius_server. radius_server} behaviour process
 %% 	initializes.
 %%
-init(_Address, _Port) ->
+init(_Port, _Opts) ->
 	{ok, ?MODULE}.
 
 %% @spec (Address, Port, Packet, State) -> Result

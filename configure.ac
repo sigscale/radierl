@@ -4,8 +4,8 @@
 ##
 ## Boilerplate:  standard boilerplate code
 ##
-AC_INIT([radius], [1.3.1], [vances@motivity.ca])
-AC_COPYRIGHT([Copyright (c) 2011-2016 Motivity Telecom])
+AC_INIT([radius], [1.4], [vances@motivity.ca])
+AC_COPYRIGHT([Copyright (c) 2011-2017 Motivity Telecom])
 AC_PREREQ(2.63)
 AC_LANG([Erlang])
 AC_CONFIG_SRCDIR([src/radius_app.erl])

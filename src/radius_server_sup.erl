@@ -1,9 +1,9 @@
 %%%---------------------------------------------------------------------
-%%% @copyright 2011-2016 Motivity Telecom
+%%% @copyright 2011-2017 Motivity Telecom
 %%% @author Vance Shipley <vances@motivity.ca> [http://www.motivity.ca]
 %%% @end
 %%%
-%%% Copyright (c) 2011-2016, Motivity Telecom
+%%% Copyright (c) 2011-2017, Motivity Telecom
 %%% 
 %%% All rights reserved.
 %%% 
@@ -37,7 +37,7 @@
 %%% @docfile "{@docsrc radius_sup.edoc}"
 %%%
 -module(radius_server_sup).
--copyright('Copyright (c) 2011-2016 Motivity Telecom').
+-copyright('Copyright (c) 2011-2017 Motivity Telecom').
 -author('vances@motivity.ca').
 
 -behaviour(supervisor).
@@ -58,8 +58,8 @@
 %% @see //stdlib/supervisor:init/1
 %% @private
 %%
-init([Module, Port, Address]) ->
-	ChildSpecs = [fsm_sup(), server(Module, Port, Address)],
+init([Module, Port, Opts]) ->
+	ChildSpecs = [fsm_sup(), server(Module, Port, Opts)],
 	{ok, {{one_for_all, 10, 3600}, ChildSpecs}}.
 
 %% @hidden
@@ -69,9 +69,9 @@ fsm_sup() ->
 	{StartMod, StartFunc, transient, infinity, supervisor, [StartMod]}.
 
 %% @hidden
-server(Module, Port, Address) ->
+server(Module, Port, Opts) ->
 	StartMod = radius_server,
-	StartArgs = [StartMod, [self(), Module, Port, Address], []],
+	StartArgs = [StartMod, [self(), Module, Port, Opts], []],
 	StartFunc = {gen_server, start_link, StartArgs},
 	{StartMod, StartFunc, transient, 4000, worker, [StartMod]}.
 

@@ -10,8 +10,7 @@
    {registered, [radius]},
    {included_applications, []},
    {applications, [kernel, stdlib]},
-   {env,
-		[{address, {0, 0, 0, 0}}]},
+   {env, [{sock_opts, []}]},
    {mod, {radius_app, []}},
    {start_phases, []}]}.
 

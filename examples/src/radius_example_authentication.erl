@@ -1,9 +1,9 @@
 %%%---------------------------------------------------------------------
-%%% @copyright 2011-2016 Motivity Telecom
+%%% @copyright 2011-2017 Motivity Telecom
 %%% @author Vance Shipley <vances@motivity.ca> [http://www.motivity.ca]
 %%% @end
 %%%
-%%% Copyright (c) 2011-2016, Motivity Telecom
+%%% Copyright (c) 2011-2017, Motivity Telecom
 %%% 
 %%% All rights reserved.
 %%% 
@@ -39,7 +39,7 @@
 %%% 	in the {@link //radius. radius} application.
 %%%
 -module(radius_example_authentication).
--copyright('Copyright (c) 2011-2016 Motivity Telecom').
+-copyright('Copyright (c) 2011-2017 Motivity Telecom').
 -author('vances@motivity.ca').
 
 -behaviour(radius).
@@ -54,13 +54,13 @@
 %%  The radius callbacks
 %%----------------------------------------------------------------------
 
--spec init(Address :: inet:ip_address(), Port :: pos_integer()) ->
+-spec init(Port :: pos_integer(), Opts :: list()) ->
 	{ok, State :: term()} | {error, Reason :: term()}.
 %% @doc This callback function is called when a
 %% 	{@link //radius/radius_server. radius_server} behaviour process
 %% 	initializes.
 %%
-init(_Address, _Port) ->
+init(_Port, _Opts) ->
 	{ok, []}.
 
 -spec request(Address :: inet:ip_address(), Port :: pos_integer(),

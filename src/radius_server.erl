@@ -1,9 +1,9 @@
 %%%---------------------------------------------------------------------
-%%% @copyright 2011-2016 Motivity Telecom
+%%% @copyright 2011-2017 Motivity Telecom
 %%% @author Vance Shipley <vances@motivity.ca> [http://www.motivity.ca]
 %%% @end
 %%%
-%%% Copyright (c) 2011-2016, Motivity Telecom
+%%% Copyright (c) 2011-2017, Motivity Telecom
 %%%
 %%% All rights reserved.
 %%%
@@ -48,7 +48,7 @@
 %%% 	<img alt="Figure-1.1" src="messages.png" />
 %%%
 -module(radius_server).
--copyright('Copyright (c) 2011-2016 Motivity Telecom').
+-copyright('Copyright (c) 2011-2017 Motivity Telecom').
 -author('vances@motivity.ca').
 
 -behaviour(gen_server).
@@ -65,7 +65,7 @@
 -record(state,
 		{sup :: pid(),
 		socket :: inet:socket(),
-		address :: inet:ip_address(),
+		opts :: list(),
 		port :: non_neg_integer(),
 		module :: atom(),
 		user_state :: term(),
@@ -87,33 +87,14 @@
 		| {stop, Reason :: term()} | ignore.
 %% @doc Initialize the {@module} server.
 %% 	Args :: [Sup :: pid(), Module :: atom(), Port :: non_neg_integer(),
-%% 	Address :: inet:ip_address()].
+%% 	Opts :: list().
 %% @see //stdlib/gen_server:init/1
 %% @private
 %%
-init([Sup, Module, Port, Address] = _Args) ->
+init([Sup, Module, Port, Opts] = _Args) ->
 	try
-		IP = case Address of
-			Address when is_tuple(Address) ->
-				Address;
-			Address when is_list(Address) ->
-				case inet_parse:address(Address) of
-					{ok, Tip} ->
-						Tip;
-					_ ->
-						throw(badarg)
-				end
-		end,
-		Type = case IP of
-			{_, _, _, _} ->
-				inet;
-			{_, _, _, _, _, _, _, _} ->
-				inet6;
-			_ ->
-				throw(badarg)
-		end,
-		{PortUsed, Socket} = case gen_udp:open(Port, [{active, once},
-				{ip, IP}, Type, binary]) of
+		{PortUsed, Socket} = case gen_udp:open(Port,
+				Opts ++ [{active, once}, binary]) of
 			{ok, S} when Port =:= 0 ->
 				{ok, PU} = inet:port(S),
 				{PU, S};
@@ -122,9 +103,9 @@ init([Sup, Module, Port, Address] = _Args) ->
 			{error, Reason1} ->
 				throw(Reason1)
 		end,
-		case Module:init(Address, PortUsed) of
+		case Module:init(PortUsed, Opts) of
 			{ok, UserState} ->
-				#state{sup = Sup, socket = Socket, address = IP,
+				#state{sup = Sup, socket = Socket, opts = Opts,
 						port = PortUsed, module = Module,
 						user_state = UserState};
 			{error, Reason2} ->

@@ -1,9 +1,9 @@
 %%%---------------------------------------------------------------------
-%%% @copyright 2011-2016 Motivity Telecom
+%%% @copyright 2011-2017 Motivity Telecom
 %%% @author Vance Shipley <vances@motivity.ca> [http://www.motivity.ca]
 %%% @end
 %%%
-%%% Copyright (c) 2011-2016, Motivity Telecom
+%%% Copyright (c) 2011-2017, Motivity Telecom
 %%% 
 %%% All rights reserved.
 %%% 
@@ -37,22 +37,27 @@
 %%% @doc This library module implements the user API to the
 %%% 		{@link //radius. radius} application.
 %%%
-%%% 	===Callback Functions===
-%%% 	====init/2====
-%%% 	<b><tt>Module:init(Address :: {@link //kernel/inet:ip_address(). ip_address()},
-%%% 	Port :: pos_integer()) ->
-%%% 		{ok, State :: term()} | {error, Reason :: term()}</tt></b>
+%%% 	==Callback Functions==
+%%% 	<h3 class="function">Module:init/2</h3>
+%%% 	<div class="spec">
+%%% 	<b><tt>Module:init(Port, Opts) -> {ok, State} {error, Reason}</tt></b>
+%%% 	<ul class="definitions">
+%%% 		<li><tt>Module = atom()</tt></li>
+%%% 		<li><tt>Port = {@link //kernel/inet:port_number(). port_number()}</tt></li>
+%%% 		<li><tt>Opts = list()</tt></li>
+%%% 		<li><tt>State = any()</tt></li>
+%%% 		<li><tt>Reason = term()</tt></li>
+%%%	</ul></div>
 %%%
 %%% 	Whenever a {@link //radius/radius_server. radius_server} is started
 %%% 	using {@link //radius/radius:start/3. radius:start/3,4}, or
 %%% 	{@link //radius/radius:start_link/3. radius:start_link/3,4},
 %%% 	this function is called by the new process to initialize.
 %%% 
-%%% 	<tt>Address</tt> is the {@link //kernel/inet:ip_address(). ip_address()}
-%%% 	which the {@link //kernel/inet:socket(). socket()} is listening on.
-%%% 
 %%% 	<tt>Port</tt> is the {@link //kernel/inet:port_number(). port_number()}
 %%% 	which the {@link //kernel/inet:socket(). socket()} is listening on.
+%%% 
+%%% 	<tt>Opts</tt> is the list of options used when the socket was opened.
 %%% 
 %%% 	This function should return <tt>{ok, State}</tt> if the callback handler
 %%% 	will be able service RADIUS requests on this
@@ -61,11 +66,19 @@
 %%%
 %%% 	<tt>State</tt> may be any term.
 %%% 
-%%% 	====request/4====
-%%% 	<b><tt>Module:request(Address :: {@link //kernel/inet:ip_address(). ip_address()},
-%%% 	Port :: pos_integer(), RadiusRequest :: binary(), State :: term()) ->
-%%% 	{ok, RadiusResponse :: binary()} | {ok, wait}
-%%% 			| {error, Reason :: ignore | term()}</tt></b>
+%%% 	<h3 class="function">Module:request/4</h3>
+%%% 	<div class="spec">
+%%% 	<b><tt>Module:request(Address, Port, RadiusRequest, State) ->
+%%% 		{ok, RadiusResponse} | {ok, wait} | {error, Reason}</tt></b>
+%%% 	<ul class="definitions">
+%%% 		<li><tt>Module = atom()</tt></li>
+%%% 		<li><tt>Address = {@link //kernel/inet:ip_address(). ip_address()}</tt></li>
+%%% 		<li><tt>Port = {@link //kernel/inet:port_number(). port_number()}</tt></li>
+%%% 		<li><tt>RadiusRequest :: binary()</tt></li>
+%%% 		<li><tt>State = any()</tt></li>
+%%% 		<li><tt>RadiusResponse :: binary()</tt></li>
+%%% 		<li><tt>Reason = ignore | term()</tt></li>
+%%%	</ul></div>
 %%%
 %%% 	When a new valid RADIUS packet is received a
 %%% 	{@link //radius/radius_fsm. radius_fsm} transaction handler is started
@@ -96,9 +109,14 @@
 %%% 	{@link //radius/radius_fsm. radius_fsm} transaction handler and report
 %%% 	an error.
 %%% 
-%%% 	====terminate/2====
-%%% 	<b><tt>Module:terminate(Reason :: term(), State :: term()) ->
-%%% 		any()</tt></b>
+%%% 	<h3 class="function">Module:terminate/2</h3>
+%%% 	<div class="spec">
+%%% 	<b><tt>Module:terminate(Reason, State) -> any()</tt></b>
+%%% 	<ul class="definitions">
+%%% 		<li><tt>Module = atom()</tt></li>
+%%% 		<li><tt>Reason = term()</tt></li>
+%%% 		<li><tt>State = any()</tt></li>
+%%%	</ul></div>
 %%%
 %%% 	This function is called by a {@link //radius/radius_server. radius_server}
 %%% 	when it is about to terminate. It should be the opposite of
@@ -109,7 +127,7 @@
 %%% 	<tt>State</tt> has the value returned from <tt>Module:init/2</tt>.
 %%% 
 -module(radius).
--copyright('Copyright (c) 2011-2016 Motivity Telecom').
+-copyright('Copyright (c) 2011-2017 Motivity Telecom').
 -author('vances@motivity.ca').
 
 %% export the radius public API
@@ -146,30 +164,28 @@
 %% 	`Module' listening on `Port'.
 %%
 start(Module, Port) when is_atom(Module), is_integer(Port) ->
-	{ok, Address} = application:get_env(radius, address),
-	start(Module, Port, Address).
+	{ok, Opts} = application:get_env(radius, sock_opts),
+	start(Module, Port, Opts).
 
--spec start(Module, Port, Address) ->
+-spec start(Module, Port, Opts) ->
 		{ok, Pid} | {error, Reason}
 	when
 		Module :: atom(),
 		Port :: non_neg_integer(),
-		Address :: inet:ip_address(),
+		Opts :: [{ip, inet:socket_address()} |
+				{fd, non_neg_integer()} |
+				inet:address_family() |
+				{port, inet:port_number()} |
+				gen_udp:option()],
 		Pid :: pid(),
 		Reason :: already_present | {already_started, Pid} | term().
 %% @doc Start a RADIUS protocol server using the callback module
-%% 	`Module' listening on `Port' with address `Address'.
+%% 	`Module' listening on `Port'.
+%% @see //kernel/gen_udp:open/2
 %%
-start(Module, Port, Address) when is_list(Address) ->
-	case inet_parse:address(Address) of
-		{ok, IP} ->
-			start(Module, Port, IP);
-		{error, Reason} ->
-			{error, Reason}
-	end;
-start(Module, Port, Address) when is_atom(Module),
-		is_integer(Port), is_tuple(Address) ->
-	supervisor:start_child(radius, [[Module, Port, Address]]).
+start(Module, Port, Opts) when is_atom(Module),
+		is_integer(Port), is_list(Opts) ->
+	supervisor:start_child(radius, [[Module, Port, Opts]]).
 
 -spec start_link(Module, Port) ->
 		{ok, Pid} | {error, Reason}
@@ -190,20 +206,24 @@ start_link(Module, Port) ->
 			{error, Reason}
 	end.
 
--spec start_link(Module, Port, Address) ->
+-spec start_link(Module, Port, Opts) ->
 		{ok, Pid} | {error, Reason}
 	when
 		Module :: atom(),
 		Port :: non_neg_integer(),
-		Address :: inet:ip_address(),
+		Opts :: [{ip, inet:socket_address()} |
+				{fd, non_neg_integer()} |
+				inet:address_family() |
+				{port, inet:port_number()} |
+				gen_udp:option()],
 		Pid :: pid(),
 		Reason :: already_present | {already_started, Pid} | term().
 %% @doc Start a RADIUS protocol server as part of a supervision tree
-%% 	using the callback module `Module' listening on `Port' with
-%% 	address `Address'.
+%% 	using the callback module `Module' listening on `Port'.
+%% @see //kernel/gen_udp:open/2
 %%
-start_link(Module, Port, Address) ->
-	case start(Module, Port, Address) of
+start_link(Module, Port, Opts) ->
+	case start(Module, Port, Opts) of
 		{ok, Sup} ->
 			link(Sup),
 			{ok, Sup};
