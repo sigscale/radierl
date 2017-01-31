@@ -166,8 +166,7 @@
 %% 	`Module' listening on `Port'.
 %%
 start(Module, Port) when is_atom(Module), is_integer(Port) ->
-	{ok, Opts} = application:get_env(radius, sock_opts),
-	start(Module, Port, Opts).
+	start(Module, Port, []).
 
 -spec start(Module, Port, Opts) ->
 		{ok, Pid} | {error, Reason}
@@ -187,7 +186,8 @@ start(Module, Port) when is_atom(Module), is_integer(Port) ->
 %%
 start(Module, Port, Opts) when is_atom(Module),
 		is_integer(Port), is_list(Opts) ->
-	supervisor:start_child(radius, [[Module, Port, Opts]]).
+	{ok, EnvOpts} = application:get_env(radius, sock_opts),
+	supervisor:start_child(radius, [[Module, Port, EnvOpts ++ Opts]]).
 
 -spec start_link(Module, Port) ->
 		{ok, Pid} | {error, Reason}
