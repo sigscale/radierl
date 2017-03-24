@@ -238,9 +238,10 @@
 
 %% Vendor-Specific Private Enterprise Codes
 -define(Microsoft,                       311).
+-define(Ascend,                          529).
 -define(Mikrotik,                      14988).
 
-%% Microsft Vendor-Specific (sub)attributes
+%% Microsoft Vendor-Specific (sub)attributes
 -define(MsChapChallenge,                  11).
 -define(MsChapResponse,                    1).
 -define(MsChapDomain,                     10).
@@ -273,6 +274,11 @@
 -define(MsSecondaryDnsServer,             29).
 -define(MsPrimaryNbnsServer,              30).
 -define(MsSecondaryNbnsServer,            31).
+
+%% Ascend Vendor-Specific (sub)attributes
+-define(AscendClientGateway,             132).
+-define(AscendDataRate,                  197).
+-define(AscendXmitRate,                  255).
 
 %% Mikrotik Vendor-Specific (sub)attributes
 -define(MikrotikRecvLimit,                 1).

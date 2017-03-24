@@ -523,6 +523,18 @@ attribute(?VendorSpecific, <<0, ?Microsoft:24, ?MsSecondaryNbnsServer,
 		6, A, B, C, D>>, Acc) ->
 	[{?VendorSpecific, {?Microsoft,
 			{?MsSecondaryNbnsServer, {A, B, C, D}}}} | Acc];
+attribute(?VendorSpecific, <<0, ?Ascend:24, ?AscendClientGateway,
+		6, A, B, C, D>>, Acc) ->
+	[{?VendorSpecific, {?Ascend,
+			{?AscendClientGateway, {A, B, C, D}}}} | Acc];
+attribute(?VendorSpecific, <<0, ?Ascend:24, ?AscendDataRate,
+		6, DataRate:32>>, Acc) ->
+	[{?VendorSpecific, {?Ascend,
+			{?AscendDataRate, DataRate}}} | Acc];
+attribute(?VendorSpecific, <<0, ?Ascend:24, ?AscendXmitRate,
+		6, XmitRate:32>>, Acc) ->
+	[{?VendorSpecific, {?Ascend,
+			{?AscendXmitRate, XmitRate}}} | Acc];
 attribute(?VendorSpecific, <<0, ?Mikrotik:24, ?MikrotikRecvLimit,
 		6, RecvLimit:32>>, Acc) ->
 	[{?VendorSpecific, {?Mikrotik, {?MikrotikRecvLimit, RecvLimit}}} | Acc];
@@ -1323,6 +1335,21 @@ attributes([{?VendorSpecific, {?Microsoft,
 		when is_integer(A), is_integer(B), is_integer(C), is_integer(D) ->
 	attributes(T, <<Acc/binary, ?VendorSpecific, 12, 0, ?Microsoft:24,
 			?MsSecondaryNbnsServer, 6, A, B, C, D>>);
+attributes([{?VendorSpecific, {?Ascend,
+		{?AscendClientGateway, {A, B, C, D}}}} | T], Acc)
+		when is_integer(A), is_integer(B), is_integer(C), is_integer(D) ->
+	attributes(T, <<Acc/binary, ?VendorSpecific, 12, 0, ?Ascend:24,
+			?AscendClientGateway, 6, A, B, C, D>>);
+attributes([{?VendorSpecific, {?Ascend,
+		{?AscendDataRate, DataRate}}} | T], Acc)
+		when is_integer(DataRate) ->
+	attributes(T, <<Acc/binary, ?VendorSpecific, 12, 0, ?Ascend:24,
+			?AscendDataRate, 6, DataRate:32>>);
+attributes([{?VendorSpecific, {?Ascend,
+		{?AscendXmitRate, XmitRate}}} | T], Acc)
+		when is_integer(XmitRate) ->
+	attributes(T, <<Acc/binary, ?VendorSpecific, 12, 0, ?Ascend:24,
+			?AscendXmitRate, 6, XmitRate:32>>);
 attributes([{?VendorSpecific, {?Mikrotik,
 		{?MikrotikRecvLimit, Limit}}} | T], Acc) when Limit >= 0 ->
 	attributes(T, <<Acc/binary, ?VendorSpecific, 12, 0, ?Mikrotik:24,
