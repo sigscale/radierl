@@ -39,7 +39,7 @@ authorization and accounting (AAA) servers.
 	$ make check
 
 # Installing the example callbacks application:
-	$ make install
+	$ sudo make install
 
 # Running the examples
 
