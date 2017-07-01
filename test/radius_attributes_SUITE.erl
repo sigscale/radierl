@@ -181,14 +181,14 @@ password() ->
 	[{userdata, [{doc, "User-Password hiding"}]}].
 
 password(_Config) ->
-	Authenticator = [crypto:rand_uniform(1, 256) || _ <- lists:seq(1, 16)],
-	Secret = [crypto:rand_uniform(1, 96) + 31 || _ <- lists:seq(1, 16)],
-	ShortSecret = [crypto:rand_uniform(1, 96) + 31 || _ <- lists:seq(1, 3)],
-	LongSecret = [crypto:rand_uniform(1, 96) + 31 || _ <- lists:seq(1, 128)],
-	Password = [crypto:rand_uniform(1, 96) + 31 || _ <- lists:seq(1, 16)],
-	ShortPassword = [crypto:rand_uniform(1, 96) + 31 || _ <- lists:seq(1, 3)],
-	MediumPassword = [crypto:rand_uniform(1, 96) + 31 || _ <- lists:seq(1, 19)],
-	LongPassword = [crypto:rand_uniform(1, 96) + 31 || _ <- lists:seq(1, 128)],
+	Authenticator = [rand:uniform(255) || _ <- lists:seq(1, 16)],
+	Secret = [rand:uniform(95) + 31 || _ <- lists:seq(1, 16)],
+	ShortSecret = [rand:uniform(95) + 31 || _ <- lists:seq(1, 3)],
+	LongSecret = [rand:uniform(95) + 31 || _ <- lists:seq(1, 128)],
+	Password = [rand:uniform(95) + 31 || _ <- lists:seq(1, 16)],
+	ShortPassword = [rand:uniform(95) + 31 || _ <- lists:seq(1, 3)],
+	MediumPassword = [rand:uniform(95) + 31 || _ <- lists:seq(1, 19)],
+	LongPassword = [rand:uniform(95) + 31 || _ <- lists:seq(1, 128)],
 	UserPassword1 = radius_attributes:hide(Secret,
 			Authenticator, Password),
 	Password = radius_attributes:unhide(Secret,

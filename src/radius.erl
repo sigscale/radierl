@@ -274,7 +274,7 @@ codec(#radius{code = Code, id = Identifier,
 %% @doc Return a 16 octet random number to use as a request Authenticator.
 %% @private
 authenticator() ->
-	crypto:rand_bytes(16).
+	crypto:strong_rand_bytes(16).
 
 -spec response(RadiusFsm, Response) -> ok
 	when
