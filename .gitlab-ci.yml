@@ -1,0 +1,90 @@
+# Configuration for GitLab.com CI/CD
+
+variables:
+  RADIUS_VERSION: 1.4.1
+
+.build:otp: &build_otp
+  stage: build
+  image: erlang
+  script:
+    - export ERL_LIBS="${CI_PROJECT_DIR}/.build/otp-${OTP_VERSION}/lib"
+    - export ERLANG_INSTALL_LIB_DIR=${ERL_LIBS}
+    - aclocal
+    - autoheader
+    - autoconf
+    - automake --add-missing
+    - mkdir -p .build/otp-${OTP_VERSION}/radius
+    - cd .build/otp-${OTP_VERSION}/radius
+    - ../../../configure
+    - make
+    - mkdir ../lib
+    - make install
+    - cd ../../../examples
+    - aclocal
+    - autoheader
+    - autoconf
+    - automake --add-missing
+    - mkdir -p ../.build/otp-${OTP_VERSION}/examples
+    - cd ../.build/otp-${OTP_VERSION}/examples
+    - ../../../examples/configure
+    - make
+    - make install
+  artifacts:
+    untracked: true
+    paths:
+      - .build/
+
+build:otp-20:
+  <<: *build_otp
+  image: erlang:latest
+
+build:otp-19:
+  <<: *build_otp
+  image: erlang:19
+
+build:otp-18:
+  <<: *build_otp
+  image: erlang:18
+
+build:otp-17:
+  <<: *build_otp
+  image: erlang:18
+
+.check:otp: &check_otp
+  stage: test
+  image: erlang
+  when: always
+  script:
+    - export ERL_LIBS="${CI_PROJECT_DIR}/.build/otp-${OTP_VERSION}/lib"
+    - export DIALYZER_PLT="${CI_PROJECT_DIR}/.build/otp-${OTP_VERSION}/.dialyzer_plt"
+    - if ! dialyzer --plt_info; then dialyzer --build_plt --apps erts kernel stdlib crypto compiler; fi
+    - cd .build/otp-${OTP_VERSION}/radius
+    - make check
+    - cd ../examples
+    - dialyzer --add_to_plt --apps radius
+    - make check
+
+check:otp-20:
+  <<: *check_otp
+  image: erlang:20
+  dependencies:
+    - build:otp-20
+
+check:otp-19:
+  <<: *check_otp
+  image: erlang:19
+  dependencies:
+    - build:otp-19
+
+check:otp-18:
+  <<: *check_otp
+  image: erlang:18
+  dependencies:
+    - build:otp-18
+
+check:otp-17:
+  <<: *check_otp
+  image: erlang:17
+  dependencies:
+    - build:otp-17
+
