@@ -24,13 +24,13 @@ overview.edoc: overview.edoc-in
 			"'$(PACKAGE_NAME)'" "'$(top_builddir)'" \
 			'[{sort_functions,false},{private,true},{todo,true},{source_path,["$(top_srcdir)/src"]},{subpackages,false},{def,{docsrc,"$(top_srcdir)/doc/{@?}"}},{includes, ["$(top_srcdir)/include"]}]'
 	for i in `ls *.html`; do \
-		sed -e 's!erlang logo!motivity logo!' \
-				-e 's!erlang.org!motivity.ca!' \
-				-e 's!erlang.png!motivitylogo.png!' $$i > $$i.tmp; \
+		sed -e 's!erlang logo!sigscale logo!' \
+				-e 's!erlang.org!sigscale.org!' \
+				-e 's!erlang.png!sigscalelogo.png!' $$i > $$i.tmp; \
 		mv $$i.tmp $$i; \
 	done
-	if [ ! -e $(top_builddir)/doc/motivitylogo.png ]; then \
-		cp $(top_srcdir)/doc/motivitylogo.png $(top_builddir)/doc; fi
+	if [ ! -e $(top_builddir)/doc/sigscalelogo.png ]; then \
+		cp $(top_srcdir)/doc/sigscalelogo.png $(top_builddir)/doc; fi
 	if [ ! -e $(top_builddir)/doc/supervision.png ]; then \
 		cp $(top_srcdir)/doc/supervision.png $(top_builddir)/doc; fi
 	if [ ! -e $(top_builddir)/doc/messages.png ]; then \

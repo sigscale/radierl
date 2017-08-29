@@ -64,5 +64,5 @@ authorization and accounting (AAA) servers.
 	5> application:start(radius_example).
 	ok
 
-Everything here is distributed under a New BSD style license.
+Everything here is distributed under Apache License version 2.0 .
 

@@ -1,9 +1,9 @@
 %%%---------------------------------------------------------------------
-%%% @copyright 2011-2016 Motivity Telecom
-%%% @author Vance Shipley <vances@motivity.ca> [http://www.motivity.ca]
+%%% @copyright 2016-2017 SigScale Global Inc
+%%% @author Vance Shipley <vances@sigscale.org> [http://www.sigscale.org]
 %%% @end
 %%%
-%%% Copyright (c) 2011-2016, Motivity Telecom
+%%% Copyright (c) 2016-2017, SigScale Global Inc
 %%% 
 %%% All rights reserved.
 %%% 
@@ -17,7 +17,7 @@
 %%%      notice, this list of conditions and the following disclaimer in
 %%%      the documentation and/or other materials provided with the 
 %%%      distribution.
-%%%    - Neither the name of Motivity Telecom nor the names of its
+%%%    - Neither the name of SigScale Global Inc nor the names of its
 %%%      contributors may be used to endorse or promote products derived
 %%%      from this software without specific prior written permission.
 %%%
@@ -38,8 +38,8 @@
 %%% 		{@link //radius_example. radius_example} application.
 %%%
 -module(radius_example).
--copyright('Copyright (c) 2011-2016 Motivity Telecom').
--author('vances@motivity.ca').
+-copyright('Copyright (c) 2016-2017 SigScale Global Inc').
+-author('vances@sigscale.org').
 
 %% export the radius_example public API
 -export([add_client/2, find_client/1]).

@@ -1,5 +1,5 @@
-@copyright 2011-2016 Motivity Telecom
-@author Vance Shipley <vances@cmotivity.ca>
+@copyright 2016-2017 SigScale Global Inc
+@author Vance Shipley <vances@sigscale.org>
 @version %APP_VERSION%
 @title %APP_NAME%
 @reference <a href="http://www.ietf.org/rfc/rfc2865.txt">RFC2865</a>

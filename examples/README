@@ -22,5 +22,5 @@ Install the example callbacks application:
 
 	$ make install
 
-Everything here is distributed under a New BSD style license.
+Everything here is distributed under Apache License version 2.0 .
 
