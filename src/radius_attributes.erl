@@ -28,7 +28,8 @@
 -author('vances@sigscale.org').
 
 %% export the radius_attributes public API
--export([new/0, store/3, add/3, fetch/2, find/2, find/3, get_all/2]).
+-export([new/0, store/3, add/3, fetch/2, fetch/3,
+		find/2, find/3, get_all/2]).
 -export([codec/1]).
 -export([hide/3, unhide/3, error_cause/1]).
 
@@ -79,6 +80,18 @@ fetch(Attribute, Attributes) ->
 		{Attribute, Value} ->
 			Value
 	end.
+
+-spec fetch(Vendor :: byte(), Attribute :: byte(), Attributes :: attributes()) ->
+	Value :: term().
+%% @doc Returns the value for a vendor sepecific attribute in a RADIUS protocol
+%% 	attributes list.  Assumes that the attribute is present.
+%%
+fetch(Vendor, Attribute, [{?VendorSpecific, {Vendor, {Attribute, Value}}} | _]) ->
+	Value;
+fetch(Vendor, Attribute, [_ | T]) ->
+	fetch(Vendor, Attribute, T);
+fetch(_Vendor, _Attribute, []) ->
+	exit(not_found).
 
 -spec find(Attribute :: byte(), Attributes :: attributes()) ->
 	Result :: {ok, Value :: term()} | {error, not_found}.
