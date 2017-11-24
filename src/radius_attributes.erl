@@ -28,8 +28,8 @@
 -author('vances@sigscale.org').
 
 %% export the radius_attributes public API
--export([new/0, store/3, add/3, fetch/2, fetch/3,
-		find/2, find/3, get_all/2]).
+-export([new/0, store/3, add/3, add/4, fetch/2,
+		fetch/3, find/2, find/3, get_all/2]).
 -export([codec/1]).
 -export([hide/3, unhide/3, error_cause/1]).
 
@@ -67,6 +67,15 @@ store(Attribute, Value, Attributes) when is_integer(Attribute),
 add(Attribute, Value, Attributes) when is_integer(Attribute),
 		is_list(Attributes) ->
 	Attributes ++ [{Attribute, Value}].
+
+-spec add(Vendor :: byte(), Attribute :: byte(), Value :: term(),
+	Attributes :: attributes()) -> NewAttributes :: attributes().
+%% @doc Add vendor specific attribute to a RADIUS protocol attributes list.
+%% 	Multiple `Attribute's are allowed.
+%%
+add(Vendor, Attribute, Value, Attributes) when is_integer(Attribute),
+		is_list(Attributes) ->
+	Attributes ++ [{?VendorSpecific, {Vendor, {Attribute, Value}}}].
 
 -spec fetch(Attribute :: byte(), Attributes :: attributes()) ->
 	Value :: term().
