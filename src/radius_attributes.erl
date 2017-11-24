@@ -28,8 +28,8 @@
 -author('vances@sigscale.org').
 
 %% export the radius_attributes public API
--export([new/0, store/3, add/3, add/4, fetch/2,
-		fetch/3, find/2, find/3, get_all/2]).
+-export([new/0, store/3, store/4, add/3, add/4,
+		fetch/2, fetch/3, find/2, find/3, get_all/2]).
 -export([codec/1]).
 -export([hide/3, unhide/3, error_cause/1]).
 
@@ -58,6 +58,25 @@ new() ->
 store(Attribute, Value, Attributes) when is_integer(Attribute),
 		is_list(Attributes) ->
 	lists:keystore(Attribute, 1, Attributes, {Attribute, Value}).
+
+-spec store(Vendor :: byte(), Attribute :: byte(), Value :: term(),
+	Attributes :: attributes()) -> NewAttributes :: attributes().
+%% @doc Add a new vendor specific attribute to a RADIUS protocol
+%% attributes list.
+%% 	If `Attribute' exists it is overwritten with the new `Value'.
+%%
+store(Vendor, Attribute, Value, Attributes) when is_integer(Attribute),
+		is_list(Attributes) ->
+	VendorSpecificAttr = {?VendorSpecific, {Vendor, {Attribute, Value}}},
+	store1(VendorSpecificAttr, [], Attributes).
+%% @hidden
+store1({?VendorSpecific, Value} =
+		VendorSpecificAttr, Acc, [VendorSpecificAttr | _] = Attr) ->
+	lists:reverse([Value | Acc]) ++ Attr;
+store1({?VendorSpecific, Value}, Acc, []) ->
+	lists:reverse([Value | Acc]);
+store1(VendorSpecificAttr, Acc, [H | T]) ->
+	store1(VendorSpecificAttr, [H | Acc], T).
 
 -spec add(Attribute :: byte(), Value :: term(),
 	Attributes :: attributes()) -> NewAttributes :: attributes().
