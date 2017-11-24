@@ -28,7 +28,7 @@
 -author('vances@sigscale.org').
 
 %% export the radius_attributes public API
--export([new/0, store/3, add/3, fetch/2, find/2, get_all/2]).
+-export([new/0, store/3, add/3, fetch/2, find/2, find/3, get_all/2]).
 -export([codec/1]).
 -export([hide/3, unhide/3, error_cause/1]).
 
@@ -95,6 +95,23 @@ find(Attribute, Attributes) ->
 		{Attribute, Value} ->
 			{ok, Value}
 	end.
+
+-spec find(Vendor :: byte(), Attribute :: byte(), Attributes :: attributes()) ->
+	Result :: {ok, Value :: term()} | {error, not_found}.
+%%		Vendor = interger(),
+%% 	Attribute = integer()
+%% 	Attributes = attributes()
+%% 	Result = {ok, Value} | error
+%% 	Value = term()
+%% @doc Searches for a vendor specific attribute in a
+%% RADIUS protocol attributes list.
+%%
+find(Vendor, Attribute, [{?VendorSpecific, {Vendor, {Attribute, Value}}} | _]) ->
+	{ok, Value};
+find(Vendor, Attribute, [_ | T]) ->
+	find(Vendor, Attribute, T);
+find(_Vendor, _Attribute, []) ->
+	{error, not_found}.
 
 -spec get_all(Attribute :: byte(), Attributes :: attributes()) ->
 	[Value :: term()].
