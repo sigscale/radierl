@@ -96,9 +96,12 @@ sequences() ->
 all() ->
 	[store_noexist, store_exist,
 			store_vendor_noexist, store_vendor_exist,
-			add, fetch_exist, fetch_noexist,
-			find_exist, find_noexist, get_all,
-			password, example1, example2, example3].
+			add, add_vendor,
+			fetch_exist, fetch_noexist,
+			fetch_vendor_exist, fetch_vendor_noexist,
+			find_exist, find_noexist,
+			find_vendor_exist, find_vendor_noexist,
+			get_all, password, example1, example2, example3].
 
 %%---------------------------------------------------------------------
 %%  Test cases
@@ -164,6 +167,26 @@ add(Config) ->
 	SizeBin1 = size(AttrsBin1),
 	<<AttrsBin1:SizeBin1/binary, ?PortLimit, 6, 1:32>> = AttrsBin2.
 
+add_vendor() ->
+	[{userdata, [{doc, "Add a vendor specific attribute"}]}].
+
+add_vendor(Config) ->
+	AttrsBin1 = ?config(example_attributes, Config),
+	Vendor = ?Mikrotik,
+	Attribute = ?MikrotikRealm,
+	Value = "example.net",
+	Attrs1 = radius_attributes:codec(AttrsBin1),
+	Attrs2 = radius_attributes:add(Vendor, Attribute, Value, Attrs1),
+	AttrsBin2 = radius_attributes:codec(Attrs2),
+	SizeBin1 = size(AttrsBin1),
+	<<AttrsBin1:SizeBin1/binary, ?VendorSpecific, L1, 0, Vendor1:24,
+			Attribute1, L2, Value1/binary>> = AttrsBin2,
+	Vendor1 = Vendor,
+	Attribute1 = Attribute,
+	L2 = length(Value) + 2,
+	L1 = L2 + 6,
+	Value1 = list_to_binary(Value).
+
 fetch_exist() ->
 	[{userdata, [{doc, "Get the value of an existing attribute"}]}].
 
@@ -183,6 +206,25 @@ fetch_noexist(Config) ->
 			ok
 	end.
 
+fetch_vendor_exist() ->
+	[{userdata, [{doc, "Get the value of an existing vendor specific attribute"}]}].
+
+fetch_vendor_exist(Config) ->
+	AttrsBin = ?config(example_attributes, Config),
+	Attrs = radius_attributes:codec(AttrsBin),
+	"sigscale.net" = radius_attributes:fetch(?Mikrotik, ?MikrotikRealm, Attrs).
+
+fetch_vendor_noexist() ->
+	[{userdata, [{doc, "Attempt to get a nonexistent vendor specific attribute"}]}].
+
+fetch_vendor_noexist(Config) ->
+	AttrsBin = ?config(example_attributes, Config),
+	Attrs = radius_attributes:codec(AttrsBin),
+	case catch radius_attributes:fetch(?Microsoft, ?MsChapError, Attrs) of
+		{'EXIT', not_found} ->
+			ok
+	end.
+
 find_exist() ->
 	[{userdata, [{doc, "Look for the value of an existing attribute"}]}].
 
@@ -198,6 +240,22 @@ find_noexist(Config) ->
 	AttrsBin = ?config(example_attributes, Config),
 	Attrs = radius_attributes:codec(AttrsBin),
 	{error, not_found} = radius_attributes:find(?State, Attrs).
+
+find_vendor_exist() ->
+	[{userdata, [{doc, "Look for the value of an existing vendor specific attribute"}]}].
+
+find_vendor_exist(Config) ->
+	AttrsBin = ?config(example_attributes, Config),
+	Attrs = radius_attributes:codec(AttrsBin),
+	{ok, "sigscale.net"} = radius_attributes:find(?Mikrotik, ?MikrotikRealm, Attrs).
+
+find_vendor_noexist() ->
+	[{userdata, [{doc, "Look for the value of a nonexistent vendor specific attribute"}]}].
+
+find_vendor_noexist(Config) ->
+	AttrsBin = ?config(example_attributes, Config),
+	Attrs = radius_attributes:codec(AttrsBin),
+	{error, not_found} = radius_attributes:find(?Microsoft, ?MsChapError, Attrs).
 
 get_all() ->
 	[{userdata, [{doc, "Get all values of an attribute"}]}].
