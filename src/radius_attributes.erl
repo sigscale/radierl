@@ -55,8 +55,8 @@ new() ->
 %% @doc Add a new attribute to a RADIUS protocol attributes list.
 %% 	If `Attribute' exists it is overwritten with the new `Value'.
 %%
-store(Attribute, Value, Attributes) when is_integer(Attribute),
-		is_list(Attributes) ->
+store(Attribute, Value, Attributes)
+		when is_integer(Attribute), is_list(Attributes) ->
 	lists:keystore(Attribute, 1, Attributes, {Attribute, Value}).
 
 -spec store(Vendor :: byte(), Attribute :: byte(), Value :: term(),
@@ -65,18 +65,17 @@ store(Attribute, Value, Attributes) when is_integer(Attribute),
 %% attributes list.
 %% 	If `Attribute' exists it is overwritten with the new `Value'.
 %%
-store(Vendor, Attribute, Value, Attributes) when is_integer(Attribute),
-		is_list(Attributes) ->
-	VendorSpecificAttr = {?VendorSpecific, {Vendor, {Attribute, Value}}},
-	store1(VendorSpecificAttr, [], Attributes).
+store(Vendor, Attribute, Value, Attributes)
+		when is_integer(Attribute), is_list(Attributes) ->
+	store1(Vendor, Attribute, Value, Attributes, []).
 %% @hidden
-store1({?VendorSpecific, Value} =
-		VendorSpecificAttr, Acc, [VendorSpecificAttr | _] = Attr) ->
-	lists:reverse([Value | Acc]) ++ Attr;
-store1({?VendorSpecific, Value}, Acc, []) ->
-	lists:reverse([Value | Acc]);
-store1(VendorSpecificAttr, Acc, [H | T]) ->
-	store1(VendorSpecificAttr, [H | Acc], T).
+store1(Vendor, Attribute, Value,
+		[{?VendorSpecific, {Vendor, {Attribute, _}}} | T ], Acc) ->
+	lists:reverse(Acc) ++ [{?VendorSpecific, {Vendor, {Attribute, Value}}} | T];
+store1(Vendor, Attribute, Value, [H | T], Acc) ->
+	store1(Vendor, Attribute, Value, T, [H | Acc]);
+store1(Vendor, Attribute, Value, [], Acc) ->
+	lists:reverse([{?VendorSpecific, {Vendor, {Attribute, Value}}} | Acc]).
 
 -spec add(Attribute :: byte(), Value :: term(),
 	Attributes :: attributes()) -> NewAttributes :: attributes().
