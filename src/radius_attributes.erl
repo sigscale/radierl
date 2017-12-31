@@ -50,8 +50,11 @@
 new() ->
 	[].
 
--spec store(Attribute :: byte(), Value :: term(),
-	Attributes :: attributes()) -> NewAttributes :: attributes().
+-spec store(Attribute, Value, Attributes) -> Attributes
+	when
+		Attribute :: byte(),
+		Value :: term(),
+		Attributes :: attributes().
 %% @doc Add a new attribute to a RADIUS protocol attributes list.
 %% 	If `Attribute' exists it is overwritten with the new `Value'.
 %%
@@ -59,8 +62,12 @@ store(Attribute, Value, Attributes)
 		when is_integer(Attribute), is_list(Attributes) ->
 	lists:keystore(Attribute, 1, Attributes, {Attribute, Value}).
 
--spec store(Vendor :: byte(), Attribute :: byte(), Value :: term(),
-	Attributes :: attributes()) -> NewAttributes :: attributes().
+-spec store(Vendor, Attribute, Value, Attributes) -> Attributes
+	when
+		Vendor :: byte(),
+		Attribute :: byte(),
+		Value :: term(),
+		Attributes :: attributes().
 %% @doc Add a new vendor specific attribute to a RADIUS protocol
 %% attributes list.
 %% 	If `Attribute' exists it is overwritten with the new `Value'.
@@ -77,8 +84,11 @@ store1(Vendor, Attribute, Value, [H | T], Acc) ->
 store1(Vendor, Attribute, Value, [], Acc) ->
 	lists:reverse([{?VendorSpecific, {Vendor, {Attribute, Value}}} | Acc]).
 
--spec add(Attribute :: byte(), Value :: term(),
-	Attributes :: attributes()) -> NewAttributes :: attributes().
+-spec add(Attribute, Value, Attributes) -> Attributes
+	when
+		Attribute :: byte(),
+		Value :: term(),
+		Attributes :: attributes().
 %% @doc Add an attribute to a RADIUS protocol attributes list.
 %% 	Multiple `Attribute's are allowed.
 %%
@@ -86,8 +96,12 @@ add(Attribute, Value, Attributes) when is_integer(Attribute),
 		is_list(Attributes) ->
 	Attributes ++ [{Attribute, Value}].
 
--spec add(Vendor :: byte(), Attribute :: byte(), Value :: term(),
-	Attributes :: attributes()) -> NewAttributes :: attributes().
+-spec add(Vendor, Attribute, Value, Attributes) -> Attributes
+	when
+		Vendor :: byte(),
+		Attribute :: byte(),
+		Value :: term(),
+		Attributes :: attributes().
 %% @doc Add vendor specific attribute to a RADIUS protocol attributes list.
 %% 	Multiple `Attribute's are allowed.
 %%
@@ -95,8 +109,11 @@ add(Vendor, Attribute, Value, Attributes) when is_integer(Attribute),
 		is_list(Attributes) ->
 	Attributes ++ [{?VendorSpecific, {Vendor, {Attribute, Value}}}].
 
--spec fetch(Attribute :: byte(), Attributes :: attributes()) ->
-	Value :: term().
+-spec fetch(Attribute, Attributes) -> Value
+	when
+		Attribute :: byte(),
+		Attributes :: attributes(),
+		Value :: term().
 %% @doc Returns the value for an attribute in a RADIUS protocol
 %% 	attributes list.  Assumes that the attribute is present.
 %%
@@ -108,8 +125,12 @@ fetch(Attribute, Attributes) ->
 			Value
 	end.
 
--spec fetch(Vendor :: byte(), Attribute :: byte(), Attributes :: attributes()) ->
-	Value :: term().
+-spec fetch(Vendor, Attribute, Attributes) -> Value
+	when
+		Vendor :: byte(),
+		Attribute :: byte(),
+		Attributes :: attributes(),
+		Value :: term().
 %% @doc Returns the value for a vendor sepecific attribute in a RADIUS protocol
 %% 	attributes list.  Assumes that the attribute is present.
 %%
@@ -120,12 +141,12 @@ fetch(Vendor, Attribute, [_ | T]) ->
 fetch(_Vendor, _Attribute, []) ->
 	exit(not_found).
 
--spec find(Attribute :: byte(), Attributes :: attributes()) ->
-	Result :: {ok, Value :: term()} | {error, not_found}.
-%% 	Attribute = integer()
-%% 	Attributes = attributes()
-%% 	Result = {ok, Value} | error
-%% 	Value = term()
+-spec find(Attribute, Attributes) -> Result
+	when
+		Attribute :: byte(),
+		Attributes :: attributes(),
+		Value :: term(),
+		Result :: {ok, Value} | {error, not_found}.
 %% @doc Searches for an attribute in a RADIUS protocol attributes list.
 %%
 find(Attribute, Attributes) ->
@@ -136,15 +157,15 @@ find(Attribute, Attributes) ->
 			{ok, Value}
 	end.
 
--spec find(Vendor :: byte(), Attribute :: byte(), Attributes :: attributes()) ->
-	Result :: {ok, Value :: term()} | {error, not_found}.
-%%		Vendor = interger(),
-%% 	Attribute = integer()
-%% 	Attributes = attributes()
-%% 	Result = {ok, Value} | error
-%% 	Value = term()
+-spec find(Vendor, Attribute, Attributes) -> Result
+	when
+		Vendor :: byte(),
+		Attribute :: byte(),
+		Attributes :: attributes(),
+		Value :: term(),
+		Result :: {ok, Value} | {error, not_found}.
 %% @doc Searches for a vendor specific attribute in a
-%% RADIUS protocol attributes list.
+%% 	RADIUS protocol attributes list.
 %%
 find(Vendor, Attribute, [{?VendorSpecific, {Vendor, {Attribute, Value}}} | _]) ->
 	{ok, Value};
@@ -153,8 +174,12 @@ find(Vendor, Attribute, [_ | T]) ->
 find(_Vendor, _Attribute, []) ->
 	{error, not_found}.
 
--spec get_all(Attribute :: byte(), Attributes :: attributes()) ->
-	[Value :: term()].
+-spec get_all(Attribute, Attributes) -> Result
+	when
+		Attribute :: byte(),
+		Attributes :: attributes(),
+		Value :: term(),
+		Result :: [Value].
 %% @doc Returns all values for an `Attribute' which may occur
 %% 	more than once in	the RADIUS protocol `Attributes' list.
 %%
@@ -166,18 +191,22 @@ get_all(Attribute, Attributes) ->
 	end,
 	lists:filtermap(F, Attributes).
 
--spec codec(In :: binary() | attributes()) -> attributes() | binary().
+-spec codec(Attributes) -> Attributes
+	when
+		Attributes :: binary() | attributes().
 %% @doc Encode or decode a binary RADIUS protocol attributes field.
 %%
-codec(In) when is_binary(In) ->
-	attributes(In, 0, new());
-codec(In) when is_list(In) ->
-	attributes(In, <<>>).
+codec(Attributes) when is_binary(Attributes) ->
+	attributes(Attributes, 0, new());
+codec(Attributes) when is_list(Attributes) ->
+	attributes(Attributes, <<>>).
 
--spec hide(SharedSecret :: string() | binary(),
+-spec hide(SharedSecret, Authenticator, Password) -> UserPassword
+	when
+		SharedSecret :: string() | binary(),
 		Authenticator :: [byte()] | binary(),
-		Password :: string() | binary()) ->
-	UserPassword :: string().
+		Password :: string() | binary(),
+		UserPassword :: string().
 %% @doc Hide the password in the User-Password attribute.
 %%
 hide(SharedSecret, Authenticator, Password)
@@ -200,10 +229,12 @@ hide(SharedSecret, Authenticator, Password)
 		length(Password) rem 16 == 0 ->
 	hide(SharedSecret, Authenticator, Password, []).
 
--spec unhide(SharedSecret :: string() | binary(),
+-spec unhide(SharedSecret, Authenticator, UserPassword) -> Password
+	when
+		SharedSecret :: string() | binary(),
 		Authenticator :: [byte()] | binary(),
-		UserPassword :: string() | binary()) ->
-	Password :: string().
+		UserPassword :: string() | binary(),
+		Password :: string().
 %% @doc Return the password hidden in the User-Password attribute.
 %%
 unhide(SharedSecret, Authenticator, UserPassword)
@@ -221,7 +252,10 @@ unhide(SharedSecret, Authenticator, UserPassword)
 		length(UserPassword) rem 16 == 0 ->
 	unhide(SharedSecret, Authenticator, UserPassword, []).
 
--spec error_cause(ErrorCause :: byte()) -> string().
+-spec error_cause(ErrorCause) -> Result
+	when
+		ErrorCause :: byte(),
+		Result :: string().
 %% @doc Given the value of an `Error-Cause' attribute returns a
 %% 	description in English.
 error_cause(201) ->
