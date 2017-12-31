@@ -67,6 +67,8 @@ init_per_suite(Config) ->
 			<<0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15>>/binary,
 			?EAPMessage, 18,
 			<<16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31>>/binary,
+			?VendorSpecific, 20, 0, ?Mikrotik:24,
+			?MikrotikRealm, 14, <<"sigscale.net">>/binary,
 			?NasPortId, 7, <<"wlan0">>/binary>>,
 	[{example_attributes, Attributes} | Config].
 
@@ -92,9 +94,11 @@ sequences() ->
 %% @doc Returns a list of all test cases in this test suite.
 %%
 all() ->
-	[store_noexist, store_exist, add,
-	fetch_exist, fetch_noexist, find_exist, find_noexist, get_all,
-	password, example1, example2, example3].
+	[store_noexist, store_exist,
+			store_vendor_noexist, store_vendor_exist,
+			add, fetch_exist, fetch_noexist,
+			find_exist, find_noexist, get_all,
+			password, example1, example2, example3].
 
 %%---------------------------------------------------------------------
 %%  Test cases
@@ -119,7 +123,35 @@ store_exist(Config) ->
 	Attrs1 = radius_attributes:codec(AttrsBin1),
 	Attrs2 = radius_attributes:store(?NasPort, 17, Attrs1),
 	AttrsBin2 = radius_attributes:codec(Attrs2),
-	<<_:7/binary, ?NasPort, 6, 17:32, _:43/binary>> = AttrsBin2.
+	<<_:7/binary, ?NasPort, 6, 17:32, _:63/binary>> = AttrsBin2.
+
+store_vendor_noexist() ->
+	[{userdata, [{doc, "Store a new vendor specific attribute value"}]}].
+
+store_vendor_noexist(Config) ->
+	AttrsBin1 = ?config(example_attributes, Config),
+	Attrs1 = radius_attributes:codec(AttrsBin1),
+	DataRate = 256000,
+	Attrs2 = radius_attributes:store(?Ascend,
+			?AscendDataRate, DataRate, Attrs1),
+	AttrsBin2 = radius_attributes:codec(Attrs2),
+	SizeBin1 = size(AttrsBin1),
+	<<AttrsBin1:SizeBin1/binary, ?VendorSpecific, 12, 0,
+			?Ascend:24, ?AscendDataRate, 6, DataRate:32>> = AttrsBin2.
+
+store_vendor_exist() ->
+	[{userdata, [{doc, "Overwrite an existing vendor specific attribute value"}]}].
+
+store_vendor_exist(Config) ->
+	AttrsBin1 = ?config(example_attributes, Config),
+	Attrs1 = radius_attributes:codec(AttrsBin1),
+	Realm = "example.com",
+	SizeRealm = length(Realm),
+	Attrs2 = radius_attributes:store(?Mikrotik, ?MikrotikRealm, Realm, Attrs1),
+	AttrsBin2 = radius_attributes:codec(Attrs2),
+	<<_:49/binary, ?VendorSpecific, 19, 0, ?Mikrotik:24, ?MikrotikRealm,
+			13, Realm1:SizeRealm/binary, _:7/binary>> = AttrsBin2,
+	Realm1 = list_to_binary(Realm).
 
 add() ->
 	[{userdata, [{doc, "Add an attribute"}]}].
