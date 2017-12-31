@@ -1,3 +1,9 @@
+December 31, 2017
+----------------
+	- version changed to 1.4.3
+	- new test cases for vendor specifc attributes
+	- correct semantics of radius_attributes:store/4
+
 November 24, 2017
 ----------------
 	- version changed to 1.4.2

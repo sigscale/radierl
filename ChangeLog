@@ -1,3 +1,7 @@
+2017-12-31  Vance Shipley <vances@sigscale.org>
+
+	* radius_attributes.erl: correct semantics of store/4
+
 2017-11-24  Prahveen Thiruchelvam  <prahveen@sigscale.org>
 
 	* radius_attributes.erl: add functions to handle vendor specific attributes directly
