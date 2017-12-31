@@ -64,7 +64,7 @@ store(Attribute, Value, Attributes)
 
 -spec store(Vendor, Attribute, Value, Attributes) -> Attributes
 	when
-		Vendor :: byte(),
+		Vendor :: 1..16#ffffff,
 		Attribute :: byte(),
 		Value :: term(),
 		Attributes :: attributes().
@@ -98,7 +98,7 @@ add(Attribute, Value, Attributes) when is_integer(Attribute),
 
 -spec add(Vendor, Attribute, Value, Attributes) -> Attributes
 	when
-		Vendor :: byte(),
+		Vendor :: 1..16#ffffff,
 		Attribute :: byte(),
 		Value :: term(),
 		Attributes :: attributes().
@@ -127,7 +127,7 @@ fetch(Attribute, Attributes) ->
 
 -spec fetch(Vendor, Attribute, Attributes) -> Value
 	when
-		Vendor :: byte(),
+		Vendor :: 1..16#ffffff,
 		Attribute :: byte(),
 		Attributes :: attributes(),
 		Value :: term().
@@ -159,7 +159,7 @@ find(Attribute, Attributes) ->
 
 -spec find(Vendor, Attribute, Attributes) -> Result
 	when
-		Vendor :: byte(),
+		Vendor :: 1..16#ffffff,
 		Attribute :: byte(),
 		Attributes :: attributes(),
 		Value :: term(),
