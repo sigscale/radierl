@@ -92,18 +92,18 @@ sequences() ->
 %% @doc Returns a list of all test cases in this test suite.
 %%
 all() ->
-	[store_new, store_overwrite, add,
-	fetch_existing, fetch_noexist, find_existing, find_noexist, get_all,
+	[store_noexist, store_exist, add,
+	fetch_exist, fetch_noexist, find_exist, find_noexist, get_all,
 	password, example1, example2, example3].
 
 %%---------------------------------------------------------------------
 %%  Test cases
 %%---------------------------------------------------------------------
 
-store_new() ->
+store_noexist() ->
 	[{userdata, [{doc, "Store a new attribute value"}]}].
 
-store_new(Config) ->
+store_noexist(Config) ->
 	AttrsBin1 = ?config(example_attributes, Config),
 	Attrs1 = radius_attributes:codec(AttrsBin1),
 	Attrs2 = radius_attributes:store(?NasPortType, 19, Attrs1),
@@ -111,10 +111,10 @@ store_new(Config) ->
 	SizeBin1 = size(AttrsBin1),
 	<<AttrsBin1:SizeBin1/binary, ?NasPortType, 6, 19:32>> = AttrsBin2.
 
-store_overwrite() ->
+store_exist() ->
 	[{userdata, [{doc, "Overwrite an existing attribute value"}]}].
 
-store_overwrite(Config) ->
+store_exist(Config) ->
 	AttrsBin1 = ?config(example_attributes, Config),
 	Attrs1 = radius_attributes:codec(AttrsBin1),
 	Attrs2 = radius_attributes:store(?NasPort, 17, Attrs1),
@@ -132,10 +132,10 @@ add(Config) ->
 	SizeBin1 = size(AttrsBin1),
 	<<AttrsBin1:SizeBin1/binary, ?PortLimit, 6, 1:32>> = AttrsBin2.
 
-fetch_existing() ->
+fetch_exist() ->
 	[{userdata, [{doc, "Get the value of an existing attribute"}]}].
 
-fetch_existing(Config) ->
+fetch_exist(Config) ->
 	AttrsBin = ?config(example_attributes, Config),
 	Attrs = radius_attributes:codec(AttrsBin),
 	"wlan0" = radius_attributes:fetch(?NasPortId, Attrs).
@@ -151,10 +151,10 @@ fetch_noexist(Config) ->
 			ok
 	end.
 
-find_existing() ->
+find_exist() ->
 	[{userdata, [{doc, "Look for the value of an existing attribute"}]}].
 
-find_existing(Config) ->
+find_exist(Config) ->
 	AttrsBin = ?config(example_attributes, Config),
 	Attrs = radius_attributes:codec(AttrsBin),
 	{ok, "wlan0"} = radius_attributes:find(?NasPortId, Attrs).
