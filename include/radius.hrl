@@ -237,9 +237,13 @@
 -define(RequestInitiated,                507).
 
 %% Vendor-Specific Private Enterprise Codes
+-define(Cisco,                             9).
 -define(Microsoft,                       311).
 -define(Ascend,                          529).
 -define(Mikrotik,                      14988).
+
+%% Cisco Vendor-Specific (sub)attributes
+-define(H323CallOrigin,                   26).
 
 %% Microsoft Vendor-Specific (sub)attributes
 -define(MsChapChallenge,                  11).

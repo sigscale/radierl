@@ -401,6 +401,15 @@ attribute(?State, Value, Acc) when size(Value) >= 1 ->
 attribute(?Class, Value, Acc) when size(Value) >= 1 ->
 	Class = binary_to_list(Value),
 	[{?Class, Class} | Acc];
+attribute(?VendorSpecific, <<0, ?Cisco:24, ?H323CallOrigin,
+		8, $a, $n, $s, $w, $e, $r>>, Acc) ->
+	[{?VendorSpecific, {?Cisco, {?H323CallOrigin, answer}}} | Acc];
+attribute(?VendorSpecific, <<0, ?Cisco:24, ?H323CallOrigin,
+		11, $o, $r, $i, $g, $i, $n, $a, $t, $e>>, Acc) ->
+	[{?VendorSpecific, {?Cisco, {?H323CallOrigin, originate}}} | Acc];
+attribute(?VendorSpecific, <<0, ?Cisco:24, ?H323CallOrigin,
+		10, $c, $a, $l, $l, $b, $a, $c, $k>>, Acc) ->
+	[{?VendorSpecific, {?Cisco, {?H323CallOrigin, originate}}} | Acc];
 attribute(?VendorSpecific, <<0, ?Microsoft:24, ?MsChapChallenge,
 		VendorLength, MsChapChallenge/binary>>, Acc)
 		when VendorLength > 2 ->
@@ -1154,6 +1163,14 @@ attributes([{?Class, Class} | T], Acc) ->
 	CL = list_to_binary(Class),
 	Length = size(CL) + 2,
 	attributes(T, <<Acc/binary, ?Class, Length, CL/binary>>);
+attributes([{?VendorSpecific, {?Cisco,
+		{?H323CallOrigin, CallOrigin}}} | T], Acc) when CallOrigin == answer;
+		CallOrigin == originate; CallOrigin == callback ->
+	CallOrigin = atom_to_binary(CallOrigin, latin1),
+	VendorLength = size(CallOrigin) + 2,
+	Length = VendorLength + 6,
+	attributes(T, <<Acc/binary, ?VendorSpecific, Length, 0, ?Cisco:24,
+			?H323CallOrigin, VendorLength, CallOrigin/binary>>);
 attributes([{?VendorSpecific, {?Microsoft,
 		{?MsChapChallenge, MsChapChallenge}}} | T], Acc)
 		when is_binary(MsChapChallenge) ->
