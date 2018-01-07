@@ -4,8 +4,8 @@
 ##
 ## Boilerplate:  standard boilerplate code
 ##
-AC_INIT([radius], [1.4.3], [vances@sigscale.org])
-AC_COPYRIGHT([Copyright (c) 2016-2017 SigScale Global Inc])
+AC_INIT([radius], [1.4.4], [vances@sigscale.org])
+AC_COPYRIGHT([Copyright (c) 2016-2018 SigScale Global Inc])
 AC_PREREQ(2.63)
 AC_LANG([Erlang])
 AC_CONFIG_SRCDIR([src/radius_app.erl])
