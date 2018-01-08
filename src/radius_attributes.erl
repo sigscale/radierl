@@ -1166,11 +1166,11 @@ attributes([{?Class, Class} | T], Acc) ->
 attributes([{?VendorSpecific, {?Cisco,
 		{?H323CallOrigin, CallOrigin}}} | T], Acc) when CallOrigin == answer;
 		CallOrigin == originate; CallOrigin == callback ->
-	CallOrigin = atom_to_binary(CallOrigin, latin1),
-	VendorLength = size(CallOrigin) + 2,
+	CallOriginB = atom_to_binary(CallOrigin, latin1),
+	VendorLength = size(CallOriginB) + 2,
 	Length = VendorLength + 6,
 	attributes(T, <<Acc/binary, ?VendorSpecific, Length, 0, ?Cisco:24,
-			?H323CallOrigin, VendorLength, CallOrigin/binary>>);
+			?H323CallOrigin, VendorLength, CallOriginB/binary>>);
 attributes([{?VendorSpecific, {?Microsoft,
 		{?MsChapChallenge, MsChapChallenge}}} | T], Acc)
 		when is_binary(MsChapChallenge) ->
