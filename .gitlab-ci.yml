@@ -2,7 +2,7 @@
 # https://gitlab.com/sigscale/radierl
 
 variables:
-  RADIUS_VERSION: 1.4.1
+  RADIUS_VERSION: 1.4.4
 
 .build:otp: &build_otp
   stage: build
@@ -49,7 +49,7 @@ build:otp-18:
 
 build:otp-17:
   <<: *build_otp
-  image: erlang:18
+  image: erlang:17
 
 .check:otp: &check_otp
   stage: test
