@@ -15,11 +15,17 @@ check_DATA = .dialyzer_ok .common_test_ok
 %.beam:$(top_srcdir)/test/%.erl $(top_srcdir)/include/radius.hrl
 	$(ERLC) $(ERLCFLAGS) -I $(top_srcdir)/include $<
 
-.common_test_ok:	$(addsuffix .beam, $(testmods)) sys.config
+sys.config:	$(top_srcdir)/test/sys.config
+	cp $< $@
+
+test.spec:	$(top_srcdir)/test/test.spec
+	cp $< $@
+
+ct.cfg:	$(top_srcdir)/test/ct.cfg
+	cp $< $@
+
+.common_test_ok:	$(addsuffix .beam, $(testmods)) sys.config ct.cfg test.spec
 	@if [ ! -d log ]; then mkdir log; fi
-	@if [ ! -f sys.config ]; then cp $(top_srcdir)/test/sys.config .; fi
-	@if [ ! -f ct.cfg ]; then cp $(top_srcdir)/test/ct.cfg .; fi
-	@if [ ! -f test.spec ]; then cp $(top_srcdir)/test/test.spec .; fi
 	for i in $(addsuffix _data,$(testmods)); do \
 		if [ -d $(top_srcdir)/test/$$i ]; then \
 			if [ ! -d $$i ]; then \
