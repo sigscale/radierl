@@ -95,8 +95,8 @@ pages:otp-18:
   stage: deploy
   script:
     - mkdir -p .public/doc .public/tests
-    - cp -r .build/otp-18.*/radius/test/log/* .public/tests
-    - cp -r .build/otp-18.*/radius/doc/* .public/doc
+    - cp -r .build/otp-18.*/radierl/test/log/* .public/tests
+    - cp -r .build/otp-18.*/radierl/doc/* .public/doc
     - mv .public public
   artifacts:
     when: always
@@ -111,8 +111,8 @@ pages:otp-19:
   stage: deploy
   script:
     - mkdir -p .public/doc .public/tests
-    - cp -r .build/otp-19.*/radius/test/log/* .public/tests
-    - cp -r .build/otp-19.*/radius/doc/* .public/doc
+    - cp -r .build/otp-19.*/radierl/test/log/* .public/tests
+    - cp -r .build/otp-19.*/radierl/doc/* .public/doc
     - mv .public public
   artifacts:
     when: always
@@ -127,8 +127,8 @@ pages:otp-20:
   stage: deploy
   script:
     - mkdir -p .public/doc .public/tests
-    - cp -r .build/otp-20.*/radius/test/log/* .public/tests
-    - cp -r .build/otp-20.*/radius/doc/* .public/doc
+    - cp -r .build/otp-20.*/radierl/test/log/* .public/tests
+    - cp -r .build/otp-20.*/radierl/doc/* .public/doc
     - mv .public public
   artifacts:
     when: always
