@@ -1,6 +1,11 @@
 # Configuration for GitLab CI/CD
 # https://gitlab.com/sigscale/radierl
 
+stages:
+  - build
+  - test
+  - deploy
+
 .build:otp: &build_otp
   stage: build
   image: erlang
@@ -85,4 +90,52 @@ check:otp-18:
   image: erlang:18
   dependencies:
     - build:otp-18
+
+pages:otp-18:
+  stage: deploy
+  script:
+    - mkdir -p .public/doc .public/tests
+    - cp -r .build/otp-18.*/radius/test/log/* .public/tests
+    - cp -r .build/otp-18.*/radius/doc/* .public/doc
+    - mv .public public
+  artifacts:
+    when: always
+    paths:
+      - public
+  dependencies:
+    - check:otp-18
+  # Temporary option
+  when: always
+
+pages:otp-19:
+  stage: deploy
+  script:
+    - mkdir -p .public/doc .public/tests
+    - cp -r .build/otp-19.*/radius/test/log/* .public/tests
+    - cp -r .build/otp-19.*/radius/doc/* .public/doc
+    - mv .public public
+  artifacts:
+    when: always
+    paths:
+      - public
+  dependencies:
+    - check:otp-19
+  # Temporary option
+  when: always
+
+pages:otp-20:
+  stage: deploy
+  script:
+    - mkdir -p .public/doc .public/tests
+    - cp -r .build/otp-20.*/radius/test/log/* .public/tests
+    - cp -r .build/otp-20.*/radius/doc/* .public/doc
+    - mv .public public
+  artifacts:
+    when: always
+    paths:
+      - public
+  dependencies:
+    - check:otp-20
+  # Temporary option
+  when: always
 
