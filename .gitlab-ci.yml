@@ -1,9 +1,6 @@
 # Configuration for GitLab CI/CD
 # https://gitlab.com/sigscale/radierl
 
-variables:
-  RADIUS_VERSION: 1.4.4
-
 .build:otp: &build_otp
   stage: build
   image: erlang
@@ -35,9 +32,13 @@ variables:
     paths:
       - .build/
 
+build:otp-21:
+  <<: *build_otp
+  image: erlang:21
+
 build:otp-20:
   <<: *build_otp
-  image: erlang:latest
+  image: erlang:20
 
 build:otp-19:
   <<: *build_otp
@@ -46,10 +47,6 @@ build:otp-19:
 build:otp-18:
   <<: *build_otp
   image: erlang:18
-
-build:otp-17:
-  <<: *build_otp
-  image: erlang:17
 
 .check:otp: &check_otp
   stage: test
@@ -64,6 +61,12 @@ build:otp-17:
     - cd ../examples
     - dialyzer --add_to_plt --apps radius
     - make check
+
+check:otp-21:
+  <<: *check_otp
+  image: erlang:21
+  dependencies:
+    - build:otp-21
 
 check:otp-20:
   <<: *check_otp
@@ -82,10 +85,4 @@ check:otp-18:
   image: erlang:18
   dependencies:
     - build:otp-18
-
-check:otp-17:
-  <<: *check_otp
-  image: erlang:17
-  dependencies:
-    - build:otp-17
 
