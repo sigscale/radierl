@@ -750,10 +750,12 @@ attribute(?VendorSpecific, <<0, ?Mikrotik:24, ?MikrotikWirelessMaxSignal,
 	Signal = binary_to_list(String),
 	[{?VendorSpecific, {?Mikrotik,
 			{?MikrotikWirelessMaxSignal, Signal}}} | Acc];
-attribute(?VendorSpecific, <<0, VendorID:24, Rest/binary>>, Acc)
+attribute(?VendorSpecific, <<0, VendorId:24, Rest/binary>>, Acc)
 		when size(Rest) >= 1 ->
-	VendorSpecific = {VendorID, Rest},
-	[{?VendorSpecific, VendorSpecific} | Acc];
+	% parse vendor specific attribute
+	{TypeLen, SizeLen, _HdrSize} = vsa_format(VendorId),
+	<<Attribute:TypeLen, _Size:SizeLen, BinValue/binary>> = Rest,
+	[{?VendorSpecific, {VendorId, {Attribute, BinValue}}} | Acc];
 attribute(?SessionTimeout, Value, Acc) when size(Value) == 4 ->
 	SessionTimeout = binary:decode_unsigned(Value),
 	[{?SessionTimeout, SessionTimeout} | Acc];
@@ -1631,8 +1633,12 @@ attributes([{?VendorSpecific, {?Mikrotik,
 	Length = VendorLength + 6,
 	attributes(T, <<Acc/binary, ?VendorSpecific, Length, 0, ?Mikrotik:24,
 			?MikrotikWirelessMaxSignal, VendorLength, Bin/binary>>);
-attributes([{?VendorSpecific, {VendorId, Bin}} | T], Acc)
-		when is_integer(VendorId), is_binary(Bin) ->
+attributes([{?VendorSpecific, {VendorId, {Attribute, BinValue}}} | T], Acc)
+		when is_integer(VendorId), is_binary(BinValue) ->
+
+	{TypeLen, SizeLen, HdrSize} = vsa_format(VendorId),
+	Size = size(BinValue) + HdrSize,
+	Bin = <<Attribute:TypeLen, Size:SizeLen, BinValue/binary>>,
 	Length = size(Bin) + 6,
 	attributes(T, <<Acc/binary, ?VendorSpecific, Length,
 			0, VendorId:24, Bin/binary>>);
@@ -2009,3 +2015,14 @@ attributes([{?WLANGroupMgmtCipher, {OUI, SuiteType}} | T], Acc) ->
 attributes([{?WLANRFBand, RfBand} | T], Acc) ->
 	attributes(T, <<Acc/binary, ?WLANRFBand, 6, 0:24, RfBand:8>>).
 
+
+% How much bits are used in the vendor specific attributes for the type and lengt.
+% This values was taken from the Wireshark.
+% Format: {TypeLen, SizeLen, HdrSize}
+% TypeLen and SizeLen are in bits, HdrSize is in bytes.
+
+vsa_format (8164)-> {16,16, 4}; % Starent
+vsa_format (637) -> {16, 8, 3}; % Alcatel-ESAM
+vsa_format (54)  -> {16, 8, 3}; % DHCP
+vsa_format (4846)-> {16, 8, 3}; % Lucent
+vsa_format (_)   -> { 8, 8, 2}. % default value (accordings to RFC)
