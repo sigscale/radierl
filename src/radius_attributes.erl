@@ -750,6 +750,27 @@ attribute(?VendorSpecific, <<0, ?Mikrotik:24, ?MikrotikWirelessMaxSignal,
 	Signal = binary_to_list(String),
 	[{?VendorSpecific, {?Mikrotik,
 			{?MikrotikWirelessMaxSignal, Signal}}} | Acc];
+attribute(?VendorSpecific, <<0, ?'3GPP':24, ?'3GPP-IMSI',
+		VendorLength, IMSI/binary>>, Acc) when VendorLength > 2 ->
+	[{?VendorSpecific, {?'3GPP',
+			{?'3GPP-IMSI', IMSI}}} | Acc];
+attribute(?VendorSpecific, <<0, ?'3GPP':24, ?'3GPP-Charging-ID',
+		6, ChargingID:32>>, Acc) ->
+	[{?VendorSpecific, {?'3GPP',
+			{?'3GPP-Charging-ID', ChargingID}}} | Acc];
+attribute(?VendorSpecific, <<0, ?'3GPP':24, ?'3GPP-PDP-Type',
+		6, PDPType:32>>, Acc) ->
+	[{?VendorSpecific, {?'3GPP',
+			{?'3GPP-PDP-Type', PDPType}}} | Acc];
+attribute(?VendorSpecific, <<0, ?'3GPP':24, ?'3GPP-RAT-Type',
+		3, RATType:8>>, Acc) ->
+	[{?VendorSpecific, {?'3GPP',
+			{?'3GPP-PDP-Type', RATType}}} | Acc];
+attribute(?VendorSpecific, <<0, ?'3GPP':24, ?'TWAN-Identifier',
+		VendorLength, Bin/binary>>, Acc) when VendorLength > 2 ->
+	TWANIdentifier = binary_to_list(Bin),
+	[{?VendorSpecific, {?'3GPP',
+			{?'TWAN-Identifier', TWANIdentifier}}} | Acc];
 attribute(?VendorSpecific, <<0, VendorID:24, Rest/binary>>, Acc)
 		when size(Rest) >= 1 ->
 	VendorSpecific = {VendorID, Rest},
@@ -1631,6 +1652,31 @@ attributes([{?VendorSpecific, {?Mikrotik,
 	Length = VendorLength + 6,
 	attributes(T, <<Acc/binary, ?VendorSpecific, Length, 0, ?Mikrotik:24,
 			?MikrotikWirelessMaxSignal, VendorLength, Bin/binary>>);
+attributes([{?VendorSpecific, {?'3GPP',
+		{?'3GPP-IMSI', IMSI}}} | T], Acc) when is_binary(IMSI) ->
+	VendorLength = size(IMSI) + 2,
+	Length = VendorLength + 6,
+	attributes(T, <<Acc/binary, ?VendorSpecific, Length, 0, ?'3GPP':24,
+			?'3GPP-IMSI', VendorLength, IMSI/binary>>);
+attributes([{?VendorSpecific, {?'3GPP',
+		{?'3GPP-Charging-ID', ChargingID}}} | T], Acc) when is_integer(ChargingID) ->
+	attributes(T, <<Acc/binary, ?VendorSpecific, 12, 0, ?'3GPP':24,
+			?'3GPP-Charging-ID', 6, ChargingID:32>>);
+attributes([{?VendorSpecific, {?'3GPP',
+		{?'3GPP-PDP-Type', PDPType}}} | T], Acc) when is_integer(PDPType) ->
+	attributes(T, <<Acc/binary, ?VendorSpecific, 12, 0, ?'3GPP':24,
+			?'3GPP-PDP-Type', 6, PDPType:32>>);
+attributes([{?VendorSpecific, {?'3GPP',
+		{?'3GPP-RAT-Type', RATType}}} | T], Acc) when is_integer(RATType) ->
+	attributes(T, <<Acc/binary, ?VendorSpecific, 12, 0, ?'3GPP':24,
+			?'3GPP-RAT-Type', 3, RATType:8>>);
+attributes([{?VendorSpecific, {?'3GPP',
+		{?'TWAN-Identifier', TWANIdentifier}}} | T], Acc) when is_list(TWANIdentifier) ->
+	Bin = list_to_binary(TWANIdentifier),
+	VendorLength = size(Bin) + 2,
+	Length = VendorLength + 6,
+	attributes(T, <<Acc/binary, ?VendorSpecific, Length, 0, ?'3GPP':24,
+			?'3GPP-Charging-ID', VendorLength, Bin/binary>>);
 attributes([{?VendorSpecific, {VendorId, Bin}} | T], Acc)
 		when is_integer(VendorId), is_binary(Bin) ->
 	Length = size(Bin) + 6,

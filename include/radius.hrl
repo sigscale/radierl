@@ -241,6 +241,7 @@
 -define(Microsoft,                       311).
 -define(Ascend,                          529).
 -define(Mikrotik,                      14988).
+-define('3GPP',                        10415).
 
 %% Cisco Vendor-Specific (sub)attributes
 -define(H323CallOrigin,                   26).
@@ -314,4 +315,11 @@
 -define(MikrotikWirelessVlanIdType,       27).
 -define(MikrotikWirelessMinSignal,        28).
 -define(MikrotikWirelessMaxSignal,        29).
+
+%% 3GPP Vendor-Specific (sub)attributes
+-define('3GPP-IMSI',                       1).
+-define('3GPP-Charging-ID',                2).
+-define('3GPP-PDP-Type',                   3).
+-define('3GPP-RAT-Type',                  21).
+-define('TWAN-Identifier',                29).
 
