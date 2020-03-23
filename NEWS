@@ -1,3 +1,8 @@
+March 23, 2020
+---------------
+	- version changed to 1.4.5
+	- add 3gpp vendor specific attributes needed for non-3gpp access to 3gppp
+
 January 7, 2018
 ---------------
 	- version changed to 1.4.4

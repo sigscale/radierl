@@ -1,3 +1,7 @@
+2020-03-23  Vance Shipley <vances@sigscale.org>
+
+	* radius_attributes.erl: add 3gpp vendor specific attributes
+
 2018-01-07  Vance Shipley <vances@sigscale.org>
 
 	* radius_attributes.erl: add cisco vsa for call origin
