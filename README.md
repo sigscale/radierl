@@ -1,6 +1,6 @@
 # Radierl
 
-The radierl project implements a RADIUS protocol in Erlang. It is used
+The radierl project implements a RADIUS protocol stack in Erlang. It is used
 to build embedded RADIUS servers for applications such as authentication,
 authorization and accounting (AAA) servers.
 
