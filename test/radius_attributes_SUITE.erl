@@ -42,7 +42,25 @@
 %% common_test required callbacks
 -export([suite/0, init_per_suite/1, end_per_suite/1, sequences/0, all/0]).
 
--compile(export_all).
+-export([store_noexist/0, store_noexist/1,
+		store_exist/0, store_exist/1,
+		store_vendor_noexist/0, store_vendor_noexist/1,
+		store_vendor_exist/0, store_vendor_exist/1,
+		add/0, add/1,
+		add_vendor/0, add_vendor/1,
+		fetch_exist/0, fetch_exist/1,
+		fetch_noexist/0, fetch_noexist/1,
+		fetch_vendor_exist/0, fetch_vendor_exist/1,
+		fetch_vendor_noexist/0, fetch_vendor_noexist/1,
+		find_exist/0, find_exist/1,
+		find_noexist/0, find_noexist/1,
+		find_vendor_exist/0, find_vendor_exist/1,
+		find_vendor_noexist/0, find_vendor_noexist/1,
+		get_all/0, get_all/1,
+		password/0, password/1,
+		example1/0, example1/1,
+		example2/0, example2/1,
+		example3/0, example3/1]).
 
 -include_lib("common_test/include/ct.hrl").
 -include("radius.hrl").

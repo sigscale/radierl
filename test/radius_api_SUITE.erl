@@ -44,7 +44,10 @@
 -export([init_per_suite/1, end_per_suite/1]).
 -export([init_per_testcase/2, end_per_testcase/2]).
 
--compile(export_all).
+-export([start_and_stop/0, start_and_stop/1,
+		access_request/0, access_request/1,
+		wait_response/0, wait_response/1,
+		lost_response/0, lost_response/1]).
 
 -include_lib("common_test/include/ct.hrl").
 -include("radius.hrl").
