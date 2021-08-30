@@ -46,7 +46,7 @@
 %%
 init(_Args) ->
 	StartMod = radius_fsm,
-	StartFunc = {gen_fsm, start_link, [StartMod]},
+	StartFunc = {gen_statem, start_link, [StartMod]},
 	ChildSpec = {StartMod, StartFunc, temporary, 4000, worker, [StartMod]},
 	{ok, {{simple_one_for_one, 10, 60}, [ChildSpec]}}.
 

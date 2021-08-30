@@ -213,7 +213,7 @@ handle_info({udp, Socket, Address, Port,
 		none ->
 			start_fsm(State, Address, Port, Identifier, Packet);
 		{value, Fsm} ->
-			gen_fsm:send_event(Fsm, Packet),
+			gen_statem:cast(Fsm, Packet),
 			State
 	end,
 	case inet:setopts(Socket, [{active, once}]) of
@@ -284,7 +284,7 @@ start_fsm(#state{socket = Socket, module = Module, user_state = UserState,
 	case supervisor:start_child(Sup, ChildSpec) of
 		{ok, Fsm} ->
 			link(Fsm),
-			gen_fsm:send_event(Fsm, Packet),
+			gen_statem:cast(Fsm, Packet),
 			Key = {Address, Port, Identifier},
 			NewHandlers = gb_trees:insert(Key, Fsm, Handlers),
 			State#state{handlers = NewHandlers};

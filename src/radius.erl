@@ -269,9 +269,9 @@ authenticator() ->
 %% @doc Send a delayed response to a {@link //radius/radius_fsm. radius_fsm}.
 response(RadiusFsm, {response, Response})
 		when is_pid(RadiusFsm), is_binary(Response) ->
-	gen_fsm:send_event(RadiusFsm, {response, Response});
+	gen_statem:cast(RadiusFsm, {response, Response});
 response(RadiusFsm, {error, Reason}) when is_pid(RadiusFsm) ->
-	gen_fsm:send_event(RadiusFsm, {error, Reason}).
+	gen_statem:cast(RadiusFsm, {error, Reason}).
 
 %%----------------------------------------------------------------------
 %%  The radius private API
