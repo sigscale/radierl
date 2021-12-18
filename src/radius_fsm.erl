@@ -175,7 +175,7 @@ wait_for_response(cast, <<_Code, Identifier,
 		Authenticator:16/binary, _/binary>> = _Event,
 		#statedata{identifier = Identifier,
 				authenticator = Authenticator} = _StateData) ->
-		{keep_state_and_dataa, ?WAITRETRIES};
+		{keep_state_and_data, ?WAITRETRIES};
 wait_for_response(cast, {response, RadiusResponse}, #statedata{socket = Socket,
 		address = Address, port = Port} = StateData) ->
 	NewStateData = StateData#statedata{response = RadiusResponse},
