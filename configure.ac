@@ -4,7 +4,7 @@
 ##
 ## Boilerplate:  standard boilerplate code
 ##
-AC_INIT([radius], [1.4.5], [vances@sigscale.org])
+AC_INIT([radius], [1.4.6], [vances@sigscale.org])
 AC_COPYRIGHT([Copyright (c) 2016-2020 SigScale Global Inc])
 AC_PREREQ(2.63)
 AC_LANG([Erlang])

@@ -1,3 +1,13 @@
+2021-12-18  Vance Shipley <vances@sigscale.org>
+
+	* typo in radius_fsm state handler return (serious bug)
+
+2021-08-30  Vance Shipley <vances@sigscale.org>
+
+	* modernize diagrams
+	* port fsm to gen_statem
+	* explicit exports in test suites
+
 2020-03-23  Vance Shipley <vances@sigscale.org>
 
 	* radius_attributes.erl: add 3gpp vendor specific attributes
