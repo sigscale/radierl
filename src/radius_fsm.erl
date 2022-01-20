@@ -156,7 +156,7 @@ idle(cast, <<_Code, Identifier, Authenticator:16/binary, _/binary>> = _Event,
 	end;
 idle(info, {'EXIT', _, shutdown}, _StateData) ->
 	keep_state_and_data;
-idle(state_timeout, _,
+idle(timeout, _,
 		#statedata{address = Address, port = Port,
 		identifier = Identifier} = StateData) ->
 	Id = {Address, Port, Identifier},
