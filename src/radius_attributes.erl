@@ -957,6 +957,9 @@ attribute(?NasIPv6Address, <<A:16, B:16, C:16, D:16,
 attribute(?FramedInterfaceId, Value, Acc) when size(Value) == 8 ->
 	InterfaceID= binary_to_list(Value),
 	[{?FramedInterfaceId, InterfaceID} | Acc];
+attribute(?FramedIPv6Address, <<A:16, B:16, C:16, D:16,
+		E:16, F:16, G:16, H:16>>, Acc) ->
+	[{?FramedIPv6Address, {A, B, C, D, E, F, G, H}} | Acc];
 attribute(?FramedIPv6Prefix, <<0, PrefixLength, Prefix/binary>>, Acc) ->
 	[{?FramedIPv6Prefix, {PrefixLength, Prefix}} | Acc];
 attribute(?LoginIPv6Host, <<A:16, B:16, C:16, D:16,
@@ -1868,6 +1871,9 @@ attributes([{?NasIPv6Address, {A, B, C, D, E, F, G, H}} | T], Acc) ->
 attributes([{?FramedInterfaceId, InterfaceID} | T], Acc) ->
 	S = list_to_binary(InterfaceID),
 	attributes(T, <<Acc/binary, ?FramedInterfaceId, 10, S/binary>>);
+attributes([{?FramedIPv6Address, {A, B, C, D, E, F, G, H}} | T], Acc) ->
+	attributes(T, <<Acc/binary, ?FramedIPv6Address, 18, A:16, B:16, C:16,
+			D:16, E:16, F:16, G:16, H:16>>);
 attributes([{?FramedIPv6Prefix, {PrefixLength, Prefix}} | T], Acc) ->
 	Length = size(Prefix) + 4,
 	attributes(T, <<Acc/binary, ?FramedIPv6Prefix, Length, 0,
