@@ -1,9 +1,9 @@
 %%%---------------------------------------------------------------------
-%%% @copyright 2016-2017 SigScale Global Inc
+%%% @copyright 2016-2024 SigScale Global Inc
 %%% @author Vance Shipley <vances@sigscale.org> [http://www.sigscale.org]
 %%% @end
 %%%
-%%% Copyright (c) 2016-2017, SigScale Global Inc
+%%% Copyright (c) 2016-2024, SigScale Global Inc
 %%% 
 %%% All rights reserved.
 %%% 
@@ -38,7 +38,7 @@
 %%% 		{@link //radius_example. radius_example} application.
 %%%
 -module(radius_example).
--copyright('Copyright (c) 2016-2017 SigScale Global Inc').
+-copyright('Copyright (c) 2016-2024 SigScale Global Inc').
 -author('vances@sigscale.org').
 
 %% export the radius_example public API

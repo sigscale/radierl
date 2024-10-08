@@ -1,9 +1,9 @@
 %%%---------------------------------------------------------------------
-%%% @copyright 2016-2017 SigScale Global Inc
+%%% @copyright 2016-2024 SigScale Global Inc
 %%% @author Vance Shipley <vances@sigscale.org> [http://www.sigscale.org]
 %%% @end
 %%%
-%%% Copyright (c) 2016-2017, SigScale Global Inc
+%%% Copyright (c) 2016-2024, SigScale Global Inc
 %%% 
 %%% All rights reserved.
 %%% 
@@ -37,7 +37,7 @@
 %%% @docfile "{@docsrc radius_example_sup.edoc}"
 %%%
 -module(radius_example_authentication_sup).
--copyright('Copyright (c) 2016-2017 SigScale Global Inc').
+-copyright('Copyright (c) 2016-2024 SigScale Global Inc').
 -author('vances@sigscale.org').
 
 -behaviour(supervisor_bridge).
