@@ -70,5 +70,6 @@ AC_ERLANG_CHECK_LIB([crypto], [], [AC_MSG_ERROR([crypto was not found!])])
 ##
 ## Output:  create output files
 ## 
-AC_OUTPUT([Makefile include/Makefile ebin/Makefile doc/Makefile test/Makefile])
+AC_OUTPUT([Makefile include/Makefile ebin/Makefile
+		doc/Makefile test/Makefile ebin/$PACKAGE_NAME.appup])
 

@@ -3,8 +3,8 @@
 ## Process this file with automake to produce Makefile.in
 
 appdir = $(beamdir)
-app_DATA = radius.app
-EXTRA_DIST = radius.app
+app_DATA = radius.app radius.appup
+EXTRA_DIST = radius.app radius.appup
 
 beam_DATA = radius.beam \
 		radius_app.beam \
