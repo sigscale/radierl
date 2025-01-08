@@ -1,10 +1,10 @@
 %%% radius_fsm.erl
 %%%---------------------------------------------------------------------
-%%% @copyright 2016-2024 SigScale Global Inc
+%%% @copyright 2016-2025 SigScale Global Inc
 %%% @author Vance Shipley <vances@sigscale.org> [http://www.sigscale.org]
 %%% @end
 %%%
-%%% Copyright (c) 2016-2024, SigScale Global Inc
+%%% Copyright (c) 2016-2025, SigScale Global Inc
 %%% 
 %%% All rights reserved.
 %%% 
@@ -34,7 +34,7 @@
 %%% 	<img alt="Figure-1.1" src="../examples/doc/callbacks-request.png" />
 %%%
 -module(radius_fsm).
--copyright('Copyright (c) 2016-2024 SigScale Global Inc').
+-copyright('Copyright (c) 2016-2025 SigScale Global Inc').
 -author('vances@sigscale.org').
 
 -behaviour(gen_statem).

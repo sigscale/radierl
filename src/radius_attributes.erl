@@ -1,9 +1,9 @@
 %%%---------------------------------------------------------------------
-%%% @copyright 2016-2024 SigScale Global Inc
+%%% @copyright 2016-2025 SigScale Global Inc
 %%% @author Vance Shipley <vances@sigscale.org> [http://www.sigscale.org]
 %%% @end
 %%%
-%%% Copyright (c) 2016-2024, SigScale Global Inc
+%%% Copyright (c) 2016-2025, SigScale Global Inc
 %%%
 %%% All rights reserved.
 %%%
@@ -24,7 +24,7 @@
 %%% 		{@link //radius. radius} application.
 %%%
 -module(radius_attributes).
--copyright('Copyright (c) 2016-2024 SigScale Global Inc').
+-copyright('Copyright (c) 2016-2025 SigScale Global Inc').
 -author('vances@sigscale.org').
 
 %% export the radius_attributes public API
@@ -337,7 +337,7 @@ attribute(?ChapPassword, Value, Acc) when size(Value) == 17 ->
 	ChapId= binary:first(Value),
 	ChapPassword = binary:bin_to_list(Value, 1, 16),
 	[{?ChapPassword, {ChapId, ChapPassword}} | Acc];
-attribute(?NasIpAddress, Value, Acc) when size(Value) == 4 ->
+attribute(?NasIpAddress, Value, Acc) when byte_size(Value) == 4 ->
 	NasIpAddress = {binary:first(Value), binary:at(Value, 1),
 			binary:at(Value, 2), binary:at(Value, 3)},
 	[{?NasIpAddress, NasIpAddress} | Acc];
