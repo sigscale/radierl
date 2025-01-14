@@ -1,0 +1,2 @@
+[{radius,
+      [{sock_opts, [{recbuf, 131072}, {sndbuf, 131072}]}]}].

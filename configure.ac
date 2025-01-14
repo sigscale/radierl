@@ -34,21 +34,31 @@ AC_ERLANG_SUBST_LIB_DIR
 if test -z "${ERLANG_INSTALL_LIB_DIR}" ; then
 	ERLANG_INSTALL_LIB_DIR=$ERLANG_LIB_DIR
 fi
+AC_ERLANG_SUBST_ROOT_DIR
+AC_PROG_MKDIR_P
 AC_PROG_INSTALL
+AC_PROG_LN_S
 AC_ERLANG_SUBST_INSTALL_LIB_DIR
 appdir=$ERLANG_INSTALL_LIB_DIR/$PACKAGE_NAME-$PACKAGE_VERSION
 beamdir=$ERLANG_INSTALL_LIB_DIR/$PACKAGE_NAME-$PACKAGE_VERSION/ebin
 eincludedir=$ERLANG_INSTALL_LIB_DIR/$PACKAGE_NAME-$PACKAGE_VERSION/include
 docdir=$ERLANG_INSTALL_LIB_DIR/$PACKAGE_NAME-$PACKAGE_VERSION/doc
+reldir=$ERLANG_INSTALL_LIB_DIR/../releases
 AC_SUBST(appdir)
 AC_SUBST(beamdir)
 AC_SUBST(eincludedir)
+AC_SUBST(reldir)
 
 
 ##
 ## Libraries:  check for libraries
 ##
+AC_ERLANG_CHECK_LIB([kernel], [], [AC_MSG_ERROR([kernel was not found!])])
+AC_ERLANG_CHECK_LIB([stdlib], [], [AC_MSG_ERROR([stdlib was not found!])])
 AC_ERLANG_CHECK_LIB([crypto], [], [AC_MSG_ERROR([crypto was not found!])])
+AC_ERLANG_CHECK_LIB([sasl], [], [AC_MSG_ERROR([sasl was not found!])])
+AM_CONDITIONAL([MAKE_TAR_EXTRA_FILES],
+		[AS_VERSION_COMPARE([$ERLANG_LIB_VER_sasl], ["4.0"], [false], [true], [true])])
 
 
 ##
@@ -71,5 +81,6 @@ AC_ERLANG_CHECK_LIB([crypto], [], [AC_MSG_ERROR([crypto was not found!])])
 ## Output:  create output files
 ## 
 AC_OUTPUT([Makefile include/Makefile ebin/Makefile
-		doc/Makefile test/Makefile ebin/$PACKAGE_NAME.appup])
+		doc/Makefile test/Makefile
+		$PACKAGE_NAME.rel ebin/$PACKAGE_NAME.appup sys.config])
 
