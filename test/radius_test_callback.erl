@@ -49,7 +49,7 @@
 
 %% @spec (Port, Opts) -> Result
 %% 	Port = integer()
-%% 	Opts = list()
+%% 	Opts = radius:options()
 %% 	Result = {ok, State} | {error, Reason}
 %% 	State = term()
 %% 	Reason = term()

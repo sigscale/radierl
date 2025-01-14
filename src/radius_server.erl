@@ -73,7 +73,7 @@
 		| {stop, Reason :: term()} | ignore.
 %% @doc Initialize the {@module} server.
 %% 	Args :: [Sup :: pid(), Module :: atom(), Port :: non_neg_integer(),
-%% 	Opts :: list().
+%% 	Opts :: radius:options().
 %% @see //stdlib/gen_server:init/1
 %% @private
 %%
@@ -92,6 +92,36 @@ init([Sup, Module, Port, Opts] = _Args) ->
 				throw(Reason1)
 		end,
 		case Module:init(Address, PortOpened) of
+			{ok, UserState} ->
+				#state{sup = Sup, socket = Socket, address = Address,
+						port = PortOpened, module = Module,
+						user_state = UserState};
+			{error, Reason2} ->
+				throw(Reason2)
+		end
+	of
+		State ->
+			process_flag(trap_exit, true),
+			{ok, State, 0}
+	catch
+		_:Error->
+			{stop, Error}
+	end;
+init([Sup, Module, Args, Port, Opts] = _Args) ->
+	try
+		{Address, PortOpened, Socket} = case gen_udp:open(Port,
+				Opts ++ [{active, once}, binary]) of
+			{ok, S} ->
+				case inet:sockname(S) of
+					{ok, {A, P}} ->
+						{A, P, S};
+					{error, Reason1} ->
+						throw(Reason1)
+				end;
+			{error, Reason1} ->
+				throw(Reason1)
+		end,
+		case Module:init(Address, PortOpened, Args) of
 			{ok, UserState} ->
 				#state{sup = Sup, socket = Socket, address = Address,
 						port = PortOpened, module = Module,

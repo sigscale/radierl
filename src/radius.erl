@@ -31,7 +31,20 @@
 %%% 		<li><tt>Module = atom()</tt></li>
 %%% 		<li><tt>Address = {@link //kernel/inet:ip_address(). ip_address()}</tt></li>
 %%% 		<li><tt>Port = {@link //kernel/inet:port_number(). port_number()}</tt></li>
-%%% 		<li><tt>Opts = list()</tt></li>
+%%% 		<li><tt>State = any()</tt></li>
+%%% 		<li><tt>Reason = term()</tt></li>
+%%%	</ul></div>
+%%%
+%%% 	Equivalent to <tt>init(Address, Port, [])</tt> (deprecated).
+%%%
+%%% 	<h3 class="function">Module:init/3</h3>
+%%% 	<div class="spec">
+%%% 	<b><tt>Module:init(Address, Port, Args) -> {ok, State} {error, Reason}</tt></b>
+%%% 	<ul class="definitions">
+%%% 		<li><tt>Module = atom()</tt></li>
+%%% 		<li><tt>Address = {@link //kernel/inet:ip_address(). ip_address()}</tt></li>
+%%% 		<li><tt>Port = {@link //kernel/inet:port_number(). port_number()}</tt></li>
+%%% 		<li><tt>Args = [term()]</tt></li>
 %%% 		<li><tt>State = any()</tt></li>
 %%% 		<li><tt>Reason = term()</tt></li>
 %%%	</ul></div>
@@ -47,6 +60,9 @@
 %%% 	<tt>Port</tt> is the {@link //kernel/inet:port_number(). port_number()}
 %%% 	which the {@link //kernel/inet:socket(). socket()} is listening on.
 %%% 
+%%% 	<tt>Args</tt> may provide additional arguments to parameterize the
+%%% 	{@link //radius/radius_server. radius_server} instance.
+%%%
 %%% 	This function should return <tt>{ok, State}</tt> if the callback handler
 %%% 	will be able service RADIUS requests on this
 %%% 	{@link //radius/radius_server. radius_server} or
@@ -119,23 +135,37 @@
 -author('vances@sigscale.org').
 
 %% export the radius public API
--export([start/2, start/3, start_link/2, start_link/3, stop/1]).
+-export([start/2, start/3, start/4, start_link/2,
+		start_link/3, start_link/4, stop/1]).
 -export([codec/1, authenticator/0, response/2]).
 
 %% export the radius private API
 -export([port/1]).
 
+-export_type([options/0]).
+
 %% define the functions a radius callback module must export
 -callback init(Address :: inet:ip_address(), Port :: integer()) ->
+	{ok, State :: term()} | {error, Reason :: term()}.
+-callback init(Address :: inet:ip_address(), Port :: integer(),
+		Args :: [term()]) ->
 	{ok, State :: term()} | {error, Reason :: term()}.
 -callback request(Address :: inet:ip_address(), Port :: integer(),
 		Packet :: binary(), State :: term()) ->
 	{ok, Response :: binary()} | {ok, wait}
 		| {error, Reason :: ignore | term()}.
 -callback terminate(Reason :: term(), State :: term()) -> any().
+%% list optional functions a radius callback module may export
+-optional_callbacks([init/3]).
 
 %% @headerfile "radius.hrl"
 -include("radius.hrl").
+
+-type options() :: [{ip, inet:socket_address()} |
+		{fd, non_neg_integer()} |
+		inet:address_family() |
+		{port, inet:port_number()} |
+		gen_udp:option()].
 
 %%----------------------------------------------------------------------
 %%  The radius public API
@@ -159,11 +189,7 @@ start(Module, Port) when is_atom(Module), is_integer(Port) ->
 	when
 		Module :: atom(),
 		Port :: non_neg_integer(),
-		Opts :: [{ip, inet:socket_address()} |
-				{fd, non_neg_integer()} |
-				inet:address_family() |
-				{port, inet:port_number()} |
-				gen_udp:option()],
+		Opts :: options(),
 		Pid :: pid(),
 		Reason :: already_present | {already_started, Pid} | term().
 %% @doc Start a RADIUS protocol server using the callback module
@@ -174,6 +200,24 @@ start(Module, Port, Opts) when is_atom(Module),
 		is_integer(Port), is_list(Opts) ->
 	{ok, EnvOpts} = application:get_env(radius, sock_opts),
 	supervisor:start_child(radius, [[Module, Port, EnvOpts ++ Opts]]).
+
+-spec start(Module, Args, Port, Opts) ->
+		{ok, Pid} | {error, Reason}
+	when
+		Module :: atom(),
+		Args :: [term()],
+		Port :: non_neg_integer(),
+		Opts :: options(),
+		Pid :: pid(),
+		Reason :: already_present | {already_started, Pid} | term().
+%% @doc Start a RADIUS protocol server using the callback module
+%% 	`Module' listening on `Port'.
+%% @see //kernel/gen_udp:open/2
+%%
+start(Module, Args, Port, Opts) when is_atom(Module),
+		is_list(Args), is_integer(Port), is_list(Opts) ->
+	{ok, EnvOpts} = application:get_env(radius, sock_opts),
+	supervisor:start_child(radius, [[Module, Args, Port, EnvOpts ++ Opts]]).
 
 -spec start_link(Module, Port) ->
 		{ok, Pid} | {error, Reason}
@@ -199,11 +243,7 @@ start_link(Module, Port) ->
 	when
 		Module :: atom(),
 		Port :: non_neg_integer(),
-		Opts :: [{ip, inet:socket_address()} |
-				{fd, non_neg_integer()} |
-				inet:address_family() |
-				{port, inet:port_number()} |
-				gen_udp:option()],
+		Opts :: options(),
 		Pid :: pid(),
 		Reason :: already_present | {already_started, Pid} | term().
 %% @doc Start a RADIUS protocol server as part of a supervision tree
@@ -212,6 +252,28 @@ start_link(Module, Port) ->
 %%
 start_link(Module, Port, Opts) ->
 	case start(Module, Port, Opts) of
+		{ok, Sup} ->
+			link(Sup),
+			{ok, Sup};
+		{error, Reason} ->
+			{error, Reason}
+	end.
+
+-spec start_link(Module, Args, Port, Opts) ->
+		{ok, Pid} | {error, Reason}
+	when
+		Module :: atom(),
+		Args :: [term()],
+		Port :: non_neg_integer(),
+		Opts :: options(),
+		Pid :: pid(),
+		Reason :: already_present | {already_started, Pid} | term().
+%% @doc Start a RADIUS protocol server as part of a supervision tree
+%% 	using the callback module `Module' listening on `Port'.
+%% @see //kernel/gen_udp:open/2
+%%
+start_link(Module, Args, Port, Opts) ->
+	case start(Module, Args, Port, Opts) of
 		{ok, Sup} ->
 			link(Sup),
 			{ok, Sup};
