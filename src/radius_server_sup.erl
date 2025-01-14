@@ -46,6 +46,9 @@
 %%
 init([Module, Port, Opts]) ->
 	ChildSpecs = [fsm_sup(), server(Module, Port, Opts)],
+	{ok, {{one_for_all, 10, 3600}, ChildSpecs}};
+init([Module, Args, Port, Opts]) ->
+	ChildSpecs = [fsm_sup(), server(Module, Args, Port, Opts)],
 	{ok, {{one_for_all, 10, 3600}, ChildSpecs}}.
 
 %% @hidden
@@ -58,6 +61,13 @@ fsm_sup() ->
 server(Module, Port, Opts) ->
 	StartMod = radius_server,
 	StartArgs = [StartMod, [self(), Module, Port, Opts], []],
+	StartFunc = {gen_server, start_link, StartArgs},
+	{StartMod, StartFunc, transient, 4000, worker, [StartMod]}.
+
+%% @hidden
+server(Module, Args, Port, Opts) ->
+	StartMod = radius_server,
+	StartArgs = [StartMod, [self(), Module, Args, Port, Opts], []],
 	StartFunc = {gen_server, start_link, StartArgs},
 	{StartMod, StartFunc, transient, 4000, worker, [StartMod]}.
 
