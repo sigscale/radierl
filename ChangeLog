@@ -1,3 +1,8 @@
+2025-01-14  Vance Shipley <vances@sigscale.org>
+
+	* refactor to support extra start arguments
+	* build instructions readme
+
 2024-10-08  Vance Shipley <vances@sigscale.org>
 
 	* update copyright year
