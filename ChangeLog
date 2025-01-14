@@ -1,5 +1,7 @@
 2025-01-14  Vance Shipley <vances@sigscale.org>
 
+	* build a release package
+	* start radius server with either init/3 or init/4
 	* refactor to support extra start arguments
 	* build instructions readme
 
