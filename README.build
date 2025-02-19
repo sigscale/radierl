@@ -10,8 +10,8 @@ mkdir -p shell/lib
 ## Make documentation and test reports available
 mkdir -p ~/public_html/radius
 ln -st ~/public_html/radius ../../radius.build/doc
-ln -st ~/public_html/sccp ../../radius.build/test/log
-mv ~/public_html/sccp/log ~/public_html/radius/test
+ln -st ~/public_html/radius ../../radius.build/test/log
+mv ~/public_html/radius/log ~/public_html/radius/test
 
 ## Configure project
 ERLANG_INSTALL_LIB_DIR=$PWD/shell/lib ../radierl/configure
