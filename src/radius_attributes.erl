@@ -765,7 +765,7 @@ attribute(?VendorSpecific, <<0, ?'3GPP':24, ?'3GPP-PDP-Type',
 attribute(?VendorSpecific, <<0, ?'3GPP':24, ?'3GPP-RAT-Type',
 		3, RATType:8>>, Acc) ->
 	[{?VendorSpecific, {?'3GPP',
-			{?'3GPP-PDP-Type', RATType}}} | Acc];
+			{?'3GPP-RAT-Type', RATType}}} | Acc];
 attribute(?VendorSpecific, <<0, ?'3GPP':24, ?'TWAN-Identifier',
 		VendorLength, Bin/binary>>, Acc) when VendorLength > 2 ->
 	TWANIdentifier = binary_to_list(Bin),
