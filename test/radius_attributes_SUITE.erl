@@ -74,7 +74,10 @@
 %% @doc Require variables and set default values for the suite.
 %%
 suite() ->
-	[].
+	Description = "Test suite for attributes public API",
+	ct:comment(Description),
+	[{userdata, [{doc, Description}]},
+	{timetrap, {minutes, 1}}].
 
 %% @spec (Config) -> Config
 %% 	Config = [tuple()]
@@ -126,7 +129,9 @@ all() ->
 %%---------------------------------------------------------------------
 
 store_noexist() ->
-	[{userdata, [{doc, "Store a new attribute value"}]}].
+	Description = "Store a new attribute value",
+	ct:comment(Description),
+	[{userdata, [{doc, Description}]}].
 
 store_noexist(Config) ->
 	AttrsBin1 = ?config(example_attributes, Config),
@@ -137,7 +142,9 @@ store_noexist(Config) ->
 	<<AttrsBin1:SizeBin1/binary, ?NasPortType, 6, 19:32>> = AttrsBin2.
 
 store_exist() ->
-	[{userdata, [{doc, "Overwrite an existing attribute value"}]}].
+	Description = "Overwrite an existing attribute value",
+	ct:comment(Description),
+	[{userdata, [{doc, Description}]}].
 
 store_exist(Config) ->
 	AttrsBin1 = ?config(example_attributes, Config),
@@ -147,7 +154,9 @@ store_exist(Config) ->
 	<<_:7/binary, ?NasPort, 6, 17:32, _:63/binary>> = AttrsBin2.
 
 store_vendor_noexist() ->
-	[{userdata, [{doc, "Store a new vendor specific attribute value"}]}].
+	Description = "Store a new vendor specific attribute value",
+	ct:comment(Description),
+	[{userdata, [{doc, Description}]}].
 
 store_vendor_noexist(Config) ->
 	AttrsBin1 = ?config(example_attributes, Config),
@@ -161,7 +170,9 @@ store_vendor_noexist(Config) ->
 			?Ascend:24, ?AscendDataRate, 6, DataRate:32>> = AttrsBin2.
 
 store_vendor_exist() ->
-	[{userdata, [{doc, "Overwrite an existing vendor specific attribute value"}]}].
+	Description = "Overwrite an existing vendor specific attribute value",
+	ct:comment(Description),
+	[{userdata, [{doc, Description}]}].
 
 store_vendor_exist(Config) ->
 	AttrsBin1 = ?config(example_attributes, Config),
@@ -175,7 +186,9 @@ store_vendor_exist(Config) ->
 	Realm1 = list_to_binary(Realm).
 
 add() ->
-	[{userdata, [{doc, "Add an attribute"}]}].
+	Description = "Add an attribute",
+	ct:comment(Description),
+	[{userdata, [{doc, Description}]}].
 
 add(Config) ->
 	AttrsBin1 = ?config(example_attributes, Config),
@@ -186,7 +199,9 @@ add(Config) ->
 	<<AttrsBin1:SizeBin1/binary, ?PortLimit, 6, 1:32>> = AttrsBin2.
 
 add_vendor() ->
-	[{userdata, [{doc, "Add a vendor specific attribute"}]}].
+	Description = "Add a vendor specific attribute",
+	ct:comment(Description),
+	[{userdata, [{doc, Description}]}].
 
 add_vendor(Config) ->
 	AttrsBin1 = ?config(example_attributes, Config),
@@ -206,7 +221,9 @@ add_vendor(Config) ->
 	Value1 = list_to_binary(Value).
 
 fetch_exist() ->
-	[{userdata, [{doc, "Get the value of an existing attribute"}]}].
+	Description = "Get the value of an existing attribute",
+	ct:comment(Description),
+	[{userdata, [{doc, Description}]}].
 
 fetch_exist(Config) ->
 	AttrsBin = ?config(example_attributes, Config),
@@ -214,7 +231,9 @@ fetch_exist(Config) ->
 	"wlan0" = radius_attributes:fetch(?NasPortId, Attrs).
 
 fetch_noexist() ->
-	[{userdata, [{doc, "Attempt to get a nonexistent attribute"}]}].
+	Description = "Attempt to get a nonexistent attribute",
+	ct:comment(Description),
+	[{userdata, [{doc, Description}]}].
 
 fetch_noexist(Config) ->
 	AttrsBin = ?config(example_attributes, Config),
@@ -225,7 +244,9 @@ fetch_noexist(Config) ->
 	end.
 
 fetch_vendor_exist() ->
-	[{userdata, [{doc, "Get the value of an existing vendor specific attribute"}]}].
+	Description = "Get the value of an existing vendor specific attribute",
+	ct:comment(Description),
+	[{userdata, [{doc, Description}]}].
 
 fetch_vendor_exist(Config) ->
 	AttrsBin = ?config(example_attributes, Config),
@@ -233,7 +254,9 @@ fetch_vendor_exist(Config) ->
 	"sigscale.net" = radius_attributes:fetch(?Mikrotik, ?MikrotikRealm, Attrs).
 
 fetch_vendor_noexist() ->
-	[{userdata, [{doc, "Attempt to get a nonexistent vendor specific attribute"}]}].
+	Description = "Attempt to get a nonexistent vendor specific attribute",
+	ct:comment(Description),
+	[{userdata, [{doc, Description}]}].
 
 fetch_vendor_noexist(Config) ->
 	AttrsBin = ?config(example_attributes, Config),
@@ -244,7 +267,9 @@ fetch_vendor_noexist(Config) ->
 	end.
 
 find_exist() ->
-	[{userdata, [{doc, "Look for the value of an existing attribute"}]}].
+	Description = "Look for the value of an existing attribute",
+	ct:comment(Description),
+	[{userdata, [{doc, Description}]}].
 
 find_exist(Config) ->
 	AttrsBin = ?config(example_attributes, Config),
@@ -252,7 +277,9 @@ find_exist(Config) ->
 	{ok, "wlan0"} = radius_attributes:find(?NasPortId, Attrs).
 
 find_noexist() ->
-	[{userdata, [{doc, "Look for the value of a nonexistent attribute"}]}].
+	Description = "Look for the value of a nonexistent attribute",
+	ct:comment(Description),
+	[{userdata, [{doc, Description}]}].
 
 find_noexist(Config) ->
 	AttrsBin = ?config(example_attributes, Config),
@@ -260,7 +287,9 @@ find_noexist(Config) ->
 	{error, not_found} = radius_attributes:find(?State, Attrs).
 
 find_vendor_exist() ->
-	[{userdata, [{doc, "Look for the value of an existing vendor specific attribute"}]}].
+	Description = "Look for the value of an existing vendor specific attribute",
+	ct:comment(Description),
+	[{userdata, [{doc, Description}]}].
 
 find_vendor_exist(Config) ->
 	AttrsBin = ?config(example_attributes, Config),
@@ -268,7 +297,9 @@ find_vendor_exist(Config) ->
 	{ok, "sigscale.net"} = radius_attributes:find(?Mikrotik, ?MikrotikRealm, Attrs).
 
 find_vendor_noexist() ->
-	[{userdata, [{doc, "Look for the value of a nonexistent vendor specific attribute"}]}].
+	Description = "Look for the value of a nonexistent vendor specific attribute",
+	ct:comment(Description),
+	[{userdata, [{doc, Description}]}].
 
 find_vendor_noexist(Config) ->
 	AttrsBin = ?config(example_attributes, Config),
@@ -276,7 +307,9 @@ find_vendor_noexist(Config) ->
 	{error, not_found} = radius_attributes:find(?Microsoft, ?MsChapError, Attrs).
 
 get_all() ->
-	[{userdata, [{doc, "Get all values of an attribute"}]}].
+	Description = "Get all values of an attribute",
+	ct:comment(Description),
+	[{userdata, [{doc, Description}]}].
 
 get_all(Config) ->
 	AttrsBin = ?config(example_attributes, Config),
@@ -286,7 +319,9 @@ get_all(Config) ->
 			<<16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31>>] = EAPMessages.
 
 password() ->
-	[{userdata, [{doc, "User-Password hiding"}]}].
+	Description = "User-Password hiding",
+	ct:comment(Description),
+	[{userdata, [{doc, Description}]}].
 
 password(_Config) ->
 	Authenticator = [rand:uniform(255) || _ <- lists:seq(1, 16)],
@@ -323,7 +358,9 @@ password(_Config) ->
 			Authenticator, UserPassword6).
 
 example1() ->
-	[{userdata, [{doc, "RFC2865 7.1 User Telnet to Specified Host"}]}].
+	Description = "RFC2865 7.1 User Telnet to Specified Host",
+	ct:comment(Description),
+	[{userdata, [{doc, Description}]}].
 
 example1(_Config) ->
 	SharedSecret = "xyzzy5461",
@@ -364,7 +401,9 @@ example1(_Config) ->
 			ResponseAttributes).
 
 example2() ->
-	[{userdata, [{doc, "RFC2865 7.2 Framed User Authenticating with CHAP"}]}].
+	Description = "RFC2865 7.2 Framed User Authenticating with CHAP",
+	ct:comment(Description),
+	[{userdata, [{doc, Description}]}].
 
 example2(_Config) ->
 	SharedSecret = "xyzzy5461",
@@ -413,7 +452,9 @@ example2(_Config) ->
 	1500 = radius_attributes:fetch(?FramedMtu, ResponseAttributes).
 
 example3() ->
-	[{userdata, [{doc, "RFC2865 7.3 User with Challenge-Response card"}]}].
+	Description = "RFC2865 7.3 User with Challenge-Response card",
+	ct:comment(Description),
+	[{userdata, [{doc, Description}]}].
 
 example3(_Config) ->
 	SharedSecret = "xyzzy5461",

@@ -61,7 +61,10 @@
 %% @doc Require variables and set default values for the suite.
 %%
 suite() ->
-	[{timetrap, {minutes, 1}}].
+	Description = "Test suite for public API",
+	ct:comment(Description),
+	[{userdata, [{doc, Description}]},
+	{timetrap, {minutes, 1}}].
 
 %% @spec (Config) -> Config
 %% 	Config = [tuple()]
@@ -126,14 +129,18 @@ all() ->
 %%---------------------------------------------------------------------
 
 start_and_stop() ->
-	[{userdata, [{doc, "Start and stop a RADIUS server"}]}].
+	Description = "Start and stop a RADIUS server",
+	ct:comment(Description),
+	[{userdata, [{doc, Description}]}].
 
 start_and_stop(_Config) ->
 	Sup = start(),
 	stop(Sup).
 
 access_request() ->
-	[{userdata, [{doc, "Send a RADIUS access request"}]}].
+	Description = "Send a RADIUS access request",
+	ct:comment(Description),
+	[{userdata, [{doc, Description}]}].
 
 access_request(Config) ->
 	Secret = ?config(secret, Config),
@@ -159,7 +166,9 @@ access_request(Config) ->
 	#radius{code = ?AccessAccept, id = Id} = radius:codec(ResponsePacket).
 
 wait_response() ->
-	[{userdata, [{doc, "Callback sends delayed response"}]}].
+	Description = "Callback sends delayed response",
+	ct:comment(Description),
+	[{userdata, [{doc, Description}]}].
 
 wait_response(Config) ->
 	Secret = ?config(secret, Config),
@@ -185,7 +194,9 @@ wait_response(Config) ->
 	#radius{code = ?AccessAccept, id = Id} = radius:codec(ResponsePacket).
 
 lost_response() ->
-	[{userdata, [{doc, "Resend a RADIUS access request"}]}].
+	Description = "Resend a RADIUS access request",
+	ct:comment(Description),
+	[{userdata, [{doc, Description}]}].
 
 lost_response(Config) ->
 	Secret = ?config(secret, Config),
