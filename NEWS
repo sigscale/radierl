@@ -1,3 +1,10 @@
+October 16, 2026
+----------------
+	- SigScale Vendor-Specific AVPs
+		- Server-IP-Address
+		- Server-IP-Port
+		- Server-Node-Name
+
 January 14, 2025
 ----------------
 	- Release package

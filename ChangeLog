@@ -1,3 +1,11 @@
+2026-10-16  Vance Shipley <vances@sigscale.org>
+
+	* document sigscale vendor-specific attribute value pairs (avp)
+	* sigscale vendor-specific attribute value pairs (avp)
+	* replace deprecated catch with try
+	* comments in test reports
+	* typo in macro for 3gpp-rat-type avp
+
 2025-01-14  Vance Shipley <vances@sigscale.org>
 
 	* build a release package
