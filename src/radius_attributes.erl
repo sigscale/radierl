@@ -771,6 +771,19 @@ attribute(?VendorSpecific, <<0, ?'3GPP':24, ?'TWAN-Identifier',
 	TWANIdentifier = binary_to_list(Bin),
 	[{?VendorSpecific, {?'3GPP',
 			{?'TWAN-Identifier', TWANIdentifier}}} | Acc];
+attribute(?VendorSpecific, <<0, ?SigScale:24, ?ServerIpAddress,
+		6, A, B, C, D>>, Acc) ->
+	[{?VendorSpecific, {?SigScale,
+			{?ServerIpAddress, {A, B, C, D}}}} | Acc];
+attribute(?VendorSpecific, <<0, ?SigScale:24, ?ServerIpPort,
+		4, Port:16>>, Acc) ->
+	[{?VendorSpecific, {?SigScale,
+			{?ServerIpPort, Port}}} | Acc];
+attribute(?VendorSpecific, <<0, ?SigScale:24, ?ServerNodeName,
+		VendorLength, Bin/binary>>, Acc) when VendorLength > 2 ->
+	NodeName = binary_to_list(Bin),
+	[{?VendorSpecific, {?SigScale,
+			{?ServerNodeName, NodeName}}} | Acc];
 attribute(?VendorSpecific, <<0, VendorID:24, Rest/binary>>, Acc)
 		when size(Rest) >= 1 ->
 	VendorSpecific = {VendorID, Rest},
@@ -1680,6 +1693,27 @@ attributes([{?VendorSpecific, {?'3GPP',
 	Length = VendorLength + 6,
 	attributes(T, <<Acc/binary, ?VendorSpecific, Length, 0, ?'3GPP':24,
 			?'3GPP-Charging-ID', VendorLength, Bin/binary>>);
+attributes([{?VendorSpecific, {?SigScale,
+		{?ServerIpAddress, {A, B, C, D}}}} | T], Acc) ->
+	Bin = <<A, B, C, D>>,
+	VendorLength = size(Bin) + 2,
+	Length = VendorLength + 6,
+	attributes(T, <<Acc/binary, ?VendorSpecific, Length, 0, ?SigScale:24,
+			?ServerIpAddress, VendorLength, Bin/binary>>);
+attributes([{?VendorSpecific, {?SigScale,
+		{?ServerIpPort, Port}}} | T], Acc) when is_integer(Port) ->
+	Bin = <<Port:16>>,
+	VendorLength = size(Bin) + 2,
+	Length = VendorLength + 6,
+	attributes(T, <<Acc/binary, ?VendorSpecific, Length, 0, ?SigScale:24,
+			?ServerIpPort, VendorLength, Bin/binary>>);
+attributes([{?VendorSpecific, {?SigScale,
+		{?ServerNodeName, NodeName}}} | T], Acc) when is_list(NodeName) ->
+	Bin = list_to_binary(NodeName),
+	VendorLength = size(Bin) + 2,
+	Length = VendorLength + 6,
+	attributes(T, <<Acc/binary, ?VendorSpecific, Length, 0, ?SigScale:24,
+			?ServerNodeName, VendorLength, Bin/binary>>);
 attributes([{?VendorSpecific, {VendorId, Bin}} | T], Acc)
 		when is_integer(VendorId), is_binary(Bin) ->
 	Length = size(Bin) + 6,

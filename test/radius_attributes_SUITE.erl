@@ -60,7 +60,10 @@
 		password/0, password/1,
 		example1/0, example1/1,
 		example2/0, example2/1,
-		example3/0, example3/1]).
+		example3/0, example3/1,
+		server_address/0, server_address/1,
+		server_port/0, server_port/1,
+		server_node/0, server_node/1]).
 
 -include_lib("common_test/include/ct.hrl").
 -include("radius.hrl").
@@ -122,7 +125,8 @@ all() ->
 			fetch_vendor_exist, fetch_vendor_noexist,
 			find_exist, find_noexist,
 			find_vendor_exist, find_vendor_noexist,
-			get_all, password, example1, example2, example3].
+			get_all, password, example1, example2, example3,
+			server_address, server_port, server_node].
 
 %%---------------------------------------------------------------------
 %%  Test cases
@@ -532,6 +536,52 @@ example3(_Config) ->
 			BinaryResponse2Attributes, SharedSecret]),
 	Response2Authenticator = binary_to_list(Hash2),
 	[] = radius_attributes:codec(BinaryResponse2Attributes).
+
+server_address() ->
+	Description = "SigScale vendor specific AVP: Server-IP-Address",
+	ct:comment(Description),
+	[{userdata, [{doc, Description}]}].
+
+server_address(_Config) ->
+	Bin1 = <<26,12,0,0,196,210,1,6,10,10,0,1>>,
+	Attributes1 = radius_attributes:codec(Bin1),
+	{10,10,0,1} = radius_attributes:fetch(?SigScale,
+			?ServerIpAddress, Attributes1),
+	Attributes2 = radius_attributes:store(?SigScale,
+			?ServerIpAddress, {192,168,169,170}, Attributes1),
+	Bin2 = radius_attributes:codec(Attributes2),
+	<<26,12,0,0,196,210,1,6,192,168,169,170>> = Bin2.
+
+server_port() ->
+	Description = "SigScale vendor specific AVP: Server-IP-Port",
+	ct:comment(Description),
+	[{userdata, [{doc, Description}]}].
+
+server_port(_Config) ->
+	Bin1 = <<26,10,0,0,196,210,2,4,7,20>>,
+	Attributes1 = radius_attributes:codec(Bin1),
+	1812 = radius_attributes:fetch(?SigScale,
+			?ServerIpPort, Attributes1),
+	Attributes2 = radius_attributes:store(?SigScale,
+			?ServerIpPort, 1813, Attributes1),
+	Bin2 = radius_attributes:codec(Attributes2),
+	<<26,10,0,0,196,210,2,4,7,21>> = Bin2.
+
+server_node() ->
+	Description = "SigScale vendor specific AVP: Server-Node-Name",
+	ct:comment(Description),
+	[{userdata, [{doc, Description}]}].
+
+server_node(_Config) ->
+	Bin1 = <<26,16,0,0,196,210,3,10,111,99,115,64,104,111,115,116>>,
+	Attributes1 = radius_attributes:codec(Bin1),
+	"ocs@host" = radius_attributes:fetch(?SigScale,
+			?ServerNodeName, Attributes1),
+	Attributes2 = radius_attributes:store(?SigScale,
+			?ServerNodeName, "ocs@host.example.net", Attributes1),
+	Bin2 = radius_attributes:codec(Attributes2),
+	<<26,28,0,0,196,210,3,22,111,99,115,64,104,111,115,116,46,101,
+			120,97,109,112,108,101,46,110,101,116>> = Bin2.
 
 %%---------------------------------------------------------------------
 %%  Internal functions

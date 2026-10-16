@@ -242,6 +242,7 @@
 -define(Ascend,                          529).
 -define(Mikrotik,                      14988).
 -define('3GPP',                        10415).
+-define(SigScale,                      50386).
 
 %% Cisco Vendor-Specific (sub)attributes
 -define(H323CallOrigin,                   26).
@@ -322,4 +323,9 @@
 -define('3GPP-PDP-Type',                   3).
 -define('3GPP-RAT-Type',                  21).
 -define('TWAN-Identifier',                29).
+
+%% SigScale Vendor-Specific (sub)attributes
+-define(ServerIpAddress,                   1).
+-define(ServerIpPort,                      2).
+-define(ServerNodeName,                    3).
 
