@@ -23,6 +23,15 @@
 %%% @doc This library module implements a user API for attributes in the
 %%% 		{@link //radius. radius} application.
 %%%
+%%% SigScale Vendor-Specific AVPs:
+%%% <dl>
+%%% 	<dt>`Server-IP-Address'</dt>
+%%% 		<dd>Bind address of a listening RADIUS service</dd>
+%%% 	<dt>`Server-IP-Port'</dt>
+%%% 		<dd>Bind port of a listening RADIUS service</dd>
+%%% 	<dt>`Server-IP-Node'</dt>
+%%% 		<dd>Erlang/OTP node name of a listening RADIUS service</dd>
+%%% </dl>
 -module(radius_attributes).
 -copyright('Copyright (c) 2016-2025 SigScale Global Inc').
 -author('vances@sigscale.org').
