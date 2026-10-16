@@ -238,8 +238,10 @@ fetch_noexist() ->
 fetch_noexist(Config) ->
 	AttrsBin = ?config(example_attributes, Config),
 	Attrs = radius_attributes:codec(AttrsBin),
-	case catch radius_attributes:fetch(?State, Attrs) of
-		{'EXIT', not_found} ->
+	try
+		radius_attributes:fetch(?State, Attrs)
+	catch
+		exit:not_found ->
 			ok
 	end.
 
@@ -261,8 +263,10 @@ fetch_vendor_noexist() ->
 fetch_vendor_noexist(Config) ->
 	AttrsBin = ?config(example_attributes, Config),
 	Attrs = radius_attributes:codec(AttrsBin),
-	case catch radius_attributes:fetch(?Microsoft, ?MsChapError, Attrs) of
-		{'EXIT', not_found} ->
+	try
+		radius_attributes:fetch(?Microsoft, ?MsChapError, Attrs)
+	catch
+		exit:not_found ->
 			ok
 	end.
 
