@@ -1,3 +1,7 @@
+2026-11-13  Vance Shipley <vances@sigscale.org>
+
+	* accept binary values for select attributes
+
 2026-10-16  Vance Shipley <vances@sigscale.org>
 
 	* document sigscale vendor-specific attribute value pairs (avp)
