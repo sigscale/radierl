@@ -1137,10 +1137,14 @@ attribute(_, _Value, Acc) ->
 %% @hidden
 attributes([], Attributes) ->
 	Attributes;
-attributes([{?UserName, UserName} | T], Acc) ->
-	UN = list_to_binary(UserName),
-	Length = size(UN) + 2,
-	attributes(T, <<Acc/binary, ?UserName, Length, UN/binary>>);
+attributes([{?UserName, UserName} | T], Acc)
+		when is_list(UserName) ->
+	B = list_to_binary(UserName),
+	attributes([{?UserName, B} | T], Acc);
+attributes([{?UserName, B} | T], Acc)
+		when is_binary(B) ->
+	Length = size(B) + 2,
+	attributes(T, <<Acc/binary, ?UserName, Length, B/binary>>);
 attributes([{?UserPassword, UserPassword} | T], Acc) ->
 	UP = list_to_binary(UserPassword),
 	Length = size(UP) + 2,
@@ -1155,7 +1159,9 @@ attributes([{?ChapPassword, {ChapId, ChapPassword}} | T], Acc)
 	Length = size(ChapPassword) + 3,
 	attributes(T, <<Acc/binary, ?ChapPassword,
 			Length, ChapId, ChapPassword/binary>>);
-attributes([{?NasIpAddress, {A, B, C, D}} | T], Acc) ->
+attributes([{?NasIpAddress, {A, B, C, D}} | T], Acc)
+		when is_integer(A), is_integer(B),
+		is_integer(C), is_integer(D) ->
 	attributes(T, <<Acc/binary, ?NasIpAddress, 6, A, B, C, D>>);
 attributes([{?NasPort, NasPort} | T], Acc) ->
 	attributes(T, <<Acc/binary, ?NasPort, 6, NasPort:32>>);
@@ -1717,12 +1723,18 @@ attributes([{?VendorSpecific, {?SigScale,
 	attributes(T, <<Acc/binary, ?VendorSpecific, Length, 0, ?SigScale:24,
 			?ServerIpPort, VendorLength, Bin/binary>>);
 attributes([{?VendorSpecific, {?SigScale,
-		{?ServerNodeName, NodeName}}} | T], Acc) when is_list(NodeName) ->
-	Bin = list_to_binary(NodeName),
-	VendorLength = size(Bin) + 2,
+		{?ServerNodeName, NodeName}}} | T], Acc)
+		when is_list(NodeName) ->
+	B = list_to_binary(NodeName),
+	attributes([{?VendorSpecific, {?SigScale,
+		{?ServerNodeName, B}}} | T], Acc);
+attributes([{?VendorSpecific, {?SigScale,
+		{?ServerNodeName, B}}} | T], Acc)
+		when is_binary(B) ->
+	VendorLength = size(B) + 2,
 	Length = VendorLength + 6,
 	attributes(T, <<Acc/binary, ?VendorSpecific, Length, 0, ?SigScale:24,
-			?ServerNodeName, VendorLength, Bin/binary>>);
+			?ServerNodeName, VendorLength, B/binary>>);
 attributes([{?VendorSpecific, {VendorId, Bin}} | T], Acc)
 		when is_integer(VendorId), is_binary(Bin) ->
 	Length = size(Bin) + 6,
@@ -1734,18 +1746,30 @@ attributes([{?IdleTimeout, IdleTimeout} | T], Acc) ->
 	attributes(T, <<Acc/binary, ?IdleTimeout, 6, IdleTimeout:32>>);
 attributes([{?TerminationAction, TerminationAction} | T], Acc) ->
 	attributes(T, <<Acc/binary, ?TerminationAction, 6, TerminationAction:32>>);
-attributes([{?CalledStationId, CalledStationId} | T], Acc) ->
-	CI = list_to_binary(CalledStationId),
-	Length = size(CI) + 2,
-	attributes(T, <<Acc/binary, ?CalledStationId, Length, CI/binary>>);
-attributes([{?CallingStationId, CallingStationId} | T], Acc) ->
-	CI = list_to_binary(CallingStationId),
-	Length = size(CI) + 2,
-	attributes(T, <<Acc/binary, ?CallingStationId, Length, CI/binary>>);
-attributes([{?NasIdentifier, NasIdentifier} | T], Acc) ->
-	NI = list_to_binary(NasIdentifier),
-	Length = size(NI) + 2,
-	attributes(T, <<Acc/binary, ?NasIdentifier, Length, NI/binary>>);
+attributes([{?CalledStationId, CalledStationId} | T], Acc)
+		when is_list(CalledStationId) ->
+	B = list_to_binary(CalledStationId),
+	attributes([{?CalledStationId, B} | T], Acc);
+attributes([{?CalledStationId, B} | T], Acc)
+		when is_binary(B) ->
+	Length = size(B) + 2,
+	attributes(T, <<Acc/binary, ?CalledStationId, Length, B/binary>>);
+attributes([{?CallingStationId, CallingStationId} | T], Acc)
+		when is_list(CallingStationId) ->
+	B = list_to_binary(CallingStationId),
+	attributes([{?CallingStationId, B} | T], Acc);
+attributes([{?CallingStationId, B} | T], Acc)
+		when is_binary(B) ->
+	Length = size(B) + 2,
+	attributes(T, <<Acc/binary, ?CallingStationId, Length, B/binary>>);
+attributes([{?NasIdentifier, NasIdentifier} | T], Acc)
+		when is_list(NasIdentifier) ->
+	B = list_to_binary(NasIdentifier),
+	attributes([{?NasIdentifier, B} | T], Acc);
+attributes([{?NasIdentifier, B} | T], Acc)
+		when is_binary(B) ->
+	Length = size(B) + 2,
+	attributes(T, <<Acc/binary, ?NasIdentifier, Length, B/binary>>);
 attributes([{?ProxyState, ProxyState} | T], Acc) ->
 	PS = list_to_binary(ProxyState),
 	Length = size(PS) + 2,
@@ -1778,10 +1802,14 @@ attributes([{?AcctInputOctets, AcctInputOctets} | T], Acc) ->
 	attributes(T, <<Acc/binary, ?AcctInputOctets, 6, AcctInputOctets:32>>);
 attributes([{?AcctOutputOctets, AcctOutputOctets} | T], Acc) ->
 	attributes(T, <<Acc/binary, ?AcctOutputOctets, 6, AcctOutputOctets:32>>);
-attributes([{?AcctSessionId, AcctSessionId} | T], Acc) ->
-	SI = list_to_binary(AcctSessionId),
-	Length = size(SI) + 2,
-	attributes(T, <<Acc/binary, ?AcctSessionId, Length, SI/binary>>);
+attributes([{?AcctSessionId, AcctSessionId} | T], Acc)
+		when is_list(AcctSessionId) ->
+	B = list_to_binary(AcctSessionId),
+	attributes([{?AcctSessionId, B} | T], Acc);
+attributes([{?AcctSessionId, B} | T], Acc)
+		when is_binary(B) ->
+	Length = size(B) + 2,
+	attributes(T, <<Acc/binary, ?AcctSessionId, Length, B/binary>>);
 attributes([{?AcctAuthentic, AcctAuthentic} | T], Acc) ->
 	attributes(T, <<Acc/binary, ?AcctAuthentic, 6, AcctAuthentic:32>>);
 attributes([{?AcctSessionTime, AcctSessionTime} | T], Acc) ->
@@ -1792,10 +1820,14 @@ attributes([{?AcctOutputPackets, AcctOutputPackets} | T], Acc) ->
 	attributes(T, <<Acc/binary, ?AcctOutputPackets, 6, AcctOutputPackets:32>>);
 attributes([{?AcctTerminateCause, AcctTerminateCause} | T], Acc) ->
 	attributes(T, <<Acc/binary, ?AcctTerminateCause, 6, AcctTerminateCause:32>>);
-attributes([{?AcctMultiSessionId, AcctMultiSessionId} | T], Acc) ->
-	SI = list_to_binary(AcctMultiSessionId),
-	Length = size(SI) + 2,
-	attributes(T, <<Acc/binary, ?AcctMultiSessionId, Length, SI/binary>>);
+attributes([{?AcctMultiSessionId, AcctMultiSessionId} | T], Acc)
+		when is_list(AcctMultiSessionId) ->
+	B = list_to_binary(AcctMultiSessionId),
+	attributes([{?AcctMultiSessionId, B} | T], Acc);
+attributes([{?AcctMultiSessionId, B} | T], Acc)
+		when is_binary(B) ->
+	Length = size(B) + 2,
+	attributes(T, <<Acc/binary, ?AcctMultiSessionId, Length, B/binary>>);
 attributes([{?AcctLinkCount, AcctLinkCount} | T], Acc) ->
 	attributes(T, <<Acc/binary, ?AcctLinkCount, 6, AcctLinkCount:32>>);
 attributes([{?AcctInputGigawords, GigaWordCount} | T], Acc) ->
@@ -1883,10 +1915,14 @@ attributes([{?AcctInterimInterval, Count} | T], Acc) ->
 	attributes(T, <<Acc/binary, ?AcctInterimInterval, 6, Count:32>>);
 attributes([{?AcctTunnelPacketsLost, Lost} | T], Acc) ->
 	attributes(T, <<Acc/binary, ?AcctTunnelPacketsLost, 6, Lost:32>>);
-attributes([{?NasPortId, Text} | T], Acc) ->
-	S = list_to_binary(Text),
-	Length = size(S) + 2,
-	attributes(T, <<Acc/binary, ?NasPortId, Length, S/binary>>);
+attributes([{?NasPortId, Text} | T], Acc)
+		when is_list(Text) ->
+	B = list_to_binary(Text),
+	attributes([{?NasPortId, B} | T], Acc);
+attributes([{?NasPortId, B} | T], Acc)
+		when is_binary(B) ->
+	Length = size(B) + 2,
+	attributes(T, <<Acc/binary, ?NasPortId, Length, B/binary>>);
 attributes([{?FramedPool, String} | T], Acc) ->
 	S = list_to_binary(String),
 	Length = size(S) + 2,
@@ -1911,13 +1947,14 @@ attributes([{?OriginatingLineInfo, OLI} | T], Acc) ->
 attributes([{?NasIPv6Address, {A, B, C, D, E, F, G, H}} | T], Acc) ->
 	attributes(T, <<Acc/binary, ?NasIPv6Address, 18, A:16, B:16, C:16,
 			D:16, E:16, F:16, G:16, H:16>>);
-attributes([{?FramedInterfaceId, InterfaceID} | T], Acc) ->
-	S = list_to_binary(InterfaceID),
-	attributes(T, <<Acc/binary, ?FramedInterfaceId, 10, S/binary>>);
+attributes([{?FramedInterfaceId, InterfaceID} | T], Acc)
+		when size(InterfaceID) == 10 ->
+	attributes(T, <<Acc/binary, ?FramedInterfaceId, 10, InterfaceID/binary>>);
 attributes([{?FramedIPv6Address, {A, B, C, D, E, F, G, H}} | T], Acc) ->
 	attributes(T, <<Acc/binary, ?FramedIPv6Address, 18, A:16, B:16, C:16,
 			D:16, E:16, F:16, G:16, H:16>>);
-attributes([{?FramedIPv6Prefix, {PrefixLength, Prefix}} | T], Acc) ->
+attributes([{?FramedIPv6Prefix, {PrefixLength, Prefix}} | T], Acc)
+		when is_binary(Prefix) ->
 	Length = size(Prefix) + 4,
 	attributes(T, <<Acc/binary, ?FramedIPv6Prefix, Length, 0,
 			PrefixLength, Prefix/binary>>);
