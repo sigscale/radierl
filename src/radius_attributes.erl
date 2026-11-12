@@ -29,7 +29,7 @@
 %%% 		<dd>Bind address of a listening RADIUS service</dd>
 %%% 	<dt>`Server-IP-Port'</dt>
 %%% 		<dd>Bind port of a listening RADIUS service</dd>
-%%% 	<dt>`Server-IP-Node'</dt>
+%%% 	<dt>`Server-Nodename'</dt>
 %%% 		<dd>Erlang/OTP node name of a listening RADIUS service</dd>
 %%% </dl>
 -module(radius_attributes).
